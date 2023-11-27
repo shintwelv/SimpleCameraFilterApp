@@ -186,11 +186,16 @@ extension ViewController: MTKViewDelegate {
         guard let currentDrawable = view.currentDrawable else {
             return
         }
+        
+        let offset: (x:CGFloat, y:CGFloat) = (
+            (view.drawableSize.width - ciImage.extent.width) / 2,
+            (view.drawableSize.height - ciImage.extent.height) / 2
+        )
 
         self.ciContext.render(ciImage,
                               to: currentDrawable.texture,
                               commandBuffer: commandBuffer,
-                              bounds: CGRect(origin: .zero, size: view.drawableSize),
+                              bounds: CGRect(origin: CGPoint(x: -offset.x, y: -offset.y), size: view.drawableSize),
                               colorSpace: CGColorSpaceCreateDeviceRGB())
         
         commandBuffer.present(currentDrawable)
