@@ -27,6 +27,11 @@
 		EDEC738D2B1465D900595A95 /* CyanFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDEC738C2B1465D900595A95 /* CyanFilter.swift */; };
 		EDEC73972B17329E00595A95 /* CreateFilterModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDEC73962B17329E00595A95 /* CreateFilterModels.swift */; };
 		EDEC739D2B181E1300595A95 /* ListFiltersModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDEC739C2B181E1300595A95 /* ListFiltersModels.swift */; };
+		EDEC73A92B1823DE00595A95 /* ListFiltersInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDEC73A82B1823DE00595A95 /* ListFiltersInteractor.swift */; };
+		EDEC73AB2B18242D00595A95 /* ListFiltersPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDEC73AA2B18242D00595A95 /* ListFiltersPresenter.swift */; };
+		EDEC73AD2B18243C00595A95 /* ListFiltersViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDEC73AC2B18243C00595A95 /* ListFiltersViewController.swift */; };
+		EDEC73AF2B18244200595A95 /* ListFiltersWorker.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDEC73AE2B18244200595A95 /* ListFiltersWorker.swift */; };
+		EDEC73B12B18244A00595A95 /* ListFiltersRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDEC73B02B18244A00595A95 /* ListFiltersRouter.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -52,6 +57,11 @@
 		EDEC738C2B1465D900595A95 /* CyanFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CyanFilter.swift; sourceTree = "<group>"; };
 		EDEC73962B17329E00595A95 /* CreateFilterModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateFilterModels.swift; sourceTree = "<group>"; };
 		EDEC739C2B181E1300595A95 /* ListFiltersModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListFiltersModels.swift; sourceTree = "<group>"; };
+		EDEC73A82B1823DE00595A95 /* ListFiltersInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListFiltersInteractor.swift; sourceTree = "<group>"; };
+		EDEC73AA2B18242D00595A95 /* ListFiltersPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListFiltersPresenter.swift; sourceTree = "<group>"; };
+		EDEC73AC2B18243C00595A95 /* ListFiltersViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListFiltersViewController.swift; sourceTree = "<group>"; };
+		EDEC73AE2B18244200595A95 /* ListFiltersWorker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListFiltersWorker.swift; sourceTree = "<group>"; };
+		EDEC73B02B18244A00595A95 /* ListFiltersRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListFiltersRouter.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -152,7 +162,12 @@
 		EDEC739B2B181E0700595A95 /* ListFilters */ = {
 			isa = PBXGroup;
 			children = (
+				EDEC73AC2B18243C00595A95 /* ListFiltersViewController.swift */,
+				EDEC73A82B1823DE00595A95 /* ListFiltersInteractor.swift */,
+				EDEC73AA2B18242D00595A95 /* ListFiltersPresenter.swift */,
 				EDEC739C2B181E1300595A95 /* ListFiltersModels.swift */,
+				EDEC73AE2B18244200595A95 /* ListFiltersWorker.swift */,
+				EDEC73B02B18244A00595A95 /* ListFiltersRouter.swift */,
 			);
 			path = ListFilters;
 			sourceTree = "<group>";
@@ -229,11 +244,15 @@
 			files = (
 				EDEC738D2B1465D900595A95 /* CyanFilter.swift in Sources */,
 				EDEC73842B14645F00595A95 /* SepiaFilter.swift in Sources */,
+				EDEC73B12B18244A00595A95 /* ListFiltersRouter.swift in Sources */,
+				EDEC73AB2B18242D00595A95 /* ListFiltersPresenter.swift in Sources */,
 				EDEC73862B14650200595A95 /* VintageFilter.swift in Sources */,
 				EDEC737F2B145DA400595A95 /* CameraPreviewInteractor.swift in Sources */,
 				C284660E2B15EC7C006D4E40 /* FilterCell.swift in Sources */,
 				C2F1C80B2B078F37002F732D /* AppDelegate.swift in Sources */,
+				EDEC73AF2B18244200595A95 /* ListFiltersWorker.swift in Sources */,
 				EDEC737E2B145DA400595A95 /* CameraPreviewViewController.swift in Sources */,
+				EDEC73AD2B18243C00595A95 /* ListFiltersViewController.swift in Sources */,
 				EDEC738B2B14659E00595A95 /* MonochromeFilter.swift in Sources */,
 				EDEC737C2B145DA400595A95 /* CameraPreviewRouter.swift in Sources */,
 				EDEC739D2B181E1300595A95 /* ListFiltersModels.swift in Sources */,
@@ -241,6 +260,7 @@
 				EDEC737A2B145DA400595A95 /* CameraPreviewPresenter.swift in Sources */,
 				C2F1C80D2B078F37002F732D /* SceneDelegate.swift in Sources */,
 				EDEC73972B17329E00595A95 /* CreateFilterModels.swift in Sources */,
+				EDEC73A92B1823DE00595A95 /* ListFiltersInteractor.swift in Sources */,
 				C28466102B15FE9F006D4E40 /* NoFilter.swift in Sources */,
 				EDEC737D2B145DA400595A95 /* CameraPreviewModels.swift in Sources */,
 				EDEC73892B14655200595A95 /* BlackWhiteFilter.swift in Sources */,
