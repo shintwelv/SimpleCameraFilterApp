@@ -9,6 +9,7 @@ import Foundation
 import CoreImage
 
 class MonochromeFilter: CameraFilter {
+    let filterId: UUID = UUID()
     var displayName: String
     var inputColor: CIColor {
         didSet {

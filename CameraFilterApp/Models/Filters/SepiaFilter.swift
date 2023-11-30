@@ -9,6 +9,7 @@ import Foundation
 import CoreImage
 
 struct SepiaFilter: CameraFilter {
+    let filterId: UUID = UUID()
     let displayName: String = "세피아"
     
     var ciFilter: CIFilter?

@@ -9,6 +9,7 @@ import Foundation
 import CoreImage
 
 struct BlackWhiteFilter: CameraFilter {
+    var filterId: UUID = UUID()
     let displayName: String = "흑백"
     var ciFilter: CIFilter?
     

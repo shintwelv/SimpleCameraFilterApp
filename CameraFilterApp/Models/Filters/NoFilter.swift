@@ -9,6 +9,7 @@ import Foundation
 import CoreImage
 
 struct NoFilter: CameraFilter {
+    let filterId: UUID = UUID()
     var displayName: String = "기본"
     
     var ciFilter: CIFilter? = nil
