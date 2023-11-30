@@ -9,6 +9,7 @@ import Foundation
 import CoreImage
 
 protocol CameraFilter {
+    var filterId: UUID { get }
     var displayName: String { get }
     var ciFilter: CIFilter? { get }
 }
