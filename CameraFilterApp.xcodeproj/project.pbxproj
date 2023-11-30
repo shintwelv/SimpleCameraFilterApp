@@ -8,7 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		C284660E2B15EC7C006D4E40 /* FilterCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C284660D2B15EC7C006D4E40 /* FilterCell.swift */; };
-		C28466102B15FE9F006D4E40 /* NoFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C284660F2B15FE9F006D4E40 /* NoFilter.swift */; };
 		C2F1C80B2B078F37002F732D /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2F1C80A2B078F37002F732D /* AppDelegate.swift */; };
 		C2F1C80D2B078F37002F732D /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2F1C80C2B078F37002F732D /* SceneDelegate.swift */; };
 		C2F1C8142B078F38002F732D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C2F1C8132B078F38002F732D /* Assets.xcassets */; };
@@ -29,7 +28,6 @@
 
 /* Begin PBXFileReference section */
 		C284660D2B15EC7C006D4E40 /* FilterCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterCell.swift; sourceTree = "<group>"; };
-		C284660F2B15FE9F006D4E40 /* NoFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoFilter.swift; sourceTree = "<group>"; };
 		C2F1C8072B078F37002F732D /* CameraFilterApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CameraFilterApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		C2F1C80A2B078F37002F732D /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		C2F1C80C2B078F37002F732D /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -130,7 +128,6 @@
 				EDEC73882B14655200595A95 /* BlackWhiteFilter.swift */,
 				EDEC738A2B14659E00595A95 /* MonochromeFilter.swift */,
 				EDEC738C2B1465D900595A95 /* CyanFilter.swift */,
-				C284660F2B15FE9F006D4E40 /* NoFilter.swift */,
 			);
 			path = Filters;
 			sourceTree = "<group>";
@@ -217,7 +214,6 @@
 				EDEC73822B14636B00595A95 /* CameraFilter.swift in Sources */,
 				EDEC737A2B145DA400595A95 /* CameraPreviewPresenter.swift in Sources */,
 				C2F1C80D2B078F37002F732D /* SceneDelegate.swift in Sources */,
-				C28466102B15FE9F006D4E40 /* NoFilter.swift in Sources */,
 				EDEC737D2B145DA400595A95 /* CameraPreviewModels.swift in Sources */,
 				EDEC73892B14655200595A95 /* BlackWhiteFilter.swift in Sources */,
 				EDEC737B2B145DA400595A95 /* CameraPreviewWorker.swift in Sources */,

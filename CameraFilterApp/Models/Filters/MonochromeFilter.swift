@@ -12,24 +12,29 @@ class MonochromeFilter: CameraFilter {
     var displayName: String
     var inputColor: CIColor {
         didSet {
-            self.ciFilter!.setValue(oldValue, forKey: "inputColor")
+            self.ciFilter.setValue(oldValue, forKey: "inputColor")
         }
     }
     var inputIntensity: CGFloat = 1.0 {
         didSet {
-            self.ciFilter!.setValue(oldValue, forKey: "inputIntensity")
+            self.ciFilter.setValue(oldValue, forKey: "inputIntensity")
         }
     }
     
-    var ciFilter: CIFilter? = CIFilter(name: "CIColorMonochrome")!
+    var ciFilter: CIFilter
     
-    init(displayName: String, inputColor: CIColor, inputIntensity: CGFloat = 1.0) {
-        self.displayName = displayName
-        self.inputColor = inputColor
-        self.inputIntensity = inputIntensity
-        
-        self.ciFilter!.setValue(inputColor, forKey: "inputColor")
-        self.ciFilter!.setValue(inputIntensity, forKey: "inputIntensity")
+    init?(displayName: String, inputColor: CIColor, inputIntensity: CGFloat = 1.0) {
+        if let filter = CIFilter(name: "CIColorMonochrome") {
+            filter.setValue(inputColor, forKey: "inputColor")
+            filter.setValue(inputIntensity, forKey: "inputIntensity")
+            self.ciFilter = filter
+            
+            self.displayName = displayName
+            self.inputColor = inputColor
+            self.inputIntensity = inputIntensity
+        } else {
+            return nil
+        }
     }
     
 }

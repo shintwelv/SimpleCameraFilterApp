@@ -10,5 +10,5 @@ import CoreImage
 
 protocol CameraFilter {
     var displayName: String { get }
-    var ciFilter: CIFilter? { get }
+    var ciFilter: CIFilter { get }
 }

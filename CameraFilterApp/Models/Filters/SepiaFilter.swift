@@ -11,17 +11,21 @@ import CoreImage
 struct SepiaFilter: CameraFilter {
     let displayName: String = "세피아"
     
-    var ciFilter: CIFilter?
+    var ciFilter: CIFilter
     var inputIntensity: CGFloat {
         didSet {
-            self.ciFilter!.setValue(oldValue, forKey: "inputIntensity")
+            self.ciFilter.setValue(oldValue, forKey: "inputIntensity")
         }
     }
     
-    init(inputIntensity: CGFloat = 1.0) {
-        self.inputIntensity = inputIntensity
-        
-        self.ciFilter = CIFilter(name: "CISepiaTone")!
-        self.ciFilter!.setValue(self.inputIntensity, forKey: "inputIntensity")
+    init?(inputIntensity: CGFloat = 1.0) {
+        if let filter = CIFilter(name: "CISepiaTone") {
+            filter.setValue(inputIntensity, forKey: "inputIntensity")
+            self.ciFilter = filter
+
+            self.inputIntensity = inputIntensity
+        } else {
+            return nil
+        }
     }
 }

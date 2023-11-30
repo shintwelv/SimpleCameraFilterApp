@@ -11,9 +11,13 @@ import CoreImage
 struct VintageFilter: CameraFilter {
     let displayName: String = "빈티지"
     
-    var ciFilter: CIFilter?
+    var ciFilter: CIFilter
     
-    init() {
-        self.ciFilter = CIFilter(name: "CIPhotoEffectTransfer")!
+    init?() {
+        if let filter = CIFilter(name: "CIPhotoEffectTransfer") {
+            self.ciFilter = filter
+        } else {
+            return nil
+        }
     }
 }
