@@ -63,7 +63,6 @@ class ListFiltersViewController: UIViewController, ListFiltersDisplayLogic
   override func viewDidLoad()
   {
     super.viewDidLoad()
-    doSomething()
   }
   
   // MARK: Do something
