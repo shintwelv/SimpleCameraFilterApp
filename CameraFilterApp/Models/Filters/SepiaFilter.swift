@@ -12,17 +12,23 @@ struct SepiaFilter: CameraFilter {
     let filterId: UUID = UUID()
     let displayName: String = "세피아"
     
-    var ciFilter: CIFilter?
+    var systemName: FilterName = .CISepiaTone
+    
+    var ciFilter: CIFilter? = CIFilter(name: FilterName.CISepiaTone.rawValue)!
+
+    var properties: [FilterPropertyKey : Codable] = [:]
+
     var inputIntensity: CGFloat {
         didSet {
-            self.ciFilter!.setValue(oldValue, forKey: "inputIntensity")
+            self.ciFilter!.setValue(oldValue, forKey: FilterPropertyKey.inputIntensity.rawValue)
+            self.properties[.inputIntensity] = oldValue
         }
     }
     
     init(inputIntensity: CGFloat = 1.0) {
         self.inputIntensity = inputIntensity
         
-        self.ciFilter = CIFilter(name: "CISepiaTone")!
-        self.ciFilter!.setValue(self.inputIntensity, forKey: "inputIntensity")
+        self.ciFilter!.setValue(inputIntensity, forKey: FilterPropertyKey.inputIntensity.rawValue)
+        self.properties[.inputIntensity] = inputIntensity
     }
 }

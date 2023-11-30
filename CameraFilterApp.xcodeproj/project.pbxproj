@@ -24,7 +24,6 @@
 		EDEC73862B14650200595A95 /* VintageFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDEC73852B14650200595A95 /* VintageFilter.swift */; };
 		EDEC73892B14655200595A95 /* BlackWhiteFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDEC73882B14655200595A95 /* BlackWhiteFilter.swift */; };
 		EDEC738B2B14659E00595A95 /* MonochromeFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDEC738A2B14659E00595A95 /* MonochromeFilter.swift */; };
-		EDEC738D2B1465D900595A95 /* CyanFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDEC738C2B1465D900595A95 /* CyanFilter.swift */; };
 		EDEC73972B17329E00595A95 /* CreateFilterModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDEC73962B17329E00595A95 /* CreateFilterModels.swift */; };
 		EDEC739D2B181E1300595A95 /* ListFiltersModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDEC739C2B181E1300595A95 /* ListFiltersModels.swift */; };
 		EDEC73A92B1823DE00595A95 /* ListFiltersInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDEC73A82B1823DE00595A95 /* ListFiltersInteractor.swift */; };
@@ -32,6 +31,8 @@
 		EDEC73AD2B18243C00595A95 /* ListFiltersViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDEC73AC2B18243C00595A95 /* ListFiltersViewController.swift */; };
 		EDEC73AF2B18244200595A95 /* ListFiltersWorker.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDEC73AE2B18244200595A95 /* ListFiltersWorker.swift */; };
 		EDEC73B12B18244A00595A95 /* ListFiltersRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDEC73B02B18244A00595A95 /* ListFiltersRouter.swift */; };
+		EDEC73B62B185A6B00595A95 /* BlurFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDEC73B52B185A6B00595A95 /* BlurFilter.swift */; };
+		EDEC73B82B18614500595A95 /* PosterizeFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDEC73B72B18614500595A95 /* PosterizeFilter.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -54,7 +55,6 @@
 		EDEC73852B14650200595A95 /* VintageFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VintageFilter.swift; sourceTree = "<group>"; };
 		EDEC73882B14655200595A95 /* BlackWhiteFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlackWhiteFilter.swift; sourceTree = "<group>"; };
 		EDEC738A2B14659E00595A95 /* MonochromeFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MonochromeFilter.swift; sourceTree = "<group>"; };
-		EDEC738C2B1465D900595A95 /* CyanFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CyanFilter.swift; sourceTree = "<group>"; };
 		EDEC73962B17329E00595A95 /* CreateFilterModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateFilterModels.swift; sourceTree = "<group>"; };
 		EDEC739C2B181E1300595A95 /* ListFiltersModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListFiltersModels.swift; sourceTree = "<group>"; };
 		EDEC73A82B1823DE00595A95 /* ListFiltersInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListFiltersInteractor.swift; sourceTree = "<group>"; };
@@ -62,6 +62,8 @@
 		EDEC73AC2B18243C00595A95 /* ListFiltersViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListFiltersViewController.swift; sourceTree = "<group>"; };
 		EDEC73AE2B18244200595A95 /* ListFiltersWorker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListFiltersWorker.swift; sourceTree = "<group>"; };
 		EDEC73B02B18244A00595A95 /* ListFiltersRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListFiltersRouter.swift; sourceTree = "<group>"; };
+		EDEC73B52B185A6B00595A95 /* BlurFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlurFilter.swift; sourceTree = "<group>"; };
+		EDEC73B72B18614500595A95 /* PosterizeFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PosterizeFilter.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -145,7 +147,8 @@
 				EDEC73852B14650200595A95 /* VintageFilter.swift */,
 				EDEC73882B14655200595A95 /* BlackWhiteFilter.swift */,
 				EDEC738A2B14659E00595A95 /* MonochromeFilter.swift */,
-				EDEC738C2B1465D900595A95 /* CyanFilter.swift */,
+				EDEC73B52B185A6B00595A95 /* BlurFilter.swift */,
+				EDEC73B72B18614500595A95 /* PosterizeFilter.swift */,
 				C284660F2B15FE9F006D4E40 /* NoFilter.swift */,
 			);
 			path = Filters;
@@ -242,11 +245,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				EDEC738D2B1465D900595A95 /* CyanFilter.swift in Sources */,
 				EDEC73842B14645F00595A95 /* SepiaFilter.swift in Sources */,
 				EDEC73B12B18244A00595A95 /* ListFiltersRouter.swift in Sources */,
 				EDEC73AB2B18242D00595A95 /* ListFiltersPresenter.swift in Sources */,
+				EDEC73B82B18614500595A95 /* PosterizeFilter.swift in Sources */,
 				EDEC73862B14650200595A95 /* VintageFilter.swift in Sources */,
+				EDEC73B62B185A6B00595A95 /* BlurFilter.swift in Sources */,
 				EDEC737F2B145DA400595A95 /* CameraPreviewInteractor.swift in Sources */,
 				C284660E2B15EC7C006D4E40 /* FilterCell.swift in Sources */,
 				C2F1C80B2B078F37002F732D /* AppDelegate.swift in Sources */,

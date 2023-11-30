@@ -20,9 +20,11 @@ class CameraPreviewWorker
         SepiaFilter(inputIntensity: 1.0),
         VintageFilter(),
         BlackWhiteFilter(),
-        CyanFilter(inputIntensity: 1.0),
+        MonochromeFilter(displayName: "시안", inputColor: CIColor.cyan),
         MonochromeFilter(displayName: "로즈", inputColor: CIColor.magenta),
-        MonochromeFilter(displayName: "블루", inputColor: CIColor.blue)
+        MonochromeFilter(displayName: "블루", inputColor: CIColor.blue),
+        BlurFilter(displayName: "블러"),
+        PosterizeFilter(displayName: "포스터")
     ]
     
     func getFilter(by name: String) -> CameraFilter? {

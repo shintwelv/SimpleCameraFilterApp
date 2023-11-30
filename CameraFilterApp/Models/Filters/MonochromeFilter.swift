@@ -8,22 +8,29 @@
 import Foundation
 import CoreImage
 
-class MonochromeFilter: CameraFilter {
+struct MonochromeFilter: CameraFilter {
     let filterId: UUID = UUID()
     var displayName: String
+    
+    var systemName: FilterName = .CIColorMonochrome
+
+    var ciFilter: CIFilter? = CIFilter(name: FilterName.CIColorMonochrome.rawValue)!
+
+    var properties: [FilterPropertyKey : Codable] = [:]
+    
     var inputColor: CIColor {
         didSet {
-            self.ciFilter!.setValue(oldValue, forKey: "inputColor")
+            self.ciFilter!.setValue(self.inputColor, forKey: FilterPropertyKey.inputColor.rawValue)
+            self.properties[.inputColor] = self.inputColor.stringRepresentation
         }
     }
     var inputIntensity: CGFloat = 1.0 {
         didSet {
-            self.ciFilter!.setValue(oldValue, forKey: "inputIntensity")
+            self.ciFilter!.setValue(self.inputIntensity, forKey: FilterPropertyKey.inputIntensity.rawValue)
+            self.properties[.inputIntensity] = self.inputIntensity
         }
     }
-    
-    var ciFilter: CIFilter? = CIFilter(name: "CIColorMonochrome")!
-    
+
     init(displayName: String, inputColor: CIColor, inputIntensity: CGFloat = 1.0) {
         self.displayName = displayName
         self.inputColor = inputColor
@@ -31,6 +38,8 @@ class MonochromeFilter: CameraFilter {
         
         self.ciFilter!.setValue(inputColor, forKey: "inputColor")
         self.ciFilter!.setValue(inputIntensity, forKey: "inputIntensity")
+        
+        self.properties[.inputColor] = inputColor.stringRepresentation
+        self.properties[.inputIntensity] = inputIntensity
     }
-    
 }

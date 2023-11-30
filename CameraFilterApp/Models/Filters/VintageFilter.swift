@@ -12,9 +12,9 @@ struct VintageFilter: CameraFilter {
     let filterId: UUID = UUID()
     let displayName: String = "빈티지"
     
-    var ciFilter: CIFilter?
+    var systemName: FilterName = .CIPhotoEffectTransfer
     
-    init() {
-        self.ciFilter = CIFilter(name: "CIPhotoEffectTransfer")!
-    }
+    var properties: [FilterPropertyKey : Codable] = [:]
+    
+    var ciFilter: CIFilter? = CIFilter(name: FilterName.CIPhotoEffectTransfer.rawValue)!
 }

@@ -11,9 +11,10 @@ import CoreImage
 struct BlackWhiteFilter: CameraFilter {
     var filterId: UUID = UUID()
     let displayName: String = "흑백"
-    var ciFilter: CIFilter?
     
-    init() {
-        self.ciFilter = CIFilter(name: "CIPhotoEffectTonal")!
-    }
+    var systemName: FilterName = .CIPhotoEffectTonal
+    
+    var properties: [FilterPropertyKey : Codable] = [:]
+    
+    var ciFilter: CIFilter? = CIFilter(name: FilterName.CIPhotoEffectTonal.rawValue)!
 }

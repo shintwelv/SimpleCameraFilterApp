@@ -10,7 +10,11 @@ import CoreImage
 
 struct NoFilter: CameraFilter {
     let filterId: UUID = UUID()
-    var displayName: String = "기본"
-    
+    var displayName: String = "원본"
+
+    var systemName: FilterName = .None
+
     var ciFilter: CIFilter? = nil
+
+    var properties: [FilterPropertyKey : Codable] = [:]
 }
