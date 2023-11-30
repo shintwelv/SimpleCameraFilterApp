@@ -19,7 +19,7 @@ protocol CameraPreviewBusinessLogic
     func startSession(_ request: CameraPreview.StartSession.Request)
     func applyFilter(_ request: CameraPreview.ApplyFilter.Request)
     func fetchFilters(_ request: CameraPreview.FetchFilters.Request)
-    var previewView: MTKView { get }
+    var metalDevice: MTLDevice? { get }
 }
 
 protocol CameraPreviewDataStore
@@ -32,10 +32,6 @@ class CameraPreviewInteractor: NSObject, CameraPreviewBusinessLogic, CameraPrevi
     var presenter: CameraPreviewPresentationLogic?
     var worker: CameraPreviewWorker = CameraPreviewWorker()
     
-    var previewView: MTKView = MTKView()
-    
-    private lazy var ciContext: CIContext = CIContext(mtlDevice: metalDevice)
-    private var currentCIImage: CIImage?
     
     private let cameraQueue = DispatchQueue(label: "cameraQueue")
     private let videoQueue = DispatchQueue(label: "videoQueue")
@@ -45,7 +41,7 @@ class CameraPreviewInteractor: NSObject, CameraPreviewBusinessLogic, CameraPrevi
     private var deviceInput: AVCaptureDeviceInput!
     private var videoOutput: AVCaptureVideoDataOutput!
     
-    var metalDevice: MTLDevice! = MTLCreateSystemDefaultDevice()
+    var metalDevice: MTLDevice? = MTLCreateSystemDefaultDevice()
     
     lazy var metalCommandQueue: MTLCommandQueue! = metalDevice?.makeCommandQueue()
     
@@ -53,7 +49,6 @@ class CameraPreviewInteractor: NSObject, CameraPreviewBusinessLogic, CameraPrevi
     
     func startSession(_ request: CameraPreview.StartSession.Request) {
         self.configureCaptureSession()
-        self.configureMetal()
         cameraQueue.async {
             self.session.startRunning()
         }
@@ -71,17 +66,6 @@ class CameraPreviewInteractor: NSObject, CameraPreviewBusinessLogic, CameraPrevi
         let filters: [CameraFilter] = worker.allFilters
         let response = CameraPreview.FetchFilters.Response(filters: filters)
         presenter?.presentAllFilters(response: response)
-    }
-    
-    private func configureMetal() {
-        self.previewView.device = self.metalDevice
-        
-        self.previewView.isPaused = true
-        self.previewView.enableSetNeedsDisplay = false
-        
-        self.previewView.delegate = self
-        
-        self.previewView.framebufferOnly = false
     }
     
     private func configureCaptureSession() {
@@ -107,24 +91,25 @@ class CameraPreviewInteractor: NSObject, CameraPreviewBusinessLogic, CameraPrevi
 extension CameraPreviewInteractor: AVCaptureVideoDataOutputSampleBufferDelegate {
     
     func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
-        guard let cvBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else {
+        guard let cvBuffer = CMSampleBufferGetImageBuffer(sampleBuffer),
+        let commandBuffer = metalCommandQueue.makeCommandBuffer() else {
             return
         }
         
         let ciImage = CIImage(cvImageBuffer: cvBuffer)
-        
         if let _ = self.appliedFilter {
             guard let filteredImage = applyFilter(inputImage: ciImage) else {
                 return
             }
             
-            self.currentCIImage = filteredImage
+            let response = CameraPreview.DrawFrameImage.Response(frameImage: filteredImage, commandBuffer: commandBuffer)
             
+            presenter?.presentFrameImage(response: response)
         } else {
-            self.currentCIImage = ciImage
+            let response = CameraPreview.DrawFrameImage.Response(frameImage: ciImage, commandBuffer: commandBuffer)
+
+            presenter?.presentFrameImage(response: response)
         }
-        
-        self.previewView.draw()
     }
     
     func applyFilter(inputImage image: CIImage) -> CIImage? {
@@ -134,39 +119,5 @@ extension CameraPreviewInteractor: AVCaptureVideoDataOutputSampleBufferDelegate 
         filteredImage = self.appliedFilter?.outputImage
         
         return filteredImage
-    }
-}
-
-extension CameraPreviewInteractor: MTKViewDelegate {
-    func mtkView(_ view: MTKView, drawableSizeWillChange size: CGSize) {
-        // do nothing
-    }
-    
-    func draw(in view: MTKView) {
-        guard let commandBuffer = metalCommandQueue.makeCommandBuffer() else {
-            return
-        }
-        
-        guard let ciImage = self.currentCIImage else {
-            return
-        }
-        
-        guard let currentDrawable = view.currentDrawable else {
-            return
-        }
-        
-        let offset: (x:CGFloat, y:CGFloat) = (
-            (view.drawableSize.width - ciImage.extent.width) / 2,
-            (view.drawableSize.height - ciImage.extent.height) / 2
-        )
-
-        self.ciContext.render(ciImage,
-                              to: currentDrawable.texture,
-                              commandBuffer: commandBuffer,
-                              bounds: CGRect(origin: CGPoint(x: -offset.x, y: -offset.y), size: view.drawableSize),
-                              colorSpace: CGColorSpaceCreateDeviceRGB())
-        
-        commandBuffer.present(currentDrawable)
-        commandBuffer.commit()
     }
 }

@@ -49,13 +49,16 @@ enum CameraPreview
         }
     }
     
-    enum DrawPreviewBuffer {
+    enum DrawFrameImage {
         struct Request {
-            var metalView: MTKView
         }
         struct Response {
+            var frameImage: CIImage
+            var commandBuffer: MTLCommandBuffer
         }
         struct ViewModel {
+            var frameImage: CIImage
+            var commandBuffer: MTLCommandBuffer
         }
     }
 }

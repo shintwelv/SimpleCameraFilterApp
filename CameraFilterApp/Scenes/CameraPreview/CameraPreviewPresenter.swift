@@ -15,6 +15,7 @@ import UIKit
 protocol CameraPreviewPresentationLogic
 {
     func presentAllFilters(response: CameraPreview.FetchFilters.Response)
+    func presentFrameImage(response: CameraPreview.DrawFrameImage.Response)
 }
 
 class CameraPreviewPresenter: CameraPreviewPresentationLogic
@@ -30,5 +31,13 @@ class CameraPreviewPresenter: CameraPreviewPresentationLogic
         
         let viewModel = CameraPreview.FetchFilters.ViewModel(filterNames: filterNames)
         viewController?.displayFilterNames(viewModel: viewModel)
+    }
+    
+    func presentFrameImage(response: CameraPreview.DrawFrameImage.Response) {
+        let frameImage = response.frameImage
+        let commandBuffer = response.commandBuffer
+        
+        let viewModel = CameraPreview.DrawFrameImage.ViewModel(frameImage: frameImage, commandBuffer: commandBuffer)
+        viewController?.displayFrameImage(viewModel: viewModel)
     }
 }
