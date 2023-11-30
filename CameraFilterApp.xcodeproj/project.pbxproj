@@ -26,6 +26,7 @@
 		EDEC738B2B14659E00595A95 /* MonochromeFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDEC738A2B14659E00595A95 /* MonochromeFilter.swift */; };
 		EDEC738D2B1465D900595A95 /* CyanFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDEC738C2B1465D900595A95 /* CyanFilter.swift */; };
 		EDEC73972B17329E00595A95 /* CreateFilterModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDEC73962B17329E00595A95 /* CreateFilterModels.swift */; };
+		EDEC739D2B181E1300595A95 /* ListFiltersModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDEC739C2B181E1300595A95 /* ListFiltersModels.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -50,6 +51,7 @@
 		EDEC738A2B14659E00595A95 /* MonochromeFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MonochromeFilter.swift; sourceTree = "<group>"; };
 		EDEC738C2B1465D900595A95 /* CyanFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CyanFilter.swift; sourceTree = "<group>"; };
 		EDEC73962B17329E00595A95 /* CreateFilterModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateFilterModels.swift; sourceTree = "<group>"; };
+		EDEC739C2B181E1300595A95 /* ListFiltersModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListFiltersModels.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -96,6 +98,7 @@
 		EDEC736A2B145D1400595A95 /* Scenes */ = {
 			isa = PBXGroup;
 			children = (
+				EDEC739B2B181E0700595A95 /* ListFilters */,
 				EDEC73952B17305200595A95 /* CreateFilter */,
 				EDEC736B2B145D1A00595A95 /* CameraPreview */,
 			);
@@ -144,6 +147,14 @@
 				EDEC73962B17329E00595A95 /* CreateFilterModels.swift */,
 			);
 			path = CreateFilter;
+			sourceTree = "<group>";
+		};
+		EDEC739B2B181E0700595A95 /* ListFilters */ = {
+			isa = PBXGroup;
+			children = (
+				EDEC739C2B181E1300595A95 /* ListFiltersModels.swift */,
+			);
+			path = ListFilters;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -225,6 +236,7 @@
 				EDEC737E2B145DA400595A95 /* CameraPreviewViewController.swift in Sources */,
 				EDEC738B2B14659E00595A95 /* MonochromeFilter.swift in Sources */,
 				EDEC737C2B145DA400595A95 /* CameraPreviewRouter.swift in Sources */,
+				EDEC739D2B181E1300595A95 /* ListFiltersModels.swift in Sources */,
 				EDEC73822B14636B00595A95 /* CameraFilter.swift in Sources */,
 				EDEC737A2B145DA400595A95 /* CameraPreviewPresenter.swift in Sources */,
 				C2F1C80D2B078F37002F732D /* SceneDelegate.swift in Sources */,
