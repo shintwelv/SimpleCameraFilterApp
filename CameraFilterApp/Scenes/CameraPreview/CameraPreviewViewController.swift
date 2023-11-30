@@ -16,6 +16,7 @@ import MetalKit
 protocol CameraPreviewDisplayLogic: AnyObject
 {
     func displayFilterNames(viewModel: CameraPreview.FetchFilters.ViewModel)
+    func displayFrameImage(viewModel: CameraPreview.DrawFrameImage.ViewModel)
 }
 
 class CameraPreviewViewController: UIViewController, CameraPreviewDisplayLogic
@@ -65,7 +66,7 @@ class CameraPreviewViewController: UIViewController, CameraPreviewDisplayLogic
         }
     }
     
-    private lazy var previewMTKView: MTKView = interactor!.previewView
+    private var previewMTKView: MTKView = MTKView()
     
     private var bottomContentView: UIView = {
         let view = UIView()
@@ -113,6 +114,9 @@ class CameraPreviewViewController: UIViewController, CameraPreviewDisplayLogic
     
     private var filterNames:[String] = []
     
+    private var ciContext: CIContext?
+    private var currentCIImage: CIImage?
+    private var currentBuffer: MTLCommandBuffer?
     // MARK: View lifecycle
     
     override func viewDidLoad()
@@ -121,6 +125,7 @@ class CameraPreviewViewController: UIViewController, CameraPreviewDisplayLogic
         
         configureUI()
         configureAutoLayout()
+        configureMTKView()
         
         fetchFilterNames()
     }
@@ -198,6 +203,20 @@ class CameraPreviewViewController: UIViewController, CameraPreviewDisplayLogic
         ])
     }
     
+    func configureMTKView() {
+        guard let metalDevice = interactor?.metalDevice else { return }
+        self.ciContext = CIContext(mtlDevice: metalDevice)
+        
+        self.previewMTKView.device = metalDevice
+        
+        self.previewMTKView.isPaused = true
+        self.previewMTKView.enableSetNeedsDisplay = false
+        
+        self.previewMTKView.delegate = self
+        
+        self.previewMTKView.framebufferOnly = false
+    }
+
     @objc private func filterToggleButtonTapped(_ button: UIButton) {
         self.filterCollectionView.isHidden.toggle()
         self.galleryButton.isHidden.toggle()
@@ -221,6 +240,39 @@ class CameraPreviewViewController: UIViewController, CameraPreviewDisplayLogic
     func displayFilterNames(viewModel: CameraPreview.FetchFilters.ViewModel) {
         self.filterNames = viewModel.filterNames
         self.filterCollectionView.reloadData()
+    }
+    
+    func displayFrameImage(viewModel: CameraPreview.DrawFrameImage.ViewModel) {
+        self.currentCIImage = viewModel.frameImage
+        self.currentBuffer = viewModel.commandBuffer
+        
+        self.previewMTKView.draw()
+    }
+}
+
+extension CameraPreviewViewController: MTKViewDelegate {
+    func mtkView(_ view: MTKView, drawableSizeWillChange size: CGSize) {
+        // do nothing
+    }
+    
+    func draw(in view: MTKView) {
+        guard let commandBuffer = self.currentBuffer,
+        let ciImage = self.currentCIImage,
+        let currentDrawable = view.currentDrawable else { return }
+        
+        let offset: (x:CGFloat, y:CGFloat) = (
+            (view.drawableSize.width - ciImage.extent.width) / 2,
+            (view.drawableSize.height - ciImage.extent.height) / 2
+        )
+
+        self.ciContext?.render(ciImage,
+                              to: currentDrawable.texture,
+                              commandBuffer: commandBuffer,
+                              bounds: CGRect(origin: CGPoint(x: -offset.x, y: -offset.y), size: view.drawableSize),
+                              colorSpace: CGColorSpaceCreateDeviceRGB())
+        
+        commandBuffer.present(currentDrawable)
+        commandBuffer.commit()
     }
 }
 
