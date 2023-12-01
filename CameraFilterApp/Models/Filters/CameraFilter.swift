@@ -31,7 +31,7 @@ protocol CameraFilter {
     
     var systemName: FilterName { get }
     
-    var ciFilter: CIFilter? { get }
+    var ciFilter: CIFilter { get }
     
     var properties: [FilterPropertyKey : Codable] { get }
 }

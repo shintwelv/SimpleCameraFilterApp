@@ -27,7 +27,8 @@ class CameraPreviewPresenter: CameraPreviewPresentationLogic
     func presentAllFilters(response: CameraPreview.FetchFilters.Response) {
         let filters = response.filters
         
-        let filterNames:[String] = filters.map { $0.displayName }
+        var filterNames:[String] = filters.map { $0.displayName }
+        filterNames.insert("원본", at: 0)
         
         let viewModel = CameraPreview.FetchFilters.ViewModel(filterNames: filterNames)
         viewController?.displayFilterNames(viewModel: viewModel)

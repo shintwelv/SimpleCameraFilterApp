@@ -15,17 +15,20 @@ import AVFoundation
 
 class CameraPreviewWorker
 {
-    var allFilters: [CameraFilter] = [
-        NoFilter(),
-        SepiaFilter(inputIntensity: 1.0),
-        VintageFilter(),
-        BlackWhiteFilter(),
-        MonochromeFilter(displayName: "시안", inputColor: CIColor.cyan),
-        MonochromeFilter(displayName: "로즈", inputColor: CIColor.magenta),
-        MonochromeFilter(displayName: "블루", inputColor: CIColor.blue),
-        BlurFilter(displayName: "블러"),
-        PosterizeFilter(displayName: "포스터")
-    ]
+    var allFilters: [CameraFilter] = {
+        let filters: [CameraFilter?] = [
+            SepiaFilter(inputIntensity: 1.0),
+            VintageFilter(),
+            BlackWhiteFilter(),
+            MonochromeFilter(displayName: "시안", inputColor: CIColor.cyan),
+            MonochromeFilter(displayName: "로즈", inputColor: CIColor.magenta),
+            MonochromeFilter(displayName: "블루", inputColor: CIColor.blue),
+            BlurFilter(displayName: "블러"),
+            PosterizeFilter(displayName: "포스터")
+        ]
+        
+        return filters.compactMap {$0}
+    }()
     
     func getFilter(by name: String) -> CameraFilter? {
         return allFilters.filter { $0.displayName == name }.first

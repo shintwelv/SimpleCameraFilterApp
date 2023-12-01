@@ -14,21 +14,27 @@ struct SepiaFilter: CameraFilter {
     
     var systemName: FilterName = .CISepiaTone
     
-    var ciFilter: CIFilter? = CIFilter(name: FilterName.CISepiaTone.rawValue)!
+    var ciFilter: CIFilter
 
     var properties: [FilterPropertyKey : Codable] = [:]
 
     var inputIntensity: CGFloat {
         didSet {
-            self.ciFilter!.setValue(oldValue, forKey: FilterPropertyKey.inputIntensity.rawValue)
+            self.ciFilter.setValue(oldValue, forKey: FilterPropertyKey.inputIntensity.rawValue)
             self.properties[.inputIntensity] = oldValue
         }
     }
     
-    init(inputIntensity: CGFloat = 1.0) {
-        self.inputIntensity = inputIntensity
-        
-        self.ciFilter!.setValue(inputIntensity, forKey: FilterPropertyKey.inputIntensity.rawValue)
-        self.properties[.inputIntensity] = inputIntensity
+    init?(inputIntensity: CGFloat = 1.0) {
+        if let filter = CIFilter(name: FilterName.CISepiaTone.rawValue) {
+            filter.setValue(inputIntensity, forKey: FilterPropertyKey.inputIntensity.rawValue)
+
+            self.ciFilter = filter
+            self.inputIntensity = inputIntensity
+
+            self.properties[.inputIntensity] = inputIntensity
+        } else {
+            return nil
+        }
     }
 }

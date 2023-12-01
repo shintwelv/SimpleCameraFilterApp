@@ -14,32 +14,37 @@ struct MonochromeFilter: CameraFilter {
     
     var systemName: FilterName = .CIColorMonochrome
 
-    var ciFilter: CIFilter? = CIFilter(name: FilterName.CIColorMonochrome.rawValue)!
+    var ciFilter: CIFilter
 
     var properties: [FilterPropertyKey : Codable] = [:]
     
     var inputColor: CIColor {
         didSet {
-            self.ciFilter!.setValue(self.inputColor, forKey: FilterPropertyKey.inputColor.rawValue)
+            self.ciFilter.setValue(self.inputColor, forKey: FilterPropertyKey.inputColor.rawValue)
             self.properties[.inputColor] = self.inputColor.stringRepresentation
         }
     }
     var inputIntensity: CGFloat = 1.0 {
         didSet {
-            self.ciFilter!.setValue(self.inputIntensity, forKey: FilterPropertyKey.inputIntensity.rawValue)
+            self.ciFilter.setValue(self.inputIntensity, forKey: FilterPropertyKey.inputIntensity.rawValue)
             self.properties[.inputIntensity] = self.inputIntensity
         }
     }
 
-    init(displayName: String, inputColor: CIColor, inputIntensity: CGFloat = 1.0) {
-        self.displayName = displayName
-        self.inputColor = inputColor
-        self.inputIntensity = inputIntensity
-        
-        self.ciFilter!.setValue(inputColor, forKey: "inputColor")
-        self.ciFilter!.setValue(inputIntensity, forKey: "inputIntensity")
-        
-        self.properties[.inputColor] = inputColor.stringRepresentation
-        self.properties[.inputIntensity] = inputIntensity
+    init?(displayName: String, inputColor: CIColor, inputIntensity: CGFloat = 1.0) {
+        if let filter = CIFilter(name: FilterName.CIColorMonochrome.rawValue) {
+            filter.setValue(inputColor, forKey: "inputColor")
+            filter.setValue(inputIntensity, forKey: "inputIntensity")
+            
+            self.ciFilter = filter
+            self.displayName = displayName
+            self.inputColor = inputColor
+            self.inputIntensity = inputIntensity
+
+            self.properties[.inputColor] = inputColor.stringRepresentation
+            self.properties[.inputIntensity] = inputIntensity
+        } else {
+            return nil
+        }
     }
 }

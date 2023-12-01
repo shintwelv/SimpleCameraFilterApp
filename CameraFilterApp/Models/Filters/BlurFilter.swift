@@ -15,22 +15,28 @@ struct BlurFilter: CameraFilter {
     
     var systemName: FilterName = .CIBoxBlur
     
-    var ciFilter: CIFilter? = CIFilter(name: FilterName.CIBoxBlur.rawValue)!
+    var ciFilter: CIFilter
     
     var properties: [FilterPropertyKey : Codable] = [:]
     
     var inputRadius: CGFloat = 10.0 {
         didSet {
-            self.ciFilter?.setValue(self.inputRadius, forKey: FilterPropertyKey.inputRadius.rawValue)
+            self.ciFilter.setValue(self.inputRadius, forKey: FilterPropertyKey.inputRadius.rawValue)
             self.properties[.inputRadius] = self.inputRadius
         }
     }
     
-    init(displayName: String, inputRadius: CGFloat = 10.0) {
-        self.displayName = displayName
-        self.inputRadius = inputRadius
-        
-        self.ciFilter?.setValue(inputRadius, forKey: FilterPropertyKey.inputRadius.rawValue)
-        self.properties[.inputRadius] = inputRadius
+    init?(displayName: String, inputRadius: CGFloat = 10.0) {
+        if let filter = CIFilter(name: FilterName.CIBoxBlur.rawValue) {
+            filter.setValue(inputRadius, forKey: FilterPropertyKey.inputRadius.rawValue)
+            self.ciFilter = filter
+
+            self.displayName = displayName
+            self.inputRadius = inputRadius
+            
+            self.properties[.inputRadius] = inputRadius
+        } else {
+            return nil
+        }
     }
 }

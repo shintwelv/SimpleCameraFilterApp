@@ -16,5 +16,13 @@ struct VintageFilter: CameraFilter {
     
     var properties: [FilterPropertyKey : Codable] = [:]
     
-    var ciFilter: CIFilter? = CIFilter(name: FilterName.CIPhotoEffectTransfer.rawValue)!
+    var ciFilter: CIFilter
+    
+    init?() {
+        if let filter = CIFilter(name: FilterName.CIPhotoEffectTransfer.rawValue) {
+            self.ciFilter = filter
+        } else {
+            return nil
+        }
+    }
 }

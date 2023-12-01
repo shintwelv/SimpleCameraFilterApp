@@ -16,5 +16,13 @@ struct BlackWhiteFilter: CameraFilter {
     
     var properties: [FilterPropertyKey : Codable] = [:]
     
-    var ciFilter: CIFilter? = CIFilter(name: FilterName.CIPhotoEffectTonal.rawValue)!
+    var ciFilter: CIFilter
+    
+    init?() {
+        if let filter = CIFilter(name: FilterName.CIPhotoEffectTonal.rawValue) {
+            self.ciFilter = filter
+        } else {
+            return nil
+        }
+    }
 }
