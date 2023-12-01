@@ -7,6 +7,89 @@
 
 import Foundation
 
+class FiltersWorker {
+    var filtersStore: FiltersStoreProtocol
+    
+    init(filtersStore: FiltersStoreProtocol) {
+        self.filtersStore = filtersStore
+    }
+    
+    func fetchFilters(completionHandler: @escaping ([CameraFilter]) -> Void) {
+        filtersStore.fetchFilters { (filters: () throws -> [CameraFilter]) in
+            do {
+                let filters = try filters()
+                DispatchQueue.main.async {
+                    completionHandler(filters)
+                }
+            } catch {
+                DispatchQueue.main.async {
+                    completionHandler([])
+                }
+            }
+        }
+    }
+    
+    func fetchFilter(filterId: UUID, completionHandler: @escaping (CameraFilter?) -> Void) {
+        filtersStore.fetchFilter(filterId: filterId) { (filter: () throws -> CameraFilter?) in
+            do {
+                let filter = try filter()
+                DispatchQueue.main.async {
+                    completionHandler(filter)
+                }
+            } catch {
+                DispatchQueue.main.async {
+                    completionHandler(nil)
+                }
+            }
+        }
+    }
+    
+    func createFilter(filterToCreate: CameraFilter, completionHandler: @escaping (CameraFilter?) -> Void) {
+        filtersStore.createFilter(filterToCreate: filterToCreate) { (filter: () throws -> CameraFilter?) in
+            do {
+                let filter = try filter()
+                DispatchQueue.main.async {
+                    completionHandler(filter)
+                }
+            } catch {
+                DispatchQueue.main.async {
+                    completionHandler(nil)
+                }
+            }
+        }
+    }
+    
+    func updateFilter(filterToUpdate: CameraFilter, completionHandler: @escaping (CameraFilter?) -> Void) {
+        filtersStore.updateFilter(filterToUpdate: filterToUpdate) { (filter: () throws -> CameraFilter?) in
+            do {
+                let filter = try filter()
+                DispatchQueue.main.async {
+                    completionHandler(filter)
+                }
+            } catch {
+                DispatchQueue.main.async {
+                    completionHandler(nil)
+                }
+            }
+        }
+    }
+    
+    func deleteFilter(filterId: UUID, completionHandler: @escaping (CameraFilter?) -> Void) {
+        filtersStore.deleteFilter(filterId: filterId) { (filter: () throws -> CameraFilter?) in
+            do {
+                let filter = try filter()
+                DispatchQueue.main.async {
+                    completionHandler(filter)
+                }
+            } catch {
+                DispatchQueue.main.async {
+                    completionHandler(nil)
+                }
+            }
+        }
+    }
+}
+
 protocol FiltersStoreProtocol {
     
     // MARK: - CRUD operations - Optional error
