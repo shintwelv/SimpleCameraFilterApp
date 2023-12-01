@@ -112,6 +112,7 @@
 		ED442E672B195B2500A030C6 /* Workers */ = {
 			isa = PBXGroup;
 			children = (
+				ED442E692B195B5700A030C6 /* FiltersWorker.swift */,
 			);
 			path = Workers;
 			sourceTree = "<group>";
@@ -119,7 +120,6 @@
 		ED442E682B195B4200A030C6 /* Services */ = {
 			isa = PBXGroup;
 			children = (
-				ED442E692B195B5700A030C6 /* FiltersWorker.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
