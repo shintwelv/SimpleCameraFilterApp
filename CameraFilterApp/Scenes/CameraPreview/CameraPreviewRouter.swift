@@ -14,47 +14,41 @@ import UIKit
 
 @objc protocol CameraPreviewRoutingLogic
 {
-  //func routeToSomewhere(segue: UIStoryboardSegue?)
+    func routeToListFilters(segue: UIStoryboardSegue?)
 }
 
 protocol CameraPreviewDataPassing
 {
-  var dataStore: CameraPreviewDataStore? { get }
+    var dataStore: CameraPreviewDataStore? { get }
 }
 
 class CameraPreviewRouter: NSObject, CameraPreviewRoutingLogic, CameraPreviewDataPassing
 {
-  weak var viewController: CameraPreviewViewController?
-  var dataStore: CameraPreviewDataStore?
-  
-  // MARK: Routing
-  
-  //func routeToSomewhere(segue: UIStoryboardSegue?)
-  //{
-  //  if let segue = segue {
-  //    let destinationVC = segue.destination as! SomewhereViewController
-  //    var destinationDS = destinationVC.router!.dataStore!
-  //    passDataToSomewhere(source: dataStore!, destination: &destinationDS)
-  //  } else {
-  //    let storyboard = UIStoryboard(name: "Main", bundle: nil)
-  //    let destinationVC = storyboard.instantiateViewController(withIdentifier: "SomewhereViewController") as! SomewhereViewController
-  //    var destinationDS = destinationVC.router!.dataStore!
-  //    passDataToSomewhere(source: dataStore!, destination: &destinationDS)
-  //    navigateToSomewhere(source: viewController!, destination: destinationVC)
-  //  }
-  //}
-
-  // MARK: Navigation
-  
-  //func navigateToSomewhere(source: CameraPreviewViewController, destination: SomewhereViewController)
-  //{
-  //  source.show(destination, sender: nil)
-  //}
-  
-  // MARK: Passing data
-  
-  //func passDataToSomewhere(source: CameraPreviewDataStore, destination: inout SomewhereDataStore)
-  //{
-  //  destination.name = source.name
-  //}
+    weak var viewController: CameraPreviewViewController?
+    var dataStore: CameraPreviewDataStore?
+    
+    // MARK: Routing
+    func routeToListFilters(segue: UIStoryboardSegue?) {
+        if let segue = segue {
+            let dstVC = segue.destination as! ListFiltersViewController
+            var dstDS = dstVC.router!.dataStore!
+            passDataToListFilters(source: dataStore!, destination: &dstDS)
+            navigateToListFilters(source: viewController!, destination: dstVC)
+        } else {
+            let dstVC = ListFiltersViewController()
+            var dstDS = dstVC.router!.dataStore!
+            passDataToListFilters(source: dataStore!, destination: &dstDS)
+            navigateToListFilters(source: viewController!, destination: dstVC)
+        }
+    }
+    
+    // MARK: Navigation
+    func navigateToListFilters(source: CameraPreviewViewController, destination: ListFiltersViewController) {
+        source.show(destination, sender: nil)
+    }
+    
+    // MARK: Passing data
+    func passDataToListFilters(source: CameraPreviewDataStore, destination: inout ListFiltersDataStore) {
+        
+    }
 }

@@ -242,7 +242,10 @@ class CameraPreviewViewController: UIViewController, CameraPreviewDisplayLogic
     }
     
     @objc private func filterEditButtonTapped(_ button: UIButton) {
-        print(#function)
+        let selector = NSSelectorFromString("routeToListFiltersWithSegue:")
+        if let router = router, router.responds(to: selector) {
+            router.perform(selector, with: nil)
+        }
     }
     
     @objc private func shotButtonTapped(_ button: UIButton) {
