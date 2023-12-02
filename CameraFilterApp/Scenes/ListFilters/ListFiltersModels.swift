@@ -29,7 +29,7 @@ enum ListFilters
             var filters: [CameraFilter]
         }
         struct ViewModel {
-            var filterInfo: [FilterInfo]
+            var filterInfos: [FilterInfo]
         }
     }
 }

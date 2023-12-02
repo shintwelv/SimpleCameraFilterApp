@@ -9,6 +9,7 @@ import UIKit
 
 protocol ListFiltersDisplayLogic: AnyObject
 {
+    func displayFetchedFilters(viewModel: ListFilters.FetchFilters.ViewModel)
 }
 
 class ListFiltersViewController: UIViewController, ListFiltersDisplayLogic
@@ -68,4 +69,8 @@ class ListFiltersViewController: UIViewController, ListFiltersDisplayLogic
   // MARK: Do something
   
   //@IBOutlet weak var nameTextField: UITextField!
+    
+    func displayFetchedFilters(viewModel: ListFilters.FetchFilters.ViewModel) {
+        <#code#>
+    }
 }
