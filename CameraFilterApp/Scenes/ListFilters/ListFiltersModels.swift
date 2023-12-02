@@ -16,6 +16,12 @@ enum ListFilters
 {
     // MARK: Use cases
     
+    struct FilterInfo {
+        let filterId: UUID
+        let filterName: String
+        let filterAppliedImage: UIImage
+    }
+    
     enum FetchFilters {
         struct Request {
         }
@@ -23,8 +29,7 @@ enum ListFilters
             var filters: [CameraFilter]
         }
         struct ViewModel {
-            var filterId: UUID
-            var filterNames: [String]
+            var filterInfo: [FilterInfo]
         }
     }
 }
