@@ -10,11 +10,25 @@ import UIKit
 enum CreateFilter
 {
     // MARK: Use cases
-    enum FilterType {
-        case blur
-        case monochrome
-        case sepia
-        case posterize
+    
+    struct FilterInfo {
+        var filterId: UUID
+        var filterName: String
+        
+        var filterPropertyFields: FilterPropertyFields
+    }
+    
+    struct FilterPropertyFields {
+        var inputColor: FilterProperty?
+        var inputIntensity: FilterProperty?
+        var inputRadius: FilterProperty?
+        var inputLevels: FilterProperty?
+    }
+    
+    struct FilterProperty {
+        var min: CGFloat
+        var currentValue: CGFloat
+        var max: CGFloat
     }
     
     enum FetchFilter {
@@ -25,51 +39,62 @@ enum CreateFilter
             var filter: CameraFilter
         }
         struct ViewModel {
-            var filterId: UUID
-            var filterName: String
-            var properties: [String : Any?]
-            var filterType: [FilterType]
+            var filterInfo: FilterInfo
+        }
+    }
+    
+    enum FetchFilterCategories {
+        struct Request {
+            
+        }
+        struct Response {
+            var filterCategories: [FilterName]
+        }
+        struct ViewModel {
+            var filterCategories: [String]
         }
     }
     
     enum FetchProperties {
         struct Request {
-            var filterType: [FilterType]
+            var filterType: [FilterName]
         }
         struct Response {
-            var properties: [String : Any?]
+            var filterPropertyFields: FilterPropertyFields
         }
         struct ViewModel {
-            var properties: [String : Any?]
+            var filterPropertyFields: FilterPropertyFields
         }
     }
     
     enum CreateFilter {
         struct Request {
             var filterName: String
-            var properties: [String : Any?]
+            
+            var filterSystemName: FilterName
+            
+            var inputColor: CGColor?
+            var inputIntensity: CGFloat?
+            var inputRadius: CGFloat?
+            var inputLevels: CGFloat?
         }
         struct Response {
             var filter: CameraFilter?
         }
         struct ViewModel {
-            
+            var filterInfo: FilterInfo?
         }
     }
     
     enum EditFilter {
         struct Request {
-            var filterId: UUID
-            var newFilterName: String
-            var newProperties: [String : Any?]
+            var filterInfo: FilterInfo
         }
         struct Response {
-            var filter: CameraFilter
+            var filter: CameraFilter?
         }
         struct ViewModel {
-            var filterId: UUID
-            var filterName: String
-            var properties: [String : Any?]
+            var filterInfo: FilterInfo?
         }
     }
     
@@ -78,11 +103,10 @@ enum CreateFilter
             var filterId: UUID
         }
         struct Response {
-            var success: Bool
+            var filter: CameraFilter?
         }
         struct ViewModel {
-            var success: Bool
-            var resultMessage: String
+            var filterInfo: FilterInfo?
         }
     }
 }
