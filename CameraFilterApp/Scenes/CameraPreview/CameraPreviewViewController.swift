@@ -98,6 +98,15 @@ class CameraPreviewViewController: UIViewController, CameraPreviewDisplayLogic
         return button
     }()
     
+    private var filterEditButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setTitle("편집", for: .normal)
+        button.tintColor = .systemPurple
+        button.titleLabel?.font = .systemFont(ofSize: 18)
+        button.isHidden = true
+        return button
+    }()
+    
     private var filterCollectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .horizontal
@@ -145,12 +154,14 @@ class CameraPreviewViewController: UIViewController, CameraPreviewDisplayLogic
         
         [
             self.filterToggleButton,
+            self.filterEditButton,
             self.filterCollectionView,
             self.galleryButton,
             self.shotButton
         ].forEach { self.bottomContentView.addSubview($0) }
         
         self.filterToggleButton.addTarget(self, action: #selector(filterToggleButtonTapped), for: .touchUpInside)
+        self.filterEditButton.addTarget(self, action: #selector(filterEditButtonTapped), for: .touchUpInside)
         self.shotButton.addTarget(self, action: #selector(shotButtonTapped), for: .touchUpInside)
         self.galleryButton.addTarget(self, action: #selector(galleryButtonTapped), for: .touchUpInside)
 
@@ -165,9 +176,10 @@ class CameraPreviewViewController: UIViewController, CameraPreviewDisplayLogic
             self.previewMTKView,
             self.bottomContentView,
             self.filterToggleButton,
+            self.filterEditButton,
             self.filterCollectionView,
             self.galleryButton,
-            self.shotButton
+            self.shotButton,
         ].forEach { $0.translatesAutoresizingMaskIntoConstraints = false }
         
         NSLayoutConstraint.activate([
@@ -196,6 +208,11 @@ class CameraPreviewViewController: UIViewController, CameraPreviewDisplayLogic
             self.filterToggleButton.heightAnchor.constraint(equalTo: self.filterToggleButton.widthAnchor),
             self.filterToggleButton.trailingAnchor.constraint(equalTo: self.bottomContentView.trailingAnchor, constant: -15),
             
+            self.filterEditButton.widthAnchor.constraint(equalToConstant: 60),
+            self.filterEditButton.heightAnchor.constraint(equalToConstant: 30),
+            self.filterEditButton.bottomAnchor.constraint(equalTo: self.filterToggleButton.topAnchor, constant: -10),
+            self.filterEditButton.trailingAnchor.constraint(equalTo: self.filterToggleButton.trailingAnchor),
+            
             self.filterCollectionView.centerYAnchor.constraint(equalTo: self.bottomContentView.centerYAnchor),
             self.filterCollectionView.leadingAnchor.constraint(equalTo: self.bottomContentView.leadingAnchor, constant: 15),
             self.filterCollectionView.trailingAnchor.constraint(equalTo: self.filterToggleButton.leadingAnchor, constant: -15),
@@ -219,8 +236,13 @@ class CameraPreviewViewController: UIViewController, CameraPreviewDisplayLogic
 
     @objc private func filterToggleButtonTapped(_ button: UIButton) {
         self.filterCollectionView.isHidden.toggle()
+        self.filterEditButton.isHidden.toggle()
         self.galleryButton.isHidden.toggle()
         self.shotButton.isHidden.toggle()
+    }
+    
+    @objc private func filterEditButtonTapped(_ button: UIButton) {
+        print(#function)
     }
     
     @objc private func shotButtonTapped(_ button: UIButton) {
