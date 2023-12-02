@@ -8,6 +8,11 @@
 
 /* Begin PBXBuildFile section */
 		C24464492B1B1E3400F0B029 /* ListFilterCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C24464482B1B1E3400F0B029 /* ListFilterCell.swift */; };
+		C244644D2B1B4E7100F0B029 /* CreateFilterInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = C244644C2B1B4E7100F0B029 /* CreateFilterInteractor.swift */; };
+		C24464512B1B4EA100F0B029 /* CreateFilterViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C24464502B1B4EA100F0B029 /* CreateFilterViewController.swift */; };
+		C24464532B1B4EAC00F0B029 /* CreateFilterPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C24464522B1B4EAC00F0B029 /* CreateFilterPresenter.swift */; };
+		C24464552B1B4EBC00F0B029 /* CreateFilterWorker.swift in Sources */ = {isa = PBXBuildFile; fileRef = C24464542B1B4EBC00F0B029 /* CreateFilterWorker.swift */; };
+		C24464572B1B4EC200F0B029 /* CreateFilterRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C24464562B1B4EC200F0B029 /* CreateFilterRouter.swift */; };
 		C284660E2B15EC7C006D4E40 /* FilterCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C284660D2B15EC7C006D4E40 /* FilterCell.swift */; };
 		C2F1C80B2B078F37002F732D /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2F1C80A2B078F37002F732D /* AppDelegate.swift */; };
 		C2F1C80D2B078F37002F732D /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2F1C80C2B078F37002F732D /* SceneDelegate.swift */; };
@@ -38,6 +43,11 @@
 
 /* Begin PBXFileReference section */
 		C24464482B1B1E3400F0B029 /* ListFilterCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListFilterCell.swift; sourceTree = "<group>"; };
+		C244644C2B1B4E7100F0B029 /* CreateFilterInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateFilterInteractor.swift; sourceTree = "<group>"; };
+		C24464502B1B4EA100F0B029 /* CreateFilterViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateFilterViewController.swift; sourceTree = "<group>"; };
+		C24464522B1B4EAC00F0B029 /* CreateFilterPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateFilterPresenter.swift; sourceTree = "<group>"; };
+		C24464542B1B4EBC00F0B029 /* CreateFilterWorker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateFilterWorker.swift; sourceTree = "<group>"; };
+		C24464562B1B4EC200F0B029 /* CreateFilterRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateFilterRouter.swift; sourceTree = "<group>"; };
 		C284660D2B15EC7C006D4E40 /* FilterCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterCell.swift; sourceTree = "<group>"; };
 		C2F1C8072B078F37002F732D /* CameraFilterApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CameraFilterApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		C2F1C80A2B078F37002F732D /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -176,7 +186,12 @@
 		EDEC73952B17305200595A95 /* CreateFilter */ = {
 			isa = PBXGroup;
 			children = (
+				C24464502B1B4EA100F0B029 /* CreateFilterViewController.swift */,
+				C244644C2B1B4E7100F0B029 /* CreateFilterInteractor.swift */,
+				C24464522B1B4EAC00F0B029 /* CreateFilterPresenter.swift */,
 				EDEC73962B17329E00595A95 /* CreateFilterModels.swift */,
+				C24464542B1B4EBC00F0B029 /* CreateFilterWorker.swift */,
+				C24464562B1B4EC200F0B029 /* CreateFilterRouter.swift */,
 			);
 			path = CreateFilter;
 			sourceTree = "<group>";
@@ -266,24 +281,29 @@
 			files = (
 				EDEC73842B14645F00595A95 /* SepiaFilter.swift in Sources */,
 				ED442E6A2B195B5700A030C6 /* FiltersWorker.swift in Sources */,
+				C24464512B1B4EA100F0B029 /* CreateFilterViewController.swift in Sources */,
 				EDEC73B12B18244A00595A95 /* ListFiltersRouter.swift in Sources */,
+				C24464532B1B4EAC00F0B029 /* CreateFilterPresenter.swift in Sources */,
 				EDEC73AB2B18242D00595A95 /* ListFiltersPresenter.swift in Sources */,
 				EDEC73B82B18614500595A95 /* PosterizeFilter.swift in Sources */,
 				EDEC73862B14650200595A95 /* VintageFilter.swift in Sources */,
 				EDEC73B62B185A6B00595A95 /* BlurFilter.swift in Sources */,
 				EDEC737F2B145DA400595A95 /* CameraPreviewInteractor.swift in Sources */,
 				C284660E2B15EC7C006D4E40 /* FilterCell.swift in Sources */,
+				C24464552B1B4EBC00F0B029 /* CreateFilterWorker.swift in Sources */,
 				C2F1C80B2B078F37002F732D /* AppDelegate.swift in Sources */,
 				EDEC737E2B145DA400595A95 /* CameraPreviewViewController.swift in Sources */,
 				EDEC73AD2B18243C00595A95 /* ListFiltersViewController.swift in Sources */,
 				ED442E6C2B19628900A030C6 /* FilterMemStore.swift in Sources */,
 				C24464492B1B1E3400F0B029 /* ListFilterCell.swift in Sources */,
 				EDEC738B2B14659E00595A95 /* MonochromeFilter.swift in Sources */,
+				C244644D2B1B4E7100F0B029 /* CreateFilterInteractor.swift in Sources */,
 				EDEC737C2B145DA400595A95 /* CameraPreviewRouter.swift in Sources */,
 				EDEC739D2B181E1300595A95 /* ListFiltersModels.swift in Sources */,
 				EDEC73822B14636B00595A95 /* CameraFilter.swift in Sources */,
 				EDEC737A2B145DA400595A95 /* CameraPreviewPresenter.swift in Sources */,
 				C2F1C80D2B078F37002F732D /* SceneDelegate.swift in Sources */,
+				C24464572B1B4EC200F0B029 /* CreateFilterRouter.swift in Sources */,
 				EDEC73972B17329E00595A95 /* CreateFilterModels.swift in Sources */,
 				EDEC73A92B1823DE00595A95 /* ListFiltersInteractor.swift in Sources */,
 				EDEC737D2B145DA400595A95 /* CameraPreviewModels.swift in Sources */,
