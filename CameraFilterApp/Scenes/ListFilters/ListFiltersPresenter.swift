@@ -9,11 +9,13 @@ import UIKit
 
 protocol ListFiltersPresentationLogic
 {
+    func displayFilters(response: ListFilters.FetchFilters.Response)
 }
 
 class ListFiltersPresenter: ListFiltersPresentationLogic
 {
-  weak var viewController: ListFiltersDisplayLogic?
-  
-  // MARK: Do something
+    weak var viewController: ListFiltersDisplayLogic?
+    
+    func displayFilters(response: ListFilters.FetchFilters.Response) {
+    }
 }
