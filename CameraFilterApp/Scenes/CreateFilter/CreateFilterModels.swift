@@ -10,36 +10,28 @@ import UIKit
 enum CreateFilter
 {
     // MARK: Use cases
-    
+    typealias FilterProperty = (min:CGFloat, max:CGFloat, value:CGFloat)
+
     struct FilterInfo {
-        var filterId: UUID
-        var filterName: String
+        var filterName: String?
         
-        var filterPropertyFields: FilterPropertyFields
-    }
-    
-    struct FilterPropertyFields {
-        var inputColor: FilterProperty?
+        var filterSystemName: FilterName?
+
+        var inputColor: UIColor?
         var inputIntensity: FilterProperty?
         var inputRadius: FilterProperty?
         var inputLevels: FilterProperty?
     }
     
-    struct FilterProperty {
-        var min: CGFloat
-        var currentValue: CGFloat
-        var max: CGFloat
-    }
-    
     enum FetchFilter {
         struct Request {
-            var filterId: UUID
+            
         }
         struct Response {
             var filter: CameraFilter
         }
         struct ViewModel {
-            var filterInfo: FilterInfo
+            var filterInfo: FilterInfo?
         }
     }
     
@@ -57,13 +49,19 @@ enum CreateFilter
     
     enum FetchProperties {
         struct Request {
-            var filterType: [FilterName]
+            var filterSystemName: FilterName
         }
         struct Response {
-            var filterPropertyFields: FilterPropertyFields
+            var inputColor: UIColor?
+            var inputIntensity: FilterProperty?
+            var inputRadius: FilterProperty?
+            var inputLevels: FilterProperty?
         }
         struct ViewModel {
-            var filterPropertyFields: FilterPropertyFields
+            var inputColor: UIColor?
+            var inputIntensity: FilterProperty?
+            var inputRadius: FilterProperty?
+            var inputLevels: FilterProperty?
         }
     }
     
@@ -73,7 +71,7 @@ enum CreateFilter
             
             var filterSystemName: FilterName
             
-            var inputColor: CGColor?
+            var inputColor: UIColor?
             var inputIntensity: CGFloat?
             var inputRadius: CGFloat?
             var inputLevels: CGFloat?
@@ -88,7 +86,14 @@ enum CreateFilter
     
     enum EditFilter {
         struct Request {
-            var filterInfo: FilterInfo
+            var filterName: String
+            
+            var filterSystemName: FilterName
+            
+            var inputColor: UIColor?
+            var inputIntensity: CGFloat?
+            var inputRadius: CGFloat?
+            var inputLevels: CGFloat?
         }
         struct Response {
             var filter: CameraFilter?
@@ -100,7 +105,7 @@ enum CreateFilter
     
     enum DeleteFilter {
         struct Request {
-            var filterId: UUID
+            
         }
         struct Response {
             var filter: CameraFilter?
