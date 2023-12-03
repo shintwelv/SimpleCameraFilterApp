@@ -28,7 +28,7 @@ enum CreateFilter
             
         }
         struct Response {
-            var filter: CameraFilter
+            var filter: CameraFilter?
         }
         struct ViewModel {
             var filterInfo: FilterInfo?

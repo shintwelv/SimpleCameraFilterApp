@@ -34,8 +34,6 @@ class CreateFilterInteractor: CreateFilterBusinessLogic, CreateFilterDataStore
         guard let filterId = self.filterId else { return }
         
         filtersWorker.fetchFilter(filterId: filterId) { filter in
-            guard let filter = filter else { return }
-            
             let response = CreateFilter.FetchFilter.Response(filter: filter)
         }
     }
