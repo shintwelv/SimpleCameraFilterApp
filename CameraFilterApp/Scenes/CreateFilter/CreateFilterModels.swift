@@ -15,7 +15,7 @@ enum CreateFilter
     struct FilterInfo {
         var filterName: String?
         
-        var filterSystemName: FilterName?
+        var filterSystemName: CameraFilter.FilterName?
 
         var inputColor: UIColor?
         var inputIntensity: FilterProperty?
@@ -40,7 +40,7 @@ enum CreateFilter
             
         }
         struct Response {
-            var filterCategories: [FilterName]
+            var filterCategories: [CameraFilter.FilterName]
         }
         struct ViewModel {
             var filterCategories: [String]
@@ -49,7 +49,7 @@ enum CreateFilter
     
     enum FetchProperties {
         struct Request {
-            var filterSystemName: FilterName
+            var filterSystemName: CameraFilter.FilterName
         }
         struct Response {
             var inputColor: UIColor?
@@ -69,7 +69,7 @@ enum CreateFilter
         struct Request {
             var filterName: String
             
-            var filterSystemName: FilterName
+            var filterSystemName: CameraFilter.FilterName
             
             var inputColor: UIColor?
             var inputIntensity: CGFloat?
@@ -88,7 +88,7 @@ enum CreateFilter
         struct Request {
             var filterName: String
             
-            var filterSystemName: FilterName
+            var filterSystemName: CameraFilter.FilterName
             
             var inputColor: UIColor?
             var inputIntensity: CGFloat?

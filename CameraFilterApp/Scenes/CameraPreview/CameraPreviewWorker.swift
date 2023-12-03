@@ -17,14 +17,13 @@ class CameraPreviewWorker
 {
     var allFilters: [CameraFilter] = {
         let filters: [CameraFilter?] = [
-            SepiaFilter(inputIntensity: 1.0),
-            VintageFilter(),
-            BlackWhiteFilter(),
-            MonochromeFilter(displayName: "시안", inputColor: CIColor.cyan),
-            MonochromeFilter(displayName: "로즈", inputColor: CIColor.magenta),
-            MonochromeFilter(displayName: "블루", inputColor: CIColor.blue),
-            BlurFilter(displayName: "블러"),
-            PosterizeFilter(displayName: "포스터")
+            CameraFilter.createSepiaFilter(filterId: UUID(), displayName: "세피아", inputIntensity: 1.0),
+            CameraFilter.createVintageFilter(filterId: UUID(), displayName: "빈티지"),
+            CameraFilter.createMonochromeFilter(filterId: UUID(), displayName: "시안", inputColor: .cyan, inputIntensity: 1.0),
+            CameraFilter.createMonochromeFilter(filterId: UUID(), displayName: "로즈", inputColor: .magenta, inputIntensity: 1.0),
+            CameraFilter.createMonochromeFilter(filterId: UUID(), displayName: "블루", inputColor: .blue, inputIntensity: 1.0),
+            CameraFilter.createBlurFilter(filterId: UUID(), displayName: "블러", inputRadius: 1.0),
+            CameraFilter.createPosterizeFilter(filterId: UUID(), displayName: "포스터", inputLevels: 6.0),
         ]
         
         return filters.compactMap {$0}
