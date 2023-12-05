@@ -106,6 +106,8 @@ class ListFiltersViewController: UIViewController, ListFiltersDisplayLogic
         self.filterCollectionView.delegate = self
         self.filterCollectionView.dataSource = self
         
+        self.filterAddButton.addTarget(self, action: #selector(filterAddButtonTapped), for: .touchUpInside)
+        
         self.filterCollectionView.register(ListFilterCell.self, forCellWithReuseIdentifier: "listFilterCell")
     }
     
@@ -128,6 +130,13 @@ class ListFiltersViewController: UIViewController, ListFiltersDisplayLogic
         ])
     }
     
+    @objc private func filterAddButtonTapped(_ button: UIButton) {
+        let selector = NSSelectorFromString("routeToCreateFilterWithSegue:")
+        if let router = router, router.responds(to: selector) {
+            router.perform(selector, with: nil)
+        }
+    }
+    
     // MARK: Fetched filters
     func fetchFilters() {
         let request = ListFilters.FetchFilters.Request()
@@ -143,7 +152,14 @@ class ListFiltersViewController: UIViewController, ListFiltersDisplayLogic
 
 extension ListFiltersViewController: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        print(#function)
+        let selectedFilterId = filterInfos[indexPath.row].filterId
+        let request = ListFilters.SelectFilter.Request(filterId: selectedFilterId)
+        interactor?.selectFilter(request: request)
+
+        let selector = NSSelectorFromString("routeToCreateFilterWithSegue:")
+        if let router = router, router.responds(to: selector) {
+            router.perform(selector, with: nil)
+        }
     }
 }
 
