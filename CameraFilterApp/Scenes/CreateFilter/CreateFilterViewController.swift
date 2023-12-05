@@ -18,59 +18,303 @@ protocol CreateFilterDisplayLogic: AnyObject
 
 class CreateFilterViewController: UIViewController, CreateFilterDisplayLogic
 {
-  var interactor: CreateFilterBusinessLogic?
-  var router: (NSObjectProtocol & CreateFilterRoutingLogic & CreateFilterDataPassing)?
-
-  // MARK: Object lifecycle
-  
-  override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?)
-  {
-    super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
-    setup()
-  }
-  
-  required init?(coder aDecoder: NSCoder)
-  {
-    super.init(coder: aDecoder)
-    setup()
-  }
-  
-  // MARK: Setup
-  
-  private func setup()
-  {
-    let viewController = self
-    let interactor = CreateFilterInteractor()
-    let presenter = CreateFilterPresenter()
-    let router = CreateFilterRouter()
-    viewController.interactor = interactor
-    viewController.router = router
-    interactor.presenter = presenter
-    presenter.viewController = viewController
-    router.viewController = viewController
-    router.dataStore = interactor
-  }
-  
-  // MARK: Routing
-  
-  override func prepare(for segue: UIStoryboardSegue, sender: Any?)
-  {
-    if let scene = segue.identifier {
-      let selector = NSSelectorFromString("routeTo\(scene)WithSegue:")
-      if let router = router, router.responds(to: selector) {
-        router.perform(selector, with: segue)
-      }
+    var interactor: CreateFilterBusinessLogic?
+    var router: (NSObjectProtocol & CreateFilterRoutingLogic & CreateFilterDataPassing)?
+    
+    // MARK: Object lifecycle
+    
+    override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?)
+    {
+        super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
+        setup()
     }
-  }
-  
-  // MARK: View lifecycle
-  
-  override func viewDidLoad()
-  {
-    super.viewDidLoad()
-  }
-  
-  // MARK: Do something
-  
-  //@IBOutlet weak var nameTextField: UITextField!
+    
+    required init?(coder aDecoder: NSCoder)
+    {
+        super.init(coder: aDecoder)
+        setup()
+    }
+    
+    // MARK: Setup
+    
+    private func setup()
+    {
+        let viewController = self
+        let interactor = CreateFilterInteractor()
+        let presenter = CreateFilterPresenter()
+        let router = CreateFilterRouter()
+        viewController.interactor = interactor
+        viewController.router = router
+        interactor.presenter = presenter
+        presenter.viewController = viewController
+        router.viewController = viewController
+        router.dataStore = interactor
+    }
+    
+    // MARK: Routing
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?)
+    {
+        if let scene = segue.identifier {
+            let selector = NSSelectorFromString("routeTo\(scene)WithSegue:")
+            if let router = router, router.responds(to: selector) {
+                router.perform(selector, with: segue)
+            }
+        }
+    }
+    
+    private var exampleTextLabel: UILabel = {
+        let label = UILabel()
+        label.text = "필터 예시"
+        label.font = .systemFont(ofSize: 18)
+        label.tintColor = .black
+        label.textAlignment = .left
+        return label
+    }()
+    
+    private var sampleImageView: UIImageView = {
+        let view = UIImageView()
+        view.contentMode = .scaleAspectFit
+        return view
+    }()
+    
+    private var filterDisplayNameLabel: UILabel = {
+        let label = UILabel()
+        label.text = "필터명"
+        label.font = .systemFont(ofSize: 18)
+        label.tintColor = .black
+        label.textAlignment = .left
+        return label
+    }()
+    
+    private var filterDisplayNameTextField: UITextField = {
+        let tf = UITextField()
+        tf.textColor = .black
+        tf.textAlignment = .left
+        tf.backgroundColor = .systemGray6
+        tf.font = .systemFont(ofSize: 18)
+        tf.clearButtonMode = .whileEditing
+        return tf
+    }()
+    
+    private var filterCategoryLabel: UILabel = {
+        let label = UILabel()
+        label.text = "카테고리"
+        label.font = .systemFont(ofSize: 18)
+        label.tintColor = .black
+        label.textAlignment = .left
+        return label
+    }()
+    
+    private var fitlerCategoryTextField: UITextField = {
+        let tf = UITextField()
+        tf.textColor = .black
+        tf.textAlignment = .left
+        tf.backgroundColor = .systemGray6
+        tf.font = .systemFont(ofSize: 18)
+        return tf
+    }()
+    
+    private var propertyScrollView: UIScrollView = {
+        let view = UIScrollView()
+        view.showsHorizontalScrollIndicator = false
+        view.showsVerticalScrollIndicator = false
+        view.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 30, right: 0)
+        return view
+    }()
+    
+    private var propertyStackView: UIStackView = {
+        let view = UIStackView()
+        view.axis = .vertical
+        view.spacing = 15
+        return view
+    }()
+    
+    private var inputColorPickerView = ColorPickerPropertyView()
+    
+    private var inputIntensitySliderView = SliderPropertyView()
+    
+    private var inputRadiusSliderView = SliderPropertyView()
+    
+    private var inputLevelsSliderView = SliderPropertyView()
+    
+    private var buttonStackView: UIStackView = {
+        let view = UIStackView()
+        view.axis = .horizontal
+        view.spacing = 10
+        view.distribution = .fillEqually
+        return view
+    }()
+    
+    private var createButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.tintColor = .white
+        button.setTitle("생성", for: .normal)
+        button.titleLabel?.font = .systemFont(ofSize: 20, weight: .bold)
+        button.backgroundColor = .systemPurple
+        button.layer.cornerRadius = 10
+        return button
+    }()
+    
+    private var deleteButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.tintColor = .white
+        button.setTitle("삭제", for: .normal)
+        button.titleLabel?.font = .systemFont(ofSize: 20, weight: .bold)
+        button.backgroundColor = .systemRed
+        button.layer.cornerRadius = 10
+        button.isHidden = true
+        return button
+    }()
+    
+    private var editButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.tintColor = .white
+        button.setTitle("수정", for: .normal)
+        button.titleLabel?.font = .systemFont(ofSize: 20, weight: .bold)
+        button.backgroundColor = .systemBlue
+        button.layer.cornerRadius = 10
+        button.isHidden = true
+        return button
+    }()
+    
+    // MARK: View lifecycle
+    
+    override func viewDidLoad()
+    {
+        super.viewDidLoad()
+        
+        configureUI()
+        configureAutoLayout()
+    }
+
+    private func configureUI() {
+        self.view.backgroundColor = .white
+        
+        self.sampleImageView.image = UIImage(named: "lena_color")
+        
+        [
+            self.exampleTextLabel,
+            self.sampleImageView,
+            self.filterDisplayNameLabel,
+            self.filterDisplayNameTextField,
+            self.filterCategoryLabel,
+            self.fitlerCategoryTextField,
+            self.propertyScrollView,
+            self.propertyStackView,
+            self.buttonStackView,
+        ].forEach { self.view.addSubview($0) }
+        
+        [
+            self.propertyStackView
+        ].forEach { self.propertyScrollView.addSubview($0) }
+        
+        [
+            self.createButton,
+            self.deleteButton,
+            self.editButton,
+        ].forEach { self.buttonStackView.addArrangedSubview($0) }
+        
+        [
+            self.inputColorPickerView as PropertyView,
+            self.inputIntensitySliderView,
+            self.inputRadiusSliderView,
+            self.inputLevelsSliderView,
+        ].forEach { self.propertyStackView.addArrangedSubview($0.contentView) }
+    }
+    
+    private func configureAutoLayout() {
+        [
+            self.exampleTextLabel,
+            self.sampleImageView,
+            self.filterDisplayNameLabel,
+            self.filterDisplayNameTextField,
+            self.filterCategoryLabel,
+            self.fitlerCategoryTextField,
+            self.propertyScrollView,
+            self.buttonStackView,
+
+            self.propertyStackView,
+
+            self.createButton,
+            self.deleteButton,
+            self.editButton,
+        ].forEach { $0.translatesAutoresizingMaskIntoConstraints = false }
+        
+        // self.view's subviews
+        NSLayoutConstraint.activate([
+            self.sampleImageView.topAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.topAnchor, constant: 15),
+            self.sampleImageView.centerXAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.centerXAnchor),
+            self.sampleImageView.widthAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.widthAnchor, multiplier: 0.33),
+            self.sampleImageView.heightAnchor.constraint(equalTo: self.sampleImageView.widthAnchor, multiplier: 1.0),
+
+            self.exampleTextLabel.topAnchor.constraint(equalTo: self.sampleImageView.bottomAnchor, constant: 5),
+            self.exampleTextLabel.centerXAnchor.constraint(equalTo: self.sampleImageView.centerXAnchor),
+            self.exampleTextLabel.heightAnchor.constraint(equalToConstant: 30),
+            
+            self.filterCategoryLabel.topAnchor.constraint(equalTo: self.exampleTextLabel.bottomAnchor, constant: 15),
+            self.filterCategoryLabel.leadingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.leadingAnchor, constant: 15),
+            self.filterCategoryLabel.trailingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.trailingAnchor, constant: -15),
+            self.filterCategoryLabel.heightAnchor.constraint(equalToConstant: 30),
+            
+            self.fitlerCategoryTextField.topAnchor.constraint(equalTo: self.filterCategoryLabel.bottomAnchor, constant: 5),
+            self.fitlerCategoryTextField.leadingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.leadingAnchor, constant: 15),
+            self.fitlerCategoryTextField.trailingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.trailingAnchor, constant: -15),
+            self.fitlerCategoryTextField.heightAnchor.constraint(equalToConstant: 45),
+            
+            self.filterDisplayNameLabel.topAnchor.constraint(equalTo: self.fitlerCategoryTextField.bottomAnchor, constant: 15),
+            self.filterDisplayNameLabel.leadingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.leadingAnchor, constant: 15),
+            self.filterDisplayNameLabel.trailingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.trailingAnchor, constant: -15),
+            self.filterDisplayNameLabel.heightAnchor.constraint(equalToConstant: 30),
+            
+            self.filterDisplayNameTextField.topAnchor.constraint(equalTo: self.filterDisplayNameLabel.bottomAnchor, constant: 5),
+            self.filterDisplayNameTextField.leadingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.leadingAnchor, constant: 15),
+            self.filterDisplayNameTextField.trailingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.trailingAnchor, constant: -15),
+            self.filterDisplayNameTextField.heightAnchor.constraint(equalToConstant: 45),
+            
+            self.propertyScrollView.topAnchor.constraint(equalTo: self.filterDisplayNameTextField.bottomAnchor, constant: 15),
+            self.propertyScrollView.leadingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.leadingAnchor, constant: 15),
+            self.propertyScrollView.trailingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.trailingAnchor, constant: -15),
+            self.propertyScrollView.bottomAnchor.constraint(equalTo: self.buttonStackView.topAnchor, constant: -15),
+            
+            self.buttonStackView.bottomAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.bottomAnchor, constant: -10),
+            self.buttonStackView.leadingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.leadingAnchor, constant: 15),
+            self.buttonStackView.trailingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.trailingAnchor, constant: -15),
+            self.buttonStackView.heightAnchor.constraint(equalToConstant: 60),
+        ])
+        
+        // buttonStackView's subviews
+        NSLayoutConstraint.activate([
+            self.createButton.heightAnchor.constraint(equalToConstant: 60),
+            
+            self.editButton.heightAnchor.constraint(equalToConstant: 60),
+            
+            self.deleteButton.heightAnchor.constraint(equalToConstant: 60),
+        ])
+        
+        // propertyScrollView's subviews
+        NSLayoutConstraint.activate([
+            self.propertyStackView.topAnchor.constraint(equalTo: self.propertyScrollView.topAnchor),
+            self.propertyStackView.leadingAnchor.constraint(equalTo: self.propertyScrollView.leadingAnchor),
+            self.propertyStackView.trailingAnchor.constraint(equalTo: self.propertyScrollView.trailingAnchor),
+            self.propertyStackView.bottomAnchor.constraint(equalTo: self.propertyScrollView.bottomAnchor),
+            
+            self.propertyStackView.widthAnchor.constraint(equalTo: self.propertyScrollView.widthAnchor)
+        ])
+        
+        // propertyStackView's subviews
+        NSLayoutConstraint.activate([
+            self.inputColorPickerView.contentView.heightAnchor.constraint(equalToConstant: 70),
+            self.inputColorPickerView.contentView.widthAnchor.constraint(equalTo: self.propertyStackView.widthAnchor),
+            
+            self.inputIntensitySliderView.contentView.heightAnchor.constraint(equalToConstant: 95),
+            self.inputIntensitySliderView.contentView.widthAnchor.constraint(equalTo: self.propertyStackView.widthAnchor),
+            
+            self.inputRadiusSliderView.contentView.heightAnchor.constraint(equalToConstant: 95),
+            self.inputRadiusSliderView.contentView.widthAnchor.constraint(equalTo: self.propertyStackView.widthAnchor),
+            
+            self.inputLevelsSliderView.contentView.heightAnchor.constraint(equalToConstant: 95),
+            self.inputLevelsSliderView.contentView.widthAnchor.constraint(equalTo: self.propertyStackView.widthAnchor),
+        ])
+    }
 }

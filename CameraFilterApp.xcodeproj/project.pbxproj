@@ -288,6 +288,7 @@
 				C284660E2B15EC7C006D4E40 /* FilterCell.swift in Sources */,
 				C24464552B1B4EBC00F0B029 /* CreateFilterWorker.swift in Sources */,
 				C2F1C80B2B078F37002F732D /* AppDelegate.swift in Sources */,
+				EDE29D2A2B1F652500C73406 /* ColorPickerPropertyView.swift in Sources */,
 				EDEC737E2B145DA400595A95 /* CameraPreviewViewController.swift in Sources */,
 				EDEC73AD2B18243C00595A95 /* ListFiltersViewController.swift in Sources */,
 				ED442E6C2B19628900A030C6 /* FilterMemStore.swift in Sources */,
@@ -455,9 +456,9 @@
 				INFOPLIST_KEY_NSCameraUsageDescription = "use camera";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
-				INFOPLIST_KEY_UIMainStoryboardFile = Main;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -490,9 +491,9 @@
 				INFOPLIST_KEY_NSCameraUsageDescription = "use camera";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
-				INFOPLIST_KEY_UIMainStoryboardFile = Main;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
