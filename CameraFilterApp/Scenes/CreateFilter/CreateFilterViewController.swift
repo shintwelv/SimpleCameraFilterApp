@@ -14,6 +14,12 @@ import UIKit
 
 protocol CreateFilterDisplayLogic: AnyObject
 {
+    func displayFetchedFilter(viewModel: CreateFilter.FetchFilter.ViewModel)
+    func displayFetchedCategories(viewModel: CreateFilter.FetchFilterCategories.ViewModel)
+    func displayFetchedProperties(viewModel: CreateFilter.FetchProperties.ViewModel)
+    func displayCreatedFilter(viewModel: CreateFilter.CreateFilter.ViewModel)
+    func displayEditedFilter(viewModel: CreateFilter.EditFilter.ViewModel)
+    func displayDeletedFilter(viewModel: CreateFilter.DeleteFilter.ViewModel)
 }
 
 class CreateFilterViewController: UIViewController, CreateFilterDisplayLogic
@@ -317,4 +323,17 @@ class CreateFilterViewController: UIViewController, CreateFilterDisplayLogic
             self.inputLevelsSliderView.contentView.widthAnchor.constraint(equalTo: self.propertyStackView.widthAnchor),
         ])
     }
+    
+    // MARK: - CreateFilterDisplayLogic
+    func displayFetchedFilter(viewModel: CreateFilter.FetchFilter.ViewModel) {}
+
+    func displayFetchedCategories(viewModel: CreateFilter.FetchFilterCategories.ViewModel) {}
+
+    func displayFetchedProperties(viewModel: CreateFilter.FetchProperties.ViewModel) {}
+
+    func displayCreatedFilter(viewModel: CreateFilter.CreateFilter.ViewModel) {}
+
+    func displayEditedFilter(viewModel: CreateFilter.EditFilter.ViewModel) {}
+
+    func displayDeletedFilter(viewModel: CreateFilter.DeleteFilter.ViewModel) {}
 }

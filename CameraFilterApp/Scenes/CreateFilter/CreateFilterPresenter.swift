@@ -27,8 +27,10 @@ class CreateFilterPresenter: CreateFilterPresentationLogic
             let filterInfo = convertToFilterInfo(filter)
             
             let viewModel = CreateFilter.FetchFilter.ViewModel(filterInfo: filterInfo)
+            self.viewController?.displayFetchedFilter(viewModel: viewModel)
         } else {
             let viewModel = CreateFilter.FetchFilter.ViewModel(filterInfo: nil)
+            self.viewController?.displayFetchedFilter(viewModel: viewModel)
         }
     }
     
@@ -36,6 +38,7 @@ class CreateFilterPresenter: CreateFilterPresentationLogic
         let filterCategories = response.filterCategories.map { $0.rawValue }
         
         let viewModel = CreateFilter.FetchFilterCategories.ViewModel(filterCategories: filterCategories)
+        self.viewController?.displayFetchedCategories(viewModel: viewModel)
     }
     
     func presentFetchedProperties(response: CreateFilter.FetchProperties.Response) {
@@ -43,6 +46,7 @@ class CreateFilterPresenter: CreateFilterPresentationLogic
                                                                inputIntensity: response.inputIntensity,
                                                                inputRadius: response.inputRadius,
                                                                inputLevels: response.inputLevels)
+        self.viewController?.displayFetchedProperties(viewModel: viewModel)
     }
     
     func presentCreatedFilter(response: CreateFilter.CreateFilter.Response) {
@@ -50,8 +54,10 @@ class CreateFilterPresenter: CreateFilterPresentationLogic
             let filterInfo = convertToFilterInfo(filter)
             
             let viewModel = CreateFilter.CreateFilter.ViewModel(filterInfo: filterInfo)
+            self.viewController?.displayCreatedFilter(viewModel: viewModel)
         } else {
             let viewModel = CreateFilter.CreateFilter.ViewModel(filterInfo: nil)
+            self.viewController?.displayCreatedFilter(viewModel: viewModel)
         }
     }
     
@@ -59,9 +65,11 @@ class CreateFilterPresenter: CreateFilterPresentationLogic
         if let filter = response.filter {
             let filterInfo = convertToFilterInfo(filter)
             
-            let viewModel = CreateFilter.CreateFilter.ViewModel(filterInfo: filterInfo)
+            let viewModel = CreateFilter.EditFilter.ViewModel(filterInfo: filterInfo)
+            self.viewController?.displayEditedFilter(viewModel: viewModel)
         } else {
-            let viewModel = CreateFilter.CreateFilter.ViewModel(filterInfo: nil)
+            let viewModel = CreateFilter.EditFilter.ViewModel(filterInfo: nil)
+            self.viewController?.displayEditedFilter(viewModel: viewModel)
         }
     }
     
@@ -69,9 +77,11 @@ class CreateFilterPresenter: CreateFilterPresentationLogic
         if let filter = response.filter {
             let filterInfo = convertToFilterInfo(filter)
             
-            let viewModel = CreateFilter.CreateFilter.ViewModel(filterInfo: filterInfo)
+            let viewModel = CreateFilter.DeleteFilter.ViewModel(filterInfo: filterInfo)
+            self.viewController?.displayDeletedFilter(viewModel: viewModel)
         } else {
-            let viewModel = CreateFilter.CreateFilter.ViewModel(filterInfo: nil)
+            let viewModel = CreateFilter.DeleteFilter.ViewModel(filterInfo: nil)
+            self.viewController?.displayDeletedFilter(viewModel: viewModel)
         }
     }
     
