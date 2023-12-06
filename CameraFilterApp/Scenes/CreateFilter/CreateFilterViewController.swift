@@ -136,13 +136,29 @@ class CreateFilterViewController: UIViewController, CreateFilterDisplayLogic
         return view
     }()
     
-    private var inputColorPickerView = ColorPickerPropertyView()
+    private var inputColorPickerView = {
+        let view = ColorPickerPropertyView()
+        view.contentView.isHidden = true
+        return view
+    }()
     
-    private var inputIntensitySliderView = SliderPropertyView()
+    private var inputIntensitySliderView = {
+        let view = SliderPropertyView()
+        view.contentView.isHidden = true
+        return view
+    }()
     
-    private var inputRadiusSliderView = SliderPropertyView()
+    private var inputRadiusSliderView = {
+        let view = SliderPropertyView()
+        view.contentView.isHidden = true
+        return view
+    }()
     
-    private var inputLevelsSliderView = SliderPropertyView()
+    private var inputLevelsSliderView = {
+        let view = SliderPropertyView()
+        view.contentView.isHidden = true
+        return view
+    }()
     
     private var buttonStackView: UIStackView = {
         let view = UIStackView()
@@ -159,6 +175,7 @@ class CreateFilterViewController: UIViewController, CreateFilterDisplayLogic
         button.titleLabel?.font = .systemFont(ofSize: 20, weight: .bold)
         button.backgroundColor = .systemPurple
         button.layer.cornerRadius = 10
+        button.isHidden = true
         return button
     }()
     
