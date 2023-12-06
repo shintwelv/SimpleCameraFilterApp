@@ -35,6 +35,7 @@ class CreateFilterInteractor: CreateFilterBusinessLogic, CreateFilterDataStore
         
         filtersWorker.fetchFilter(filterId: filterId) { filter in
             let response = CreateFilter.FetchFilter.Response(filter: filter)
+            self.presenter?.presentFetchedFilter(response: response)
         }
     }
     
@@ -42,6 +43,7 @@ class CreateFilterInteractor: CreateFilterBusinessLogic, CreateFilterDataStore
         let filterCategories: [CameraFilter.FilterName] = CameraFilter.FilterName.allCases
         
         let response = CreateFilter.FetchFilterCategories.Response(filterCategories: filterCategories)
+        presenter?.presentFetchedCategories(response: response)
     }
     
     func fetchProperties(request: CreateFilter.FetchProperties.Request) {
@@ -70,6 +72,8 @@ class CreateFilterInteractor: CreateFilterBusinessLogic, CreateFilterDataStore
                                                              inputRadius: nil,
                                                              inputLevels: nil)
         }
+        
+        presenter?.presentFetchedProperties(response: response)
     }
     
     func createFilter(request: CreateFilter.CreateFilter.Request) {
@@ -92,6 +96,7 @@ class CreateFilterInteractor: CreateFilterBusinessLogic, CreateFilterDataStore
         
         filtersWorker.createFilter(filterToCreate: filter) { filter in
             let response = CreateFilter.CreateFilter.Response(filter: filter)
+            self.presenter?.presentCreatedFilter(response: response)
         }
     }
     
@@ -117,6 +122,7 @@ class CreateFilterInteractor: CreateFilterBusinessLogic, CreateFilterDataStore
         
         filtersWorker.updateFilter(filterToUpdate: filterToUpdate) { filter in
             let response = CreateFilter.EditFilter.Response(filter: filter)
+            self.presenter?.presentEditedFilter(response: response)
         }
     }
     
@@ -125,6 +131,7 @@ class CreateFilterInteractor: CreateFilterBusinessLogic, CreateFilterDataStore
         
         filtersWorker.deleteFilter(filterId: filterId) { filter in
             let response = CreateFilter.DeleteFilter.Response(filter: filter)
+            self.presenter?.presentDeletedFilter(response: response)
         }
     }
     
