@@ -112,7 +112,7 @@ class CreateFilterViewController: UIViewController, CreateFilterDisplayLogic
         return label
     }()
     
-    private var fitlerCategoryTextField: UITextField = {
+    private var filterCategoryTextField: UITextField = {
         let tf = UITextField()
         tf.textColor = .black
         tf.textAlignment = .left
@@ -205,7 +205,7 @@ class CreateFilterViewController: UIViewController, CreateFilterDisplayLogic
             self.filterDisplayNameLabel,
             self.filterDisplayNameTextField,
             self.filterCategoryLabel,
-            self.fitlerCategoryTextField,
+            self.filterCategoryTextField,
             self.propertyScrollView,
             self.propertyStackView,
             self.buttonStackView,
@@ -236,7 +236,7 @@ class CreateFilterViewController: UIViewController, CreateFilterDisplayLogic
             self.filterDisplayNameLabel,
             self.filterDisplayNameTextField,
             self.filterCategoryLabel,
-            self.fitlerCategoryTextField,
+            self.filterCategoryTextField,
             self.propertyScrollView,
             self.buttonStackView,
 
@@ -263,12 +263,12 @@ class CreateFilterViewController: UIViewController, CreateFilterDisplayLogic
             self.filterCategoryLabel.trailingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.trailingAnchor, constant: -15),
             self.filterCategoryLabel.heightAnchor.constraint(equalToConstant: 30),
             
-            self.fitlerCategoryTextField.topAnchor.constraint(equalTo: self.filterCategoryLabel.bottomAnchor, constant: 5),
-            self.fitlerCategoryTextField.leadingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.leadingAnchor, constant: 15),
-            self.fitlerCategoryTextField.trailingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.trailingAnchor, constant: -15),
-            self.fitlerCategoryTextField.heightAnchor.constraint(equalToConstant: 45),
+            self.filterCategoryTextField.topAnchor.constraint(equalTo: self.filterCategoryLabel.bottomAnchor, constant: 5),
+            self.filterCategoryTextField.leadingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.leadingAnchor, constant: 15),
+            self.filterCategoryTextField.trailingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.trailingAnchor, constant: -15),
+            self.filterCategoryTextField.heightAnchor.constraint(equalToConstant: 45),
             
-            self.filterDisplayNameLabel.topAnchor.constraint(equalTo: self.fitlerCategoryTextField.bottomAnchor, constant: 15),
+            self.filterDisplayNameLabel.topAnchor.constraint(equalTo: self.filterCategoryTextField.bottomAnchor, constant: 15),
             self.filterDisplayNameLabel.leadingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.leadingAnchor, constant: 15),
             self.filterDisplayNameLabel.trailingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.trailingAnchor, constant: -15),
             self.filterDisplayNameLabel.heightAnchor.constraint(equalToConstant: 30),
