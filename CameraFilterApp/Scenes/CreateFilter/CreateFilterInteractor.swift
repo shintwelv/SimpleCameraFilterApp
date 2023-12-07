@@ -12,6 +12,7 @@ protocol CreateFilterBusinessLogic
     func fetchFilter(request: CreateFilter.FetchFilter.Request)
     func fetchFilterCategories(request: CreateFilter.FetchFilterCategories.Request)
     func fetchProperties(request: CreateFilter.FetchProperties.Request)
+    func applyFilter(request: CreateFilter.ApplyFilter.Request)
     func createFilter(request: CreateFilter.CreateFilter.Request)
     func editFilter(request: CreateFilter.EditFilter.Request)
     func deleteFilter(request: CreateFilter.DeleteFilter.Request)
@@ -83,6 +84,24 @@ class CreateFilterInteractor: CreateFilterBusinessLogic, CreateFilterDataStore
         }
         
         presenter?.presentFetchedProperties(response: response)
+    }
+    
+    func applyFilter(request: CreateFilter.ApplyFilter.Request) {
+        let filterSystemName = request.filterSystemName
+        let inputColor = request.inputColor
+        let inputIntensity = request.inputIntensity
+        let inputRadius = request.inputRadius
+        let inputLevels = request.inputLevels
+        
+        let filter: CameraFilter? = createFilter(filterId: UUID(),
+                                                 displayName: "",
+                                                 systemName: filterSystemName,
+                                                 inputColor: inputColor,
+                                                 inputIntensity: inputIntensity,
+                                                 inputRadius: inputRadius,
+                                                 inputLevels: inputLevels)
+        
+        let response = CreateFilter.ApplyFilter.Response(filter: filter)
     }
     
     func createFilter(request: CreateFilter.CreateFilter.Request) {
