@@ -69,6 +69,9 @@ class CreateFilterViewController: UIViewController, CreateFilterDisplayLogic
         }
     }
     
+    // MARK: - private properties
+    private var categoryNames:[String] = []
+    
     // MARK: - UI components
     private var exampleTextLabel: UILabel = {
         let label = UILabel()
@@ -114,12 +117,15 @@ class CreateFilterViewController: UIViewController, CreateFilterDisplayLogic
         return label
     }()
     
+    private var filterCategoryPickerView = UIPickerView()
+    
     private var filterCategoryTextField: UITextField = {
         let tf = UITextField()
         tf.textColor = .black
         tf.textAlignment = .left
         tf.backgroundColor = .systemGray6
         tf.font = .systemFont(ofSize: 18)
+        tf.tintColor = .clear
         return tf
     }()
     
@@ -222,6 +228,13 @@ class CreateFilterViewController: UIViewController, CreateFilterDisplayLogic
     private func configureUI() {
         self.view.backgroundColor = .white
         
+        self.filterCategoryPickerView.delegate = self
+        self.filterCategoryPickerView.dataSource = self
+
+        let toolbar: UIToolbar = configureToolbar()
+        self.filterCategoryTextField.inputAccessoryView = toolbar
+        self.filterCategoryTextField.inputView = self.filterCategoryPickerView
+        
         [
             self.exampleTextLabel,
             self.sampleImageView,
@@ -250,6 +263,20 @@ class CreateFilterViewController: UIViewController, CreateFilterDisplayLogic
             self.inputRadiusSliderView,
             self.inputLevelsSliderView,
         ].forEach { self.propertyStackView.addArrangedSubview($0.contentView) }
+    }
+    
+    private func configureToolbar() -> UIToolbar {
+        let toolbar = UIToolbar()
+        
+        toolbar.sizeToFit()
+        
+        let flexibleSpace = UIBarButtonItem(systemItem: .flexibleSpace)
+        
+        let doneButton = UIBarButtonItem(title: "완료", style: .done, target: self, action: #selector(filterCategoryTextFieldDoneButtonTapped))
+        
+        toolbar.items = [flexibleSpace, doneButton]
+        
+        return toolbar
     }
     
     private func configureAutoLayout() {
@@ -404,4 +431,31 @@ class CreateFilterViewController: UIViewController, CreateFilterDisplayLogic
     func displayEditedFilter(viewModel: CreateFilter.EditFilter.ViewModel) {}
 
     func displayDeletedFilter(viewModel: CreateFilter.DeleteFilter.ViewModel) {}
+    
+    // MARK: - Private methods
+    @objc func filterCategoryTextFieldDoneButtonTapped(_ button: UIBarButtonItem) {
+        self.filterCategoryTextField.resignFirstResponder()
+    }
+}
+
+// MARK: - UIPickerViewDelegate
+extension CreateFilterViewController: UIPickerViewDelegate, UIPickerViewDataSource {
+    func numberOfComponents(in pickerView: UIPickerView) -> Int {
+        return 1
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
+        return categoryNames.count
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
+        return categoryNames[row]
+    }
+
+    func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
+        guard !self.categoryNames.isEmpty else { return }
+        
+        let selectedCategory = self.categoryNames[row]
+        self.filterCategoryTextField.text = selectedCategory
+    }
 }
