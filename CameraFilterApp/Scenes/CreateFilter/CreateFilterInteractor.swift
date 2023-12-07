@@ -31,10 +31,13 @@ class CreateFilterInteractor: CreateFilterBusinessLogic, CreateFilterDataStore
     
     // MARK: CRUD operations
     func fetchFilter(request: CreateFilter.FetchFilter.Request) {
-        guard let filterId = self.filterId else { return }
-        
-        filtersWorker.fetchFilter(filterId: filterId) { filter in
-            let response = CreateFilter.FetchFilter.Response(filter: filter)
+        if let filterId = self.filterId {
+            filtersWorker.fetchFilter(filterId: filterId) { filter in
+                let response = CreateFilter.FetchFilter.Response(filter: filter)
+                self.presenter?.presentFetchedFilter(response: response)
+            }
+        } else {
+            let response = CreateFilter.FetchFilter.Response(filter: nil)
             self.presenter?.presentFetchedFilter(response: response)
         }
     }
