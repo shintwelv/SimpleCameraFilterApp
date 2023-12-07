@@ -33,6 +33,12 @@ class CreateFilterInteractor: CreateFilterBusinessLogic, CreateFilterDataStore
     func fetchFilter(request: CreateFilter.FetchFilter.Request) {
         if let filterId = self.filterId {
             filtersWorker.fetchFilter(filterId: filterId) { filter in
+                guard let filter = filter else {
+                    let response = CreateFilter.FetchFilter.Response(filter: nil)
+                    self.presenter?.presentFetchedFilter(response: response)
+                    return
+                }
+                
                 let response = CreateFilter.FetchFilter.Response(filter: filter)
                 self.presenter?.presentFetchedFilter(response: response)
             }
