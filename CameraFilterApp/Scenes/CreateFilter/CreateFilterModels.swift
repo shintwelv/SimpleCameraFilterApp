@@ -31,6 +31,7 @@ enum CreateFilter
             var filter: CameraFilter?
         }
         struct ViewModel {
+            var sampleImage: UIImage?
             var filterInfo: FilterInfo?
         }
     }

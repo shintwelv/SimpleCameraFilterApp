@@ -21,15 +21,32 @@ class CreateFilterPresenter: CreateFilterPresentationLogic
 {
     weak var viewController: CreateFilterDisplayLogic?
     
+    let baseSampleImage: UIImage? = UIImage(named: "lena_color")
+    
     //MARK: - Present CRUD operation result
     func presentFetchedFilter(response: CreateFilter.FetchFilter.Response) {
         if let filter = response.filter {
             let filterInfo = convertToFilterInfo(filter)
             
-            let viewModel = CreateFilter.FetchFilter.ViewModel(filterInfo: filterInfo)
+            guard let baseSampleImage = self.baseSampleImage else {
+                let viewModel = CreateFilter.FetchFilter.ViewModel(sampleImage: self.baseSampleImage, filterInfo: nil)
+                self.viewController?.displayFetchedFilter(viewModel: viewModel)
+                return
+            }
+            
+            let ciFilter = filter.ciFilter
+            ciFilter.setValue(CIImage(image: baseSampleImage), forKey: kCIInputImageKey)
+            
+            guard let outputImage = ciFilter.outputImage else {
+                let viewModel = CreateFilter.FetchFilter.ViewModel(sampleImage: self.baseSampleImage, filterInfo: nil)
+                self.viewController?.displayFetchedFilter(viewModel: viewModel)
+                return
+            }
+
+            let viewModel = CreateFilter.FetchFilter.ViewModel(sampleImage: UIImage(ciImage: outputImage), filterInfo: filterInfo)
             self.viewController?.displayFetchedFilter(viewModel: viewModel)
         } else {
-            let viewModel = CreateFilter.FetchFilter.ViewModel(filterInfo: nil)
+            let viewModel = CreateFilter.FetchFilter.ViewModel(sampleImage: self.baseSampleImage, filterInfo: nil)
             self.viewController?.displayFetchedFilter(viewModel: viewModel)
         }
     }
