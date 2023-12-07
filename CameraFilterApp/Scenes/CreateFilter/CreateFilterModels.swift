@@ -66,6 +66,23 @@ enum CreateFilter
         }
     }
     
+    enum ApplyFilter {
+        struct Request {
+            var filterSystemName: CameraFilter.FilterName
+            
+            var inputColor: UIColor?
+            var inputIntensity: CGFloat?
+            var inputRadius: CGFloat?
+            var inputLevels: CGFloat?
+        }
+        struct Response {
+            var filter: CameraFilter?
+        }
+        struct ViewModel {
+            var filteredImage: UIImage?
+        }
+    }
+    
     enum CreateFilter {
         struct Request {
             var filterName: String
