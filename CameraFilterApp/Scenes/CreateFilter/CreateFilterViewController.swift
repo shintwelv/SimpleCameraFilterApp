@@ -433,7 +433,38 @@ class CreateFilterViewController: UIViewController, CreateFilterDisplayLogic
         self.categoryNames = categoryNames
     }
 
-    func displayFetchedProperties(viewModel: CreateFilter.FetchProperties.ViewModel) {}
+    func displayFetchedProperties(viewModel: CreateFilter.FetchProperties.ViewModel) {
+        [
+            self.inputColorPickerView as PropertyView,
+            self.inputIntensitySliderView,
+            self.inputRadiusSliderView,
+            self.inputLevelsSliderView
+        ].forEach { $0.contentView.isHidden = true }
+        
+        if let inputColor = viewModel.inputColor {
+            self.inputColorPickerView.contentView.isHidden = false
+            
+            self.inputColorPickerView.configure(selectedColor: inputColor)
+        }
+        
+        if let inputIntensity = viewModel.inputIntensity {
+            self.inputIntensitySliderView.contentView.isHidden = false
+            
+            self.inputIntensitySliderView.configure(propertyName: "강도", propertyMinValue: Float(inputIntensity.min), propertyMaxValue: Float(inputIntensity.max), propertyCurrentValue: Float(inputIntensity.value))
+        }
+        
+        if let inputRadius = viewModel.inputRadius {
+            self.inputRadiusSliderView.contentView.isHidden = false
+            
+            self.inputRadiusSliderView.configure(propertyName: "범위", propertyMinValue: Float(inputRadius.min), propertyMaxValue: Float(inputRadius.max), propertyCurrentValue: Float(inputRadius.value))
+        }
+        
+        if let inputLevels = viewModel.inputLevels {
+            self.inputLevelsSliderView.contentView.isHidden = false
+            
+            self.inputLevelsSliderView.configure(propertyName: "레벨", propertyMinValue: Float(inputLevels.min), propertyMaxValue: Float(inputLevels.max), propertyCurrentValue: Float(inputLevels.value))
+        }
+    }
 
     func displayCreatedFilter(viewModel: CreateFilter.CreateFilter.ViewModel) {}
 
@@ -466,5 +497,10 @@ extension CreateFilterViewController: UIPickerViewDelegate, UIPickerViewDataSour
         
         let selectedCategory = self.categoryNames[row]
         self.filterCategoryTextField.text = selectedCategory
+        
+        if let filterSystemName = CameraFilter.FilterName(rawValue: selectedCategory) {
+            let request = CreateFilter.FetchProperties.Request(filterSystemName: filterSystemName)
+            self.interactor?.fetchProperties(request: request)
+        }
     }
 }
