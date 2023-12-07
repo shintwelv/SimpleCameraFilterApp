@@ -35,7 +35,7 @@ enum ListFilters
     
     enum SelectFilter {
         struct Request {
-            var filterId: UUID
+            var filterId: UUID?
         }
     }
 }
