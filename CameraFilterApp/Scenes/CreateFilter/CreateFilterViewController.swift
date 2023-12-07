@@ -223,6 +223,7 @@ class CreateFilterViewController: UIViewController, CreateFilterDisplayLogic
         super.viewWillAppear(animated)
         
         fetchFilter()
+        fetchFilterCategories()
     }
 
     private func configureUI() {
@@ -380,6 +381,11 @@ class CreateFilterViewController: UIViewController, CreateFilterDisplayLogic
         interactor?.fetchFilter(request: request)
     }
     
+    func fetchFilterCategories() {
+        let request = CreateFilter.FetchFilterCategories.Request()
+        interactor?.fetchFilterCategories(request: request)
+    }
+    
     // MARK: - CreateFilterDisplayLogic
     func displayFetchedFilter(viewModel: CreateFilter.FetchFilter.ViewModel) {
         self.sampleImageView.image = viewModel.sampleImage
@@ -422,7 +428,10 @@ class CreateFilterViewController: UIViewController, CreateFilterDisplayLogic
         }
     }
 
-    func displayFetchedCategories(viewModel: CreateFilter.FetchFilterCategories.ViewModel) {}
+    func displayFetchedCategories(viewModel: CreateFilter.FetchFilterCategories.ViewModel) {
+        let categoryNames = viewModel.filterCategories
+        self.categoryNames = categoryNames
+    }
 
     func displayFetchedProperties(viewModel: CreateFilter.FetchProperties.ViewModel) {}
 
