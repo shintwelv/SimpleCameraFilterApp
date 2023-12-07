@@ -69,6 +69,7 @@ class CreateFilterViewController: UIViewController, CreateFilterDisplayLogic
         }
     }
     
+    // MARK: - UI components
     private var exampleTextLabel: UILabel = {
         let label = UILabel()
         label.text = "필터 예시"
