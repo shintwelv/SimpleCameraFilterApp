@@ -11,6 +11,8 @@ class SliderPropertyView: PropertyView {
     
     let contentView = UIView()
     
+    var valueResultFormat: String = "%.1f"
+    
     // MARK: - Subviews
     private var propertyLabel: UILabel = {
         let label = UILabel()
@@ -62,6 +64,9 @@ class SliderPropertyView: PropertyView {
     
     // MARK: - UI
     private func configureUI() {
+        
+        self.propertySlider.addTarget(self, action: #selector(sliderValueChanged), for: .valueChanged)
+        
         [
             self.propertyLabel,
             self.propertyMinLabel,
@@ -118,5 +123,11 @@ class SliderPropertyView: PropertyView {
         self.propertyMaxLabel.text = "\(propertyMaxValue)"
         self.propertyValueLabel.text = "\(propertyCurrentValue)"
         self.propertySlider.value = propertyCurrentValue
+    }
+    
+    // MARK: - private method
+    @objc private func sliderValueChanged(_ slider:UISlider) {
+        let valueString = String(format:self.valueResultFormat, self.propertySlider.value)
+        self.propertyValueLabel.text = valueString
     }
 }
