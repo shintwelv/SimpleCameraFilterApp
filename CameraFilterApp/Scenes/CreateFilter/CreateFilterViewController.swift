@@ -211,11 +211,15 @@ class CreateFilterViewController: UIViewController, CreateFilterDisplayLogic
         configureUI()
         configureAutoLayout()
     }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        fetchFilter()
+    }
 
     private func configureUI() {
         self.view.backgroundColor = .white
-        
-        self.sampleImageView.image = UIImage(named: "lena_color")
         
         [
             self.exampleTextLabel,
@@ -342,8 +346,53 @@ class CreateFilterViewController: UIViewController, CreateFilterDisplayLogic
         ])
     }
     
+    // MARK: - CreateFilterBusinessLogic
+    func fetchFilter() {
+        let request = CreateFilter.FetchFilter.Request()
+        interactor?.fetchFilter(request: request)
+    }
+    
     // MARK: - CreateFilterDisplayLogic
-    func displayFetchedFilter(viewModel: CreateFilter.FetchFilter.ViewModel) {}
+    func displayFetchedFilter(viewModel: CreateFilter.FetchFilter.ViewModel) {
+        self.sampleImageView.image = viewModel.sampleImage
+        
+        if let filterInfo = viewModel.filterInfo {
+            self.editButton.isHidden = false
+            self.deleteButton.isHidden = false
+            
+            let filterName = filterInfo.filterName
+            let filterSystemName = filterInfo.filterSystemName
+            
+            self.filterDisplayNameTextField.text = filterName
+            self.filterCategoryTextField.text = filterSystemName?.rawValue
+            
+            if let inputColor = filterInfo.inputColor {
+                self.inputColorPickerView.contentView.isHidden = false
+                
+                self.inputColorPickerView.configure(selectedColor: inputColor)
+            }
+            
+            if let inputIntensity = filterInfo.inputIntensity {
+                self.inputIntensitySliderView.contentView.isHidden = false
+                
+                self.inputIntensitySliderView.configure(propertyName: "강도", propertyMinValue: Float(inputIntensity.min), propertyMaxValue: Float(inputIntensity.max), propertyCurrentValue: Float(inputIntensity.value))
+            }
+            
+            if let inputRadius = filterInfo.inputRadius {
+                self.inputRadiusSliderView.contentView.isHidden = false
+                
+                self.inputRadiusSliderView.configure(propertyName: "범위", propertyMinValue: Float(inputRadius.min), propertyMaxValue: Float(inputRadius.max), propertyCurrentValue: Float(inputRadius.value))
+            }
+            
+            if let inputLevels = filterInfo.inputLevels {
+                self.inputLevelsSliderView.contentView.isHidden = false
+                
+                self.inputLevelsSliderView.configure(propertyName: "레벨", propertyMinValue: Float(inputLevels.min), propertyMaxValue: Float(inputLevels.max), propertyCurrentValue: Float(inputLevels.value))
+            }
+        } else {
+            self.createButton.isHidden = false
+        }
+    }
 
     func displayFetchedCategories(viewModel: CreateFilter.FetchFilterCategories.ViewModel) {}
 
