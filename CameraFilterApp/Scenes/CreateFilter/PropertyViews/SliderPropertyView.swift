@@ -113,10 +113,10 @@ class SliderPropertyView: PropertyView {
     func configure(propertyName:String, propertyMinValue: Float, propertyMaxValue: Float, propertyCurrentValue: Float) {
         self.propertyLabel.text = propertyName
         self.propertySlider.minimumValue = propertyMinValue
-        self.propertySlider.minimumValue = propertyMaxValue
+        self.propertySlider.maximumValue = propertyMaxValue
         self.propertyMinLabel.text = "\(propertyMinValue)"
         self.propertyMaxLabel.text = "\(propertyMaxValue)"
+        self.propertyValueLabel.text = "\(propertyCurrentValue)"
         self.propertySlider.value = propertyCurrentValue
-        self.propertySlider.setValue(propertyCurrentValue, animated: false)
     }
 }
