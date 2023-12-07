@@ -81,6 +81,7 @@ class CreateFilterViewController: UIViewController, CreateFilterDisplayLogic
     private var sampleImageView: UIImageView = {
         let view = UIImageView()
         view.contentMode = .scaleAspectFit
+        view.backgroundColor = .systemGray6
         return view
     }()
     
