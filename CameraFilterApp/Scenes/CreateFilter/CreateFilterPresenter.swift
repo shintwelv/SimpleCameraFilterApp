@@ -12,6 +12,7 @@ protocol CreateFilterPresentationLogic
     func presentFetchedFilter(response: CreateFilter.FetchFilter.Response)
     func presentFetchedCategories(response: CreateFilter.FetchFilterCategories.Response)
     func presentFetchedProperties(response: CreateFilter.FetchProperties.Response)
+    func presentFilterAppliedImage(response: CreateFilter.ApplyFilter.Response)
     func presentCreatedFilter(response: CreateFilter.CreateFilter.Response)
     func presentEditedFilter(response: CreateFilter.EditFilter.Response)
     func presentDeletedFilter(response: CreateFilter.DeleteFilter.Response)
@@ -64,6 +65,26 @@ class CreateFilterPresenter: CreateFilterPresentationLogic
                                                                inputRadius: response.inputRadius,
                                                                inputLevels: response.inputLevels)
         self.viewController?.displayFetchedProperties(viewModel: viewModel)
+    }
+    
+    func presentFilterAppliedImage(response: CreateFilter.ApplyFilter.Response) {
+        let filter = response.filter
+        
+        if let filter = filter {
+            guard let baseSampleImage = self.baseSampleImage else {
+                let viewModel = CreateFilter.ApplyFilter.ViewModel(filteredImage: self.baseSampleImage)
+                return
+            }
+            
+            filter.ciFilter.setValue(CIImage(image: baseSampleImage), forKey: kCIInputImageKey)
+            
+            if let outputImage = filter.ciFilter.outputImage {
+                let viewModel = CreateFilter.ApplyFilter.ViewModel(filteredImage: UIImage(ciImage: outputImage))
+            }
+
+        } else {
+            let viewModel = CreateFilter.ApplyFilter.ViewModel(filteredImage: self.baseSampleImage)
+        }
     }
     
     func presentCreatedFilter(response: CreateFilter.CreateFilter.Response) {
