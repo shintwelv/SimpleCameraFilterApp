@@ -7,11 +7,21 @@
 
 import UIKit
 
+protocol SliderPropertyViewDelegate {
+    func sliderValueChanged(_ propertyView:SliderPropertyView, newValue:Float)
+}
+
 class SliderPropertyView: PropertyView {
     
     let contentView = UIView()
     
+    var delegate: SliderPropertyViewDelegate?
+    
     var valueResultFormat: String = "%.1f"
+    
+    var sliderValue: Float {
+        self.propertySlider.value
+    }
     
     // MARK: - Subviews
     private var propertyLabel: UILabel = {
@@ -129,5 +139,13 @@ class SliderPropertyView: PropertyView {
     @objc private func sliderValueChanged(_ slider:UISlider) {
         let valueString = String(format:self.valueResultFormat, self.propertySlider.value)
         self.propertyValueLabel.text = valueString
+        
+        self.delegate?.sliderValueChanged(self, newValue: slider.value)
+    }
+}
+
+extension SliderPropertyView: Equatable {
+    static func == (lhs: SliderPropertyView, rhs: SliderPropertyView) -> Bool {
+        return lhs.contentView == rhs.contentView
     }
 }

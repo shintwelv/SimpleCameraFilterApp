@@ -7,9 +7,19 @@
 
 import UIKit
 
+protocol ColorPickerPropertyViewDelegate {
+    func colorValueChanged(_ propertyView: ColorPickerPropertyView, newColor:UIColor?)
+}
+
 class ColorPickerPropertyView: PropertyView {
     
     let contentView = UIView()
+    
+    var delegate: ColorPickerPropertyViewDelegate?
+    
+    var selectedColor: UIColor? {
+        self.selectedColorView.backgroundColor
+    }
     
     // MARK: - Subviews
     private var inputColorLabel: UILabel = {
@@ -41,6 +51,9 @@ class ColorPickerPropertyView: PropertyView {
     
     // MARK: - UI
     private func configureUI() {
+        
+        self.colorControl.addTarget(self, action: #selector(colorChanged), for: .valueChanged)
+        
         [
             self.inputColorLabel,
             self.selectedColorView,
@@ -76,5 +89,12 @@ class ColorPickerPropertyView: PropertyView {
     // MARK: - Configure value
     func configure(selectedColor: UIColor) {
         self.selectedColorView.backgroundColor = selectedColor
+    }
+    
+    //MARK: - Private methods
+    @objc private func colorChanged(_ colorPicker: UIColorWell) {
+        self.selectedColorView.backgroundColor = colorPicker.selectedColor
+        
+        self.delegate?.colorValueChanged(self, newColor: colorPicker.selectedColor)
     }
 }
