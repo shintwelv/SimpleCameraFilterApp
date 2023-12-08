@@ -17,6 +17,7 @@ protocol CreateFilterDisplayLogic: AnyObject
     func displayFetchedFilter(viewModel: CreateFilter.FetchFilter.ViewModel)
     func displayFetchedCategories(viewModel: CreateFilter.FetchFilterCategories.ViewModel)
     func displayFetchedProperties(viewModel: CreateFilter.FetchProperties.ViewModel)
+    func displayFilterAppliedSampleImage(viewModel: CreateFilter.ApplyFilter.ViewModel)
     func displayCreatedFilter(viewModel: CreateFilter.CreateFilter.ViewModel)
     func displayEditedFilter(viewModel: CreateFilter.EditFilter.ViewModel)
     func displayDeletedFilter(viewModel: CreateFilter.DeleteFilter.ViewModel)
@@ -464,6 +465,12 @@ class CreateFilterViewController: UIViewController, CreateFilterDisplayLogic
             
             self.inputLevelsSliderView.configure(propertyName: "레벨", propertyMinValue: Float(inputLevels.min), propertyMaxValue: Float(inputLevels.max), propertyCurrentValue: Float(inputLevels.value))
         }
+    }
+    
+    func displayFilterAppliedSampleImage(viewModel: CreateFilter.ApplyFilter.ViewModel) {
+        let sampleImage: UIImage? = viewModel.filteredImage
+        
+        self.sampleImageView.image = sampleImage
     }
 
     func displayCreatedFilter(viewModel: CreateFilter.CreateFilter.ViewModel) {}
