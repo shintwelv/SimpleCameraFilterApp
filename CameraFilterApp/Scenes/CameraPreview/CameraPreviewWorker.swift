@@ -15,24 +15,6 @@ import AVFoundation
 
 class CameraPreviewWorker
 {
-    var allFilters: [CameraFilter] = {
-        let filters: [CameraFilter?] = [
-            CameraFilter.createSepiaFilter(filterId: UUID(), displayName: "세피아", inputIntensity: 1.0),
-            CameraFilter.createVintageFilter(filterId: UUID(), displayName: "빈티지"),
-            CameraFilter.createMonochromeFilter(filterId: UUID(), displayName: "시안", inputColor: .cyan, inputIntensity: 1.0),
-            CameraFilter.createMonochromeFilter(filterId: UUID(), displayName: "로즈", inputColor: .magenta, inputIntensity: 1.0),
-            CameraFilter.createMonochromeFilter(filterId: UUID(), displayName: "블루", inputColor: .blue, inputIntensity: 1.0),
-            CameraFilter.createBlurFilter(filterId: UUID(), displayName: "블러", inputRadius: 1.0),
-            CameraFilter.createPosterizeFilter(filterId: UUID(), displayName: "포스터", inputLevels: 6.0),
-        ]
-        
-        return filters.compactMap {$0}
-    }()
-    
-    func getFilter(by name: String) -> CameraFilter? {
-        return allFilters.filter { $0.displayName == name }.first
-    }
-    
     func getCameraDevice() -> AVCaptureDevice {
         let discoverySession = AVCaptureDevice.DiscoverySession(deviceTypes: [.builtInWideAngleCamera,.builtInUltraWideCamera], mediaType: .video, position: .back)
         

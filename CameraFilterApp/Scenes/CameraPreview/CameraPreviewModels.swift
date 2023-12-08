@@ -17,6 +17,11 @@ enum CameraPreview
 {
     // MARK: Use cases
     
+    struct FilterInfo {
+        var filterId: UUID
+        var filterName: String
+    }
+    
     enum StartSession {
         struct Request {
         }
@@ -33,13 +38,13 @@ enum CameraPreview
             var filters: [CameraFilter]
         }
         struct ViewModel {
-            var filterNames: [String]
+            var filterInfos: [FilterInfo]
         }
     }
     
     enum ApplyFilter {
         struct Request {
-            var filterName: String
+            var filterId: UUID
         }
         struct Response {
             

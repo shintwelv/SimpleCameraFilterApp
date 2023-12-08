@@ -31,6 +31,7 @@ class CameraPreviewInteractor: NSObject, CameraPreviewBusinessLogic, CameraPrevi
 {
     var presenter: CameraPreviewPresentationLogic?
     var worker: CameraPreviewWorker = CameraPreviewWorker()
+    var filtersWorker: FiltersWorker = FiltersWorker(filtersStore: FilterMemStore())
     
     
     private let cameraQueue = DispatchQueue(label: "cameraQueue")
@@ -55,17 +56,18 @@ class CameraPreviewInteractor: NSObject, CameraPreviewBusinessLogic, CameraPrevi
     }
     
     func applyFilter(_ request: CameraPreview.ApplyFilter.Request) {
-        let filterName = request.filterName
+        let filterId = request.filterId
         
-        let filter = worker.getFilter(by: filterName)
-        
-        self.appliedFilter = filter?.ciFilter ?? nil
+        filtersWorker.fetchFilter(filterId: filterId) { filter in
+            self.appliedFilter = filter?.ciFilter ?? nil
+        }
     }
     
     func fetchFilters(_ request: CameraPreview.FetchFilters.Request) {
-        let filters: [CameraFilter] = worker.allFilters
-        let response = CameraPreview.FetchFilters.Response(filters: filters)
-        presenter?.presentAllFilters(response: response)
+        filtersWorker.fetchFilters { filters in
+            let response = CameraPreview.FetchFilters.Response(filters: filters)
+            self.presenter?.presentAllFilters(response: response)
+        }
     }
     
     private func configureCaptureSession() {
