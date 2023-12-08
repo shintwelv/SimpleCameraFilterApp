@@ -47,6 +47,7 @@ class ListFiltersRouter: NSObject, ListFiltersRoutingLogic, ListFiltersDataPassi
     // MARK: Navigation
     
     func navigateToCreateFilter(source: ListFiltersViewController, destination: CreateFilterViewController) {
+        destination.modalPresentationStyle = .fullScreen
         source.show(destination, sender: nil)
     }
     
