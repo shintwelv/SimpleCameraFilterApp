@@ -102,6 +102,7 @@ class CreateFilterInteractor: CreateFilterBusinessLogic, CreateFilterDataStore
                                                  inputLevels: inputLevels)
         
         let response = CreateFilter.ApplyFilter.Response(filter: filter)
+        self.presenter?.presentFilterAppliedImage(response: response)
     }
     
     func createFilter(request: CreateFilter.CreateFilter.Request) {
