@@ -73,6 +73,7 @@ class CreateFilterPresenter: CreateFilterPresentationLogic
         if let filter = filter {
             guard let baseSampleImage = self.baseSampleImage else {
                 let viewModel = CreateFilter.ApplyFilter.ViewModel(filteredImage: self.baseSampleImage)
+                self.viewController?.displayFilterAppliedSampleImage(viewModel: viewModel)
                 return
             }
             
@@ -80,10 +81,12 @@ class CreateFilterPresenter: CreateFilterPresentationLogic
             
             if let outputImage = filter.ciFilter.outputImage {
                 let viewModel = CreateFilter.ApplyFilter.ViewModel(filteredImage: UIImage(ciImage: outputImage))
+                self.viewController?.displayFilterAppliedSampleImage(viewModel: viewModel)
             }
 
         } else {
             let viewModel = CreateFilter.ApplyFilter.ViewModel(filteredImage: self.baseSampleImage)
+            self.viewController?.displayFilterAppliedSampleImage(viewModel: viewModel)
         }
     }
     
