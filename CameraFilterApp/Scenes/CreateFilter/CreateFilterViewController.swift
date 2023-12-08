@@ -237,6 +237,8 @@ class CreateFilterViewController: UIViewController, CreateFilterDisplayLogic
         self.filterCategoryTextField.inputAccessoryView = toolbar
         self.filterCategoryTextField.inputView = self.filterCategoryPickerView
         
+        self.filterDisplayNameTextField.delegate = self
+        
         self.inputColorPickerView.delegate = self
         self.inputIntensitySliderView.delegate = self
         self.inputRadiusSliderView.delegate = self
@@ -620,6 +622,15 @@ extension CreateFilterViewController: UIPickerViewDelegate, UIPickerViewDataSour
     }
 }
 
+//MARK: - UITextFieldDelegate
+extension CreateFilterViewController: UITextFieldDelegate {
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        textField.resignFirstResponder()
+        return true
+    }
+}
+
+//MARK: - SliderPropertyViewDelegate, ColorPickerPropertyViewDelegate
 extension CreateFilterViewController: SliderPropertyViewDelegate, ColorPickerPropertyViewDelegate {
     func sliderValueChanged(_ propertyView: SliderPropertyView, newValue: Float) {
         fetchFilterAppliedImage()
