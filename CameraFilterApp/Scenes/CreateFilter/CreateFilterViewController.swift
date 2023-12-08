@@ -237,6 +237,11 @@ class CreateFilterViewController: UIViewController, CreateFilterDisplayLogic
         self.filterCategoryTextField.inputAccessoryView = toolbar
         self.filterCategoryTextField.inputView = self.filterCategoryPickerView
         
+        self.inputColorPickerView.delegate = self
+        self.inputIntensitySliderView.delegate = self
+        self.inputRadiusSliderView.delegate = self
+        self.inputLevelsSliderView.delegate = self
+        
         [
             self.exampleTextLabel,
             self.sampleImageView,
@@ -480,8 +485,21 @@ class CreateFilterViewController: UIViewController, CreateFilterDisplayLogic
     func displayDeletedFilter(viewModel: CreateFilter.DeleteFilter.ViewModel) {}
     
     // MARK: - Private methods
-    @objc func filterCategoryTextFieldDoneButtonTapped(_ button: UIBarButtonItem) {
+    @objc private func filterCategoryTextFieldDoneButtonTapped(_ button: UIBarButtonItem) {
         self.filterCategoryTextField.resignFirstResponder()
+    }
+    
+    private func fetchFilterAppliedImage() {
+        if let filterSystemName = CameraFilter.FilterName(rawValue: self.filterCategoryTextField.text ?? "") {
+            let request = CreateFilter.ApplyFilter.Request(
+                filterSystemName: filterSystemName,
+                inputColor: self.inputColorPickerView.selectedColor,
+                inputIntensity: CGFloat(self.inputIntensitySliderView.sliderValue),
+                inputRadius: CGFloat(self.inputRadiusSliderView.sliderValue),
+                inputLevels: CGFloat(self.inputLevelsSliderView.sliderValue))
+            
+            interactor?.applyFilter(request: request)
+        }
     }
 }
 
@@ -508,6 +526,18 @@ extension CreateFilterViewController: UIPickerViewDelegate, UIPickerViewDataSour
         if let filterSystemName = CameraFilter.FilterName(rawValue: selectedCategory) {
             let request = CreateFilter.FetchProperties.Request(filterSystemName: filterSystemName)
             self.interactor?.fetchProperties(request: request)
+            
+            fetchFilterAppliedImage()
         }
+    }
+}
+
+extension CreateFilterViewController: SliderPropertyViewDelegate, ColorPickerPropertyViewDelegate {
+    func sliderValueChanged(_ propertyView: SliderPropertyView, newValue: Float) {
+        fetchFilterAppliedImage()
+    }
+    
+    func colorValueChanged(_ propertyView: ColorPickerPropertyView, newColor: UIColor?) {
+        fetchFilterAppliedImage()
     }
 }

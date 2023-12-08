@@ -186,7 +186,7 @@ class CreateFilterInteractor: CreateFilterBusinessLogic, CreateFilterDataStore
             guard let inputColor = inputColor,
                   let inputIntensity = inputIntensity else { break }
             
-            return CameraFilter.createMonochromeFilter(filterId: filterId, displayName: displayName, inputColor: inputColor.ciColor, inputIntensity: inputIntensity)
+            return CameraFilter.createMonochromeFilter(filterId: filterId, displayName: displayName, inputColor: CIColor(color: inputColor), inputIntensity: inputIntensity)
         case .CIColorPosterize:
             guard let inputLevels = inputLevels else { break }
             
