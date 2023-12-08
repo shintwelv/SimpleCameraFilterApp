@@ -74,6 +74,14 @@ class CreateFilterViewController: UIViewController, CreateFilterDisplayLogic
     private var categoryNames:[String] = []
     
     // MARK: - UI components
+    private var closeButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setTitle("닫기", for: .normal)
+        button.tintColor = .systemPurple
+        button.titleLabel?.font = .systemFont(ofSize: 18)
+        return button
+    }()
+    
     private var exampleTextLabel: UILabel = {
         let label = UILabel()
         label.text = "필터 예시"
@@ -244,11 +252,14 @@ class CreateFilterViewController: UIViewController, CreateFilterDisplayLogic
         self.inputRadiusSliderView.delegate = self
         self.inputLevelsSliderView.delegate = self
         
+        self.closeButton.addTarget(self, action: #selector(closeButtonTapped), for: .touchUpInside)
+        
         self.createButton.addTarget(self, action: #selector(createButtonTapped), for: .touchUpInside)
         self.editButton.addTarget(self, action: #selector(editButtonTapped), for: .touchUpInside)
         self.deleteButton.addTarget(self, action: #selector(deleteButtonTapped), for: .touchUpInside)
         
         [
+            self.closeButton,
             self.exampleTextLabel,
             self.sampleImageView,
             self.filterDisplayNameLabel,
@@ -294,6 +305,7 @@ class CreateFilterViewController: UIViewController, CreateFilterDisplayLogic
     
     private func configureAutoLayout() {
         [
+            self.closeButton,
             self.exampleTextLabel,
             self.sampleImageView,
             self.filterDisplayNameLabel,
@@ -312,7 +324,12 @@ class CreateFilterViewController: UIViewController, CreateFilterDisplayLogic
         
         // self.view's subviews
         NSLayoutConstraint.activate([
-            self.sampleImageView.topAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.topAnchor, constant: 15),
+            self.closeButton.topAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.topAnchor, constant: 15),
+            self.closeButton.trailingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.trailingAnchor, constant: -15),
+            self.closeButton.widthAnchor.constraint(equalToConstant: 60),
+            self.closeButton.heightAnchor.constraint(equalToConstant: 40),
+            
+            self.sampleImageView.topAnchor.constraint(equalTo: self.closeButton.bottomAnchor, constant: 15),
             self.sampleImageView.centerXAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.centerXAnchor),
             self.sampleImageView.widthAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.widthAnchor, multiplier: 0.33),
             self.sampleImageView.heightAnchor.constraint(equalTo: self.sampleImageView.widthAnchor, multiplier: 1.0),
@@ -486,10 +503,7 @@ class CreateFilterViewController: UIViewController, CreateFilterDisplayLogic
 
     func displayCreatedFilter(viewModel: CreateFilter.CreateFilter.ViewModel) {
         if let _ = viewModel.filterInfo {
-            let selector = NSSelectorFromString("routeToListFiltersWithSegue:")
-            if let router = router, router.responds(to: selector) {
-                router.perform(selector, with: nil)
-            }
+            routeToListFilters()
         } else {
             let alertController = UIAlertController(title: "에러", message: "필터를 생성할 수 없습니다", preferredStyle: .alert)
             
@@ -520,10 +534,7 @@ class CreateFilterViewController: UIViewController, CreateFilterDisplayLogic
 
     func displayDeletedFilter(viewModel: CreateFilter.DeleteFilter.ViewModel) {
         if let _ = viewModel.filterInfo {
-            let selector = NSSelectorFromString("routeToListFiltersWithSegue:")
-            if let router = router, router.responds(to: selector) {
-                router.perform(selector, with: nil)
-            }
+            routeToListFilters()
         } else {
             let alertController = UIAlertController(title: "에러", message: "필터를 삭제할 수 없습니다", preferredStyle: .alert)
             
@@ -536,6 +547,17 @@ class CreateFilterViewController: UIViewController, CreateFilterDisplayLogic
     }
     
     // MARK: - Private methods
+    private func routeToListFilters() {
+        let selector = NSSelectorFromString("routeToListFiltersWithSegue:")
+        if let router = router, router.responds(to: selector) {
+            router.perform(selector, with: nil)
+        }
+    }
+    
+    @objc private func closeButtonTapped(_ button: UIButton) {
+        routeToListFilters()
+    }
+    
     @objc private func createButtonTapped(_ button: UIButton) {
         guard let displayName = self.filterDisplayNameTextField.text,
         let filterSystemName = CameraFilter.FilterName(rawValue: self.filterCategoryTextField.text ?? "") else {
