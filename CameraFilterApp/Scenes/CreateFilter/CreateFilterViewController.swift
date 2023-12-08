@@ -242,6 +242,10 @@ class CreateFilterViewController: UIViewController, CreateFilterDisplayLogic
         self.inputRadiusSliderView.delegate = self
         self.inputLevelsSliderView.delegate = self
         
+        self.createButton.addTarget(self, action: #selector(createButtonTapped), for: .touchUpInside)
+        self.editButton.addTarget(self, action: #selector(editButtonTapped), for: .touchUpInside)
+        self.deleteButton.addTarget(self, action: #selector(deleteButtonTapped), for: .touchUpInside)
+        
         [
             self.exampleTextLabel,
             self.sampleImageView,
@@ -478,13 +482,97 @@ class CreateFilterViewController: UIViewController, CreateFilterDisplayLogic
         self.sampleImageView.image = sampleImage
     }
 
-    func displayCreatedFilter(viewModel: CreateFilter.CreateFilter.ViewModel) {}
+    func displayCreatedFilter(viewModel: CreateFilter.CreateFilter.ViewModel) {
+        if let _ = viewModel.filterInfo {
+            let selector = NSSelectorFromString("routeToListFiltersWithSegue:")
+            if let router = router, router.responds(to: selector) {
+                router.perform(selector, with: nil)
+            }
+        } else {
+            let alertController = UIAlertController(title: "에러", message: "필터를 생성할 수 없습니다", preferredStyle: .alert)
+            
+            let okAction = UIAlertAction(title: "확인", style: .default)
+            
+            alertController.addAction(okAction)
+            
+            self.present(alertController, animated: true)
+        }
+    }
 
-    func displayEditedFilter(viewModel: CreateFilter.EditFilter.ViewModel) {}
+    func displayEditedFilter(viewModel: CreateFilter.EditFilter.ViewModel) {
+        if let _ = viewModel.filterInfo {
+            let selector = NSSelectorFromString("routeToListFiltersWithSegue:")
+            if let router = router, router.responds(to: selector) {
+                router.perform(selector, with: nil)
+            }
+        } else {
+            let alertController = UIAlertController(title: "에러", message: "필터를 수정할 수 없습니다", preferredStyle: .alert)
+            
+            let okAction = UIAlertAction(title: "확인", style: .default)
+            
+            alertController.addAction(okAction)
+            
+            self.present(alertController, animated: true)
+        }
+    }
 
-    func displayDeletedFilter(viewModel: CreateFilter.DeleteFilter.ViewModel) {}
+    func displayDeletedFilter(viewModel: CreateFilter.DeleteFilter.ViewModel) {
+        if let _ = viewModel.filterInfo {
+            let selector = NSSelectorFromString("routeToListFiltersWithSegue:")
+            if let router = router, router.responds(to: selector) {
+                router.perform(selector, with: nil)
+            }
+        } else {
+            let alertController = UIAlertController(title: "에러", message: "필터를 삭제할 수 없습니다", preferredStyle: .alert)
+            
+            let okAction = UIAlertAction(title: "확인", style: .default)
+            
+            alertController.addAction(okAction)
+            
+            self.present(alertController, animated: true)
+        }
+    }
     
     // MARK: - Private methods
+    @objc private func createButtonTapped(_ button: UIButton) {
+        guard let displayName = self.filterDisplayNameTextField.text,
+        let filterSystemName = CameraFilter.FilterName(rawValue: self.filterCategoryTextField.text ?? "") else {
+            return
+        }
+        
+        let request = CreateFilter.CreateFilter.Request(
+            filterName: displayName,
+            filterSystemName: filterSystemName,
+            inputColor: self.inputColorPickerView.selectedColor,
+            inputIntensity: CGFloat(self.inputIntensitySliderView.sliderValue),
+            inputRadius: CGFloat(self.inputRadiusSliderView.sliderValue),
+            inputLevels: CGFloat(self.inputLevelsSliderView.sliderValue))
+        
+        interactor?.createFilter(request: request)
+    }
+    
+    @objc private func editButtonTapped(_ button: UIButton) {
+        guard let displayName = self.filterDisplayNameTextField.text,
+        let filterSystemName = CameraFilter.FilterName(rawValue: self.filterCategoryTextField.text ?? "") else {
+            return
+        }
+        
+        let request = CreateFilter.EditFilter.Request(
+            filterName: displayName,
+            filterSystemName: filterSystemName,
+            inputColor: self.inputColorPickerView.selectedColor,
+            inputIntensity: CGFloat(self.inputIntensitySliderView.sliderValue),
+            inputRadius: CGFloat(self.inputRadiusSliderView.sliderValue),
+            inputLevels: CGFloat(self.inputLevelsSliderView.sliderValue))
+        
+        interactor?.editFilter(request: request)
+    }
+    
+    @objc private func deleteButtonTapped(_ button: UIButton) {
+        let request = CreateFilter.DeleteFilter.Request()
+        interactor?.deleteFilter(request: request)
+    }
+    
     @objc private func filterCategoryTextFieldDoneButtonTapped(_ button: UIBarButtonItem) {
         self.filterCategoryTextField.resignFirstResponder()
     }
