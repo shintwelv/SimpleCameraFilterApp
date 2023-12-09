@@ -11,16 +11,23 @@
 //
 
 import UIKit
+import RxSwift
 
 protocol CreateFilterDisplayLogic: AnyObject
 {
-    func displayFetchedFilter(viewModel: CreateFilter.FetchFilter.ViewModel)
-    func displayFetchedCategories(viewModel: CreateFilter.FetchFilterCategories.ViewModel)
-    func displayFetchedProperties(viewModel: CreateFilter.FetchProperties.ViewModel)
-    func displayFilterAppliedSampleImage(viewModel: CreateFilter.ApplyFilter.ViewModel)
     func displayCreatedFilter(viewModel: CreateFilter.CreateFilter.ViewModel)
     func displayEditedFilter(viewModel: CreateFilter.EditFilter.ViewModel)
     func displayDeletedFilter(viewModel: CreateFilter.DeleteFilter.ViewModel)
+    
+    var filterCategories: BehaviorSubject<[String]> { get }
+
+    var sampleImage: BehaviorSubject<UIImage?> { get }
+    var filterName: BehaviorSubject<String?> { get }
+    var filterSystemName: BehaviorSubject<CameraFilter.FilterName?> { get }
+    var inputColor: BehaviorSubject<UIColor?> { get }
+    var inputIntensity: BehaviorSubject<CreateFilter.FilterProperty?> { get }
+    var inputRadius: BehaviorSubject<CreateFilter.FilterProperty?> { get }
+    var inputLevels: BehaviorSubject<CreateFilter.FilterProperty?> { get }
 }
 
 class CreateFilterViewController: UIViewController, CreateFilterDisplayLogic
@@ -69,10 +76,7 @@ class CreateFilterViewController: UIViewController, CreateFilterDisplayLogic
             }
         }
     }
-    
-    // MARK: - private properties
-    private var categoryNames:[String] = []
-    
+
     // MARK: - UI components
     private var closeButton: UIButton = {
         let button = UIButton(type: .system)
@@ -226,6 +230,7 @@ class CreateFilterViewController: UIViewController, CreateFilterDisplayLogic
         
         configureUI()
         configureAutoLayout()
+        configureBinding()
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -404,6 +409,106 @@ class CreateFilterViewController: UIViewController, CreateFilterDisplayLogic
         ])
     }
     
+    private let bag = DisposeBag()
+    
+    private func configureBinding() {
+        self.sampleImage.subscribe(
+            onNext: { [weak self] image in
+                self?.sampleImageView.image = image
+            }
+        ).disposed(by: self.bag)
+        
+        self.filterName.subscribe(
+            onNext: { [weak self] name in
+                if let name = name {
+                    self?.createButton.isHidden = true
+                    self?.editButton.isHidden = false
+                    self?.deleteButton.isHidden = false
+                    
+                    self?.filterDisplayNameTextField.text = name
+                } else {
+                    self?.createButton.isHidden = false
+                    self?.editButton.isHidden = true
+                    self?.deleteButton.isHidden = true
+                    
+                    self?.filterDisplayNameTextField.text = ""
+                }
+            }
+        ).disposed(by: self.bag)
+        
+        self.filterSystemName.subscribe(
+            onNext:{ [weak self] name in
+                if let name = name {
+                    self?.filterCategoryTextField.text = name.rawValue
+                }
+            }
+        ).disposed(by: self.bag)
+        
+        self.inputColor.subscribe(
+            onNext:{ [weak self] inputColor in
+                if let inputColor = inputColor {
+                    self?.inputColorPickerView.contentView.isHidden = false
+                    
+                    self?.inputColorPickerView.configure(selectedColor: inputColor)
+                } else {
+                    self?.inputColorPickerView.contentView.isHidden = true
+                }
+            }
+        ).disposed(by: self.bag)
+        
+        self.inputIntensity.subscribe(
+            onNext:{ [weak self] inputIntensity in
+                if let inputIntensity = inputIntensity {
+                    self?.inputIntensitySliderView.contentView.isHidden = false
+                    
+                    self?.inputIntensitySliderView.configure(
+                        propertyName: "강도",
+                        propertyMinValue: Float(inputIntensity.min),
+                        propertyMaxValue: Float(inputIntensity.max),
+                        propertyCurrentValue: Float(inputIntensity.value)
+                    )
+                } else {
+                    self?.inputIntensitySliderView.contentView.isHidden = true
+                }
+                
+            }
+        ).disposed(by: self.bag)
+        
+        self.inputRadius.subscribe(
+            onNext:{ [weak self] inputRadius in
+                if let inputRadius = inputRadius {
+                    self?.inputRadiusSliderView.contentView.isHidden = false
+                    
+                    self?.inputRadiusSliderView.configure(
+                        propertyName: "범위",
+                        propertyMinValue: Float(inputRadius.min),
+                        propertyMaxValue: Float(inputRadius.max),
+                        propertyCurrentValue: Float(inputRadius.value)
+                    )
+                } else {
+                    self?.inputRadiusSliderView.contentView.isHidden = true
+                }
+            }
+        ).disposed(by: self.bag)
+        
+        self.inputLevels.subscribe(
+            onNext:{ [weak self] inputLevels in
+                if let inputLevels = inputLevels {
+                    self?.inputLevelsSliderView.contentView.isHidden = false
+                    
+                    self?.inputLevelsSliderView.configure(
+                        propertyName: "레벨",
+                        propertyMinValue: Float(inputLevels.min),
+                        propertyMaxValue: Float(inputLevels.max),
+                        propertyCurrentValue: Float(inputLevels.value)
+                    )
+                } else {
+                    self?.inputLevelsSliderView.contentView.isHidden = true
+                }
+            }
+        ).disposed(by: self.bag)
+    }
+    
     // MARK: - CreateFilterBusinessLogic
     func fetchFilter() {
         let request = CreateFilter.FetchFilter.Request()
@@ -416,119 +521,29 @@ class CreateFilterViewController: UIViewController, CreateFilterDisplayLogic
     }
     
     // MARK: - CreateFilterDisplayLogic
-    func displayFetchedFilter(viewModel: CreateFilter.FetchFilter.ViewModel) {
-        self.sampleImageView.image = viewModel.sampleImage
-        
-        if let filterInfo = viewModel.filterInfo {
-            self.editButton.isHidden = false
-            self.deleteButton.isHidden = false
-            
-            let filterName = filterInfo.filterName
-            let filterSystemName = filterInfo.filterSystemName
-            
-            self.filterDisplayNameTextField.text = filterName
-            self.filterCategoryTextField.text = filterSystemName?.rawValue
-            
-            if let inputColor = filterInfo.inputColor {
-                self.inputColorPickerView.contentView.isHidden = false
-                
-                self.inputColorPickerView.configure(selectedColor: inputColor)
-            }
-            
-            if let inputIntensity = filterInfo.inputIntensity {
-                self.inputIntensitySliderView.contentView.isHidden = false
-                
-                self.inputIntensitySliderView.configure(propertyName: "강도", propertyMinValue: Float(inputIntensity.min), propertyMaxValue: Float(inputIntensity.max), propertyCurrentValue: Float(inputIntensity.value))
-            }
-            
-            if let inputRadius = filterInfo.inputRadius {
-                self.inputRadiusSliderView.contentView.isHidden = false
-                
-                self.inputRadiusSliderView.configure(propertyName: "범위", propertyMinValue: Float(inputRadius.min), propertyMaxValue: Float(inputRadius.max), propertyCurrentValue: Float(inputRadius.value))
-            }
-            
-            if let inputLevels = filterInfo.inputLevels {
-                self.inputLevelsSliderView.contentView.isHidden = false
-                
-                self.inputLevelsSliderView.configure(propertyName: "레벨", propertyMinValue: Float(inputLevels.min), propertyMaxValue: Float(inputLevels.max), propertyCurrentValue: Float(inputLevels.value))
-            }
-        } else {
-            self.createButton.isHidden = false
-        }
-    }
+    var filterCategories = BehaviorSubject<[String]>(value: [])
 
-    func displayFetchedCategories(viewModel: CreateFilter.FetchFilterCategories.ViewModel) {
-        let categoryNames = viewModel.filterCategories
-        self.categoryNames = categoryNames
-    }
-
-    func displayFetchedProperties(viewModel: CreateFilter.FetchProperties.ViewModel) {
-        [
-            self.inputColorPickerView as PropertyView,
-            self.inputIntensitySliderView,
-            self.inputRadiusSliderView,
-            self.inputLevelsSliderView
-        ].forEach { $0.contentView.isHidden = true }
-        
-        if let inputColor = viewModel.inputColor {
-            self.inputColorPickerView.contentView.isHidden = false
-            
-            self.inputColorPickerView.configure(selectedColor: inputColor)
-        }
-        
-        if let inputIntensity = viewModel.inputIntensity {
-            self.inputIntensitySliderView.contentView.isHidden = false
-            
-            self.inputIntensitySliderView.configure(propertyName: "강도", propertyMinValue: Float(inputIntensity.min), propertyMaxValue: Float(inputIntensity.max), propertyCurrentValue: Float(inputIntensity.value))
-        }
-        
-        if let inputRadius = viewModel.inputRadius {
-            self.inputRadiusSliderView.contentView.isHidden = false
-            
-            self.inputRadiusSliderView.configure(propertyName: "범위", propertyMinValue: Float(inputRadius.min), propertyMaxValue: Float(inputRadius.max), propertyCurrentValue: Float(inputRadius.value))
-        }
-        
-        if let inputLevels = viewModel.inputLevels {
-            self.inputLevelsSliderView.contentView.isHidden = false
-            
-            self.inputLevelsSliderView.configure(propertyName: "레벨", propertyMinValue: Float(inputLevels.min), propertyMaxValue: Float(inputLevels.max), propertyCurrentValue: Float(inputLevels.value))
-        }
-    }
+    var sampleImage = BehaviorSubject<UIImage?>(value:nil)
+    var filterName = BehaviorSubject<String?>(value: nil)
+    var filterSystemName = BehaviorSubject<CameraFilter.FilterName?>(value: nil)
+    var inputColor = BehaviorSubject<UIColor?>(value: nil)
+    var inputIntensity = BehaviorSubject<CreateFilter.FilterProperty?>(value: nil)
+    var inputRadius = BehaviorSubject<CreateFilter.FilterProperty?>(value: nil)
+    var inputLevels = BehaviorSubject<CreateFilter.FilterProperty?>(value: nil)
     
-    func displayFilterAppliedSampleImage(viewModel: CreateFilter.ApplyFilter.ViewModel) {
-        let sampleImage: UIImage? = viewModel.filteredImage
-        
-        self.sampleImageView.image = sampleImage
-    }
-
     func displayCreatedFilter(viewModel: CreateFilter.CreateFilter.ViewModel) {
         if let _ = viewModel.filterInfo {
             routeToListFilters()
         } else {
-            let alertController = UIAlertController(title: "에러", message: "필터를 생성할 수 없습니다", preferredStyle: .alert)
-            
-            let okAction = UIAlertAction(title: "확인", style: .default)
-            
-            alertController.addAction(okAction)
-            
-            self.present(alertController, animated: true)
+            displayPopUp(title: "에러", message: "필터를 생성할 수 없습니다")
         }
     }
 
     func displayEditedFilter(viewModel: CreateFilter.EditFilter.ViewModel) {
         if let _ = viewModel.filterInfo {
-            let selector = NSSelectorFromString("routeToListFiltersWithSegue:")
-            if let router = router, router.responds(to: selector) {
-                router.perform(selector, with: nil)
-            }
+            routeToListFilters()
         } else {
-            let alertController = UIAlertController(title: "에러", message: "필터를 수정할 수 없습니다", preferredStyle: .alert)
-            
-            let okAction = UIAlertAction(title: "확인", style: .default)
-            
-            alertController.addAction(okAction)
-            
-            self.present(alertController, animated: true)
+            displayPopUp(title: "에러", message: "필터를 수정할 수 없습니다")
         }
     }
 
@@ -536,13 +551,7 @@ class CreateFilterViewController: UIViewController, CreateFilterDisplayLogic
         if let _ = viewModel.filterInfo {
             routeToListFilters()
         } else {
-            let alertController = UIAlertController(title: "에러", message: "필터를 삭제할 수 없습니다", preferredStyle: .alert)
-            
-            let okAction = UIAlertAction(title: "확인", style: .default)
-            
-            alertController.addAction(okAction)
-            
-            self.present(alertController, animated: true)
+            displayPopUp(title: "에러", message: "필터를 삭제할 수 없습니다")
         }
     }
     
@@ -552,6 +561,16 @@ class CreateFilterViewController: UIViewController, CreateFilterDisplayLogic
         if let router = router, router.responds(to: selector) {
             router.perform(selector, with: nil)
         }
+    }
+    
+    private func displayPopUp(title: String, message: String) {
+        let alertController = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        
+        let okAction = UIAlertAction(title: "확인", style: .default)
+        
+        alertController.addAction(okAction)
+        
+        self.present(alertController, animated: true)
     }
     
     @objc private func closeButtonTapped(_ button: UIButton) {
@@ -622,24 +641,38 @@ extension CreateFilterViewController: UIPickerViewDelegate, UIPickerViewDataSour
     }
     
     func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
-        return categoryNames.count
+        do {
+            return try self.filterCategories.value().count
+        } catch {
+            return 0
+        }
     }
     
     func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
-        return categoryNames[row]
+        do {
+            return try self.filterCategories.value()[row]
+        } catch {
+            return ""
+        }
     }
 
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
-        guard !self.categoryNames.isEmpty else { return }
-        
-        let selectedCategory = self.categoryNames[row]
-        self.filterCategoryTextField.text = selectedCategory
-        
-        if let filterSystemName = CameraFilter.FilterName(rawValue: selectedCategory) {
-            let request = CreateFilter.FetchProperties.Request(filterSystemName: filterSystemName)
-            self.interactor?.fetchProperties(request: request)
+        do {
+            let categoryNames = try self.filterCategories.value()
             
-            fetchFilterAppliedImage()
+            guard !categoryNames.isEmpty else { return }
+            
+            let selectedCategory = categoryNames[row]
+            self.filterCategoryTextField.text = selectedCategory
+            
+            if let filterSystemName = CameraFilter.FilterName(rawValue: selectedCategory) {
+                let request = CreateFilter.FetchProperties.Request(filterSystemName: filterSystemName)
+                self.interactor?.fetchProperties(request: request)
+                
+                fetchFilterAppliedImage()
+            }
+        } catch {
+            return
         }
     }
 }

@@ -26,68 +26,58 @@ class CreateFilterPresenter: CreateFilterPresentationLogic
     
     //MARK: - Present CRUD operation result
     func presentFetchedFilter(response: CreateFilter.FetchFilter.Response) {
+        self.viewController?.sampleImage.onNext(baseSampleImage)
+
         if let filter = response.filter {
             let filterInfo = convertToFilterInfo(filter)
             
-            guard let baseSampleImage = self.baseSampleImage else {
-                let viewModel = CreateFilter.FetchFilter.ViewModel(sampleImage: self.baseSampleImage, filterInfo: nil)
-                self.viewController?.displayFetchedFilter(viewModel: viewModel)
-                return
-            }
+            self.viewController?.filterName.onNext(filterInfo.filterName)
+            self.viewController?.filterSystemName.onNext(filterInfo.filterSystemName)
+            self.viewController?.inputColor.onNext(filterInfo.inputColor)
+            self.viewController?.inputIntensity.onNext(filterInfo.inputIntensity)
+            self.viewController?.inputRadius.onNext(filterInfo.inputRadius)
+            self.viewController?.inputLevels.onNext(filterInfo.inputLevels)
+            
+            guard let baseSampleImage = self.baseSampleImage else { return }
             
             let ciFilter = filter.ciFilter
             ciFilter.setValue(CIImage(image: baseSampleImage), forKey: kCIInputImageKey)
             
-            guard let outputImage = ciFilter.outputImage else {
-                let viewModel = CreateFilter.FetchFilter.ViewModel(sampleImage: self.baseSampleImage, filterInfo: nil)
-                self.viewController?.displayFetchedFilter(viewModel: viewModel)
-                return
-            }
+            guard let outputImage = ciFilter.outputImage else { return }
 
-            let viewModel = CreateFilter.FetchFilter.ViewModel(sampleImage: UIImage(ciImage: outputImage), filterInfo: filterInfo)
-            self.viewController?.displayFetchedFilter(viewModel: viewModel)
+            self.viewController?.sampleImage.onNext(UIImage(ciImage: outputImage))
         } else {
-            let viewModel = CreateFilter.FetchFilter.ViewModel(sampleImage: self.baseSampleImage, filterInfo: nil)
-            self.viewController?.displayFetchedFilter(viewModel: viewModel)
+            self.viewController?.filterName.onNext(nil)
+            self.viewController?.filterSystemName.onNext(nil)
+            self.viewController?.inputColor.onNext(nil)
+            self.viewController?.inputIntensity.onNext(nil)
+            self.viewController?.inputRadius.onNext(nil)
+            self.viewController?.inputLevels.onNext(nil)
         }
     }
     
     func presentFetchedCategories(response: CreateFilter.FetchFilterCategories.Response) {
         let filterCategories = response.filterCategories.map { $0.rawValue }
-        
-        let viewModel = CreateFilter.FetchFilterCategories.ViewModel(filterCategories: filterCategories)
-        self.viewController?.displayFetchedCategories(viewModel: viewModel)
+        self.viewController?.filterCategories.onNext(filterCategories)
     }
     
     func presentFetchedProperties(response: CreateFilter.FetchProperties.Response) {
-        let viewModel = CreateFilter.FetchProperties.ViewModel(inputColor: response.inputColor,
-                                                               inputIntensity: response.inputIntensity,
-                                                               inputRadius: response.inputRadius,
-                                                               inputLevels: response.inputLevels)
-        self.viewController?.displayFetchedProperties(viewModel: viewModel)
+        self.viewController?.inputColor.onNext(response.inputColor)
+        self.viewController?.inputIntensity.onNext(response.inputIntensity)
+        self.viewController?.inputRadius.onNext(response.inputRadius)
+        self.viewController?.inputLevels.onNext(response.inputLevels)
     }
     
     func presentFilterAppliedImage(response: CreateFilter.ApplyFilter.Response) {
-        let filter = response.filter
+        self.viewController?.sampleImage.onNext(self.baseSampleImage)
         
-        if let filter = filter {
-            guard let baseSampleImage = self.baseSampleImage else {
-                let viewModel = CreateFilter.ApplyFilter.ViewModel(filteredImage: self.baseSampleImage)
-                self.viewController?.displayFilterAppliedSampleImage(viewModel: viewModel)
-                return
-            }
-            
-            filter.ciFilter.setValue(CIImage(image: baseSampleImage), forKey: kCIInputImageKey)
-            
-            if let outputImage = filter.ciFilter.outputImage {
-                let viewModel = CreateFilter.ApplyFilter.ViewModel(filteredImage: UIImage(ciImage: outputImage))
-                self.viewController?.displayFilterAppliedSampleImage(viewModel: viewModel)
-            }
-
-        } else {
-            let viewModel = CreateFilter.ApplyFilter.ViewModel(filteredImage: self.baseSampleImage)
-            self.viewController?.displayFilterAppliedSampleImage(viewModel: viewModel)
-        }
+        guard let filter = response.filter,
+              let baseSampleImage = self.baseSampleImage else { return }
+        
+        filter.ciFilter.setValue(CIImage(image: baseSampleImage), forKey: kCIInputImageKey)
+        
+        guard let outputImage = filter.ciFilter.outputImage else { return }
+        self.viewController?.sampleImage.onNext(UIImage(ciImage: outputImage))
     }
     
     func presentCreatedFilter(response: CreateFilter.CreateFilter.Response) {
