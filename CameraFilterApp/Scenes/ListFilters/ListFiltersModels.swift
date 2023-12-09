@@ -16,7 +16,7 @@ enum ListFilters
 {
     // MARK: Use cases
     
-    struct FilterInfo {
+    struct FilterInfo: Hashable {
         let filterId: UUID
         let filterName: String
         let filterAppliedImage: UIImage

@@ -79,14 +79,13 @@ class ListFiltersViewController: UIViewController, ListFiltersDisplayLogic
         return collectionView
     }()
     
-    private var filterInfos: [ListFilters.FilterInfo] = []
-    
     // MARK: View lifecycle
     
     override func viewDidLoad()
     {
         super.viewDidLoad()
         configureUI()
+        configureFiltersCollectionView()
         configureAutoLayout()
     }
     
@@ -104,9 +103,29 @@ class ListFiltersViewController: UIViewController, ListFiltersDisplayLogic
         ].forEach { self.view.addSubview($0) }
         
         self.filterCollectionView.delegate = self
-        self.filterCollectionView.dataSource = self
         
         self.filterCollectionView.register(ListFilterCell.self, forCellWithReuseIdentifier: "listFilterCell")
+    }
+    
+    typealias Item = ListFilters.FilterInfo
+    enum Section: CaseIterable {
+        case main
+    }
+    
+    private var dataSource: UICollectionViewDiffableDataSource<Section, Item>!
+    
+    private func configureFiltersCollectionView() {
+        let cellRegistration = UICollectionView.CellRegistration<ListFilterCell, ListFilters.FilterInfo> { cell, indexPath, item in
+            cell.configure(filterInfo: item)
+        }
+    
+        dataSource = UICollectionViewDiffableDataSource<Section, Item>(collectionView: self.filterCollectionView, cellProvider: { collectionView, indexPath, item in
+            
+            return collectionView.dequeueConfiguredReusableCell(using: cellRegistration, 
+                                                                for: indexPath,
+                                                                item: item)
+        })
+        
     }
     
     private func configureAutoLayout() {
@@ -136,26 +155,18 @@ class ListFiltersViewController: UIViewController, ListFiltersDisplayLogic
     
     func displayFetchedFilters(viewModel: ListFilters.FetchFilters.ViewModel) {
         let filterInfos = viewModel.filterInfos
-        self.filterInfos = filterInfos
-        self.filterCollectionView.reloadData()
+
+        var snapshot = NSDiffableDataSourceSnapshot<Section, Item>()
+        snapshot.appendSections([.main])
+        snapshot.appendItems(filterInfos, toSection: .main)
+        dataSource.apply(snapshot)
     }
 }
 
 extension ListFiltersViewController: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        print(#function)
-    }
-}
-
-extension ListFiltersViewController: UICollectionViewDataSource {
-    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return filterInfos.count
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "listFilterCell", for: indexPath) as? ListFilterCell else { return UICollectionViewCell() }
-        
-        cell.configure(filterInfo: filterInfos[indexPath.row])
-        return cell
+        let snapshot = dataSource.snapshot()
+        let selectedFilterInfo = snapshot.itemIdentifiers[indexPath.row]
+        print(selectedFilterInfo.filterId)
     }
 }
