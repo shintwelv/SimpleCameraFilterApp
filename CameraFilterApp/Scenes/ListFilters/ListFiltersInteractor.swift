@@ -27,7 +27,9 @@ class ListFiltersInteractor: ListFiltersBusinessLogic, ListFiltersDataStore
     
     // MARK: Fetch filters
     func fetchFilters(request: ListFilters.FetchFilters.Request) {
-        filtersWorker.fetchFilters { filters in
+        filtersWorker.fetchFilters { [weak self] filters in
+            guard let self = self else { return }
+            
             let response = ListFilters.FetchFilters.Response(filters: filters)
             self.presenter?.displayFilters(response: response)
         }

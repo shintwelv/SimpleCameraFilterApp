@@ -33,7 +33,9 @@ class CreateFilterInteractor: CreateFilterBusinessLogic, CreateFilterDataStore
     // MARK: CRUD operations
     func fetchFilter(request: CreateFilter.FetchFilter.Request) {
         if let filterId = self.filterId {
-            filtersWorker.fetchFilter(filterId: filterId) { filter in
+            filtersWorker.fetchFilter(filterId: filterId) { [weak self] filter in
+                guard let self = self else { return }
+                
                 guard let filter = filter else {
                     let response = CreateFilter.FetchFilter.Response(filter: nil)
                     self.presenter?.presentFetchedFilter(response: response)
@@ -123,7 +125,9 @@ class CreateFilterInteractor: CreateFilterBusinessLogic, CreateFilterDataStore
         
         guard let filter = filter else { return }
         
-        filtersWorker.createFilter(filterToCreate: filter) { filter in
+        filtersWorker.createFilter(filterToCreate: filter) { [weak self] filter in
+            guard let self = self else { return }
+            
             let response = CreateFilter.CreateFilter.Response(filter: filter)
             self.presenter?.presentCreatedFilter(response: response)
         }
@@ -149,7 +153,9 @@ class CreateFilterInteractor: CreateFilterBusinessLogic, CreateFilterDataStore
         
         guard let filterToUpdate = filterToUpdate else { return }
         
-        filtersWorker.updateFilter(filterToUpdate: filterToUpdate) { filter in
+        filtersWorker.updateFilter(filterToUpdate: filterToUpdate) { [weak self] filter in
+            guard let self = self else { return }
+            
             let response = CreateFilter.EditFilter.Response(filter: filter)
             self.presenter?.presentEditedFilter(response: response)
         }
@@ -158,7 +164,9 @@ class CreateFilterInteractor: CreateFilterBusinessLogic, CreateFilterDataStore
     func deleteFilter(request: CreateFilter.DeleteFilter.Request) {
         guard let filterId = self.filterId else { return }
         
-        filtersWorker.deleteFilter(filterId: filterId) { filter in
+        filtersWorker.deleteFilter(filterId: filterId) { [weak self] filter in
+            guard let self = self else { return }
+            
             let response = CreateFilter.DeleteFilter.Response(filter: filter)
             self.presenter?.presentDeletedFilter(response: response)
         }

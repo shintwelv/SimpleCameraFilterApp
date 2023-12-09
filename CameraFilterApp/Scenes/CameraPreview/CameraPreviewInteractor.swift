@@ -58,13 +58,15 @@ class CameraPreviewInteractor: NSObject, CameraPreviewBusinessLogic, CameraPrevi
     func applyFilter(_ request: CameraPreview.ApplyFilter.Request) {
         let filterId = request.filterId
         
-        filtersWorker.fetchFilter(filterId: filterId) { filter in
+        filtersWorker.fetchFilter(filterId: filterId) { [weak self] filter in
+            guard let self = self else { return }
             self.appliedFilter = filter?.ciFilter ?? nil
         }
     }
     
     func fetchFilters(_ request: CameraPreview.FetchFilters.Request) {
-        filtersWorker.fetchFilters { filters in
+        filtersWorker.fetchFilters { [weak self] filters in
+            guard let self = self else { return }
             let response = CameraPreview.FetchFilters.Response(filters: filters)
             self.presenter?.presentAllFilters(response: response)
         }
