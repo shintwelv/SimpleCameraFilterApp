@@ -6,6 +6,7 @@
 //  Copyright (c) 2023 ___ORGANIZATIONNAME___. All rights reserved.
 
 import UIKit
+import RxSwift
 
 protocol CreateFilterPresentationLogic
 {
@@ -16,6 +17,8 @@ protocol CreateFilterPresentationLogic
     func presentCreatedFilter(response: CreateFilter.CreateFilter.Response)
     func presentEditedFilter(response: CreateFilter.EditFilter.Response)
     func presentDeletedFilter(response: CreateFilter.DeleteFilter.Response)
+    
+//    var cameraFilter: PublishSubject<> {get}
 }
 
 class CreateFilterPresenter: CreateFilterPresentationLogic
@@ -29,7 +32,7 @@ class CreateFilterPresenter: CreateFilterPresentationLogic
         if let filter = response.filter {
             sendFilterInfo(filter: filter, operation: .fetch)
         } else {
-            self.viewController?.filterResult.onNext(CreateFilter.FilterResult.Fail(error: .cannotFetch("필터 정보를 가져올 수 없습니다")))
+            self.viewController?.filterResult.onNext(CreateFilter.FilterInfoResult.Fail(error: .cannotFetch("필터 정보를 가져올 수 없습니다")))
         }
     }
     
@@ -42,7 +45,7 @@ class CreateFilterPresenter: CreateFilterPresentationLogic
         if let filter = response.defaultFilter {
             sendFilterInfo(filter: filter, operation: .fetch)
         } else {
-            self.viewController?.filterResult.onNext(CreateFilter.FilterResult.Fail(error: .cannotFetch("필터 정보를 가져올 수 없습니다")))
+            self.viewController?.filterResult.onNext(CreateFilter.FilterInfoResult.Fail(error: .cannotFetch("필터 정보를 가져올 수 없습니다")))
         }
     }
     
@@ -50,7 +53,7 @@ class CreateFilterPresenter: CreateFilterPresentationLogic
         if let filter = response.filter {
             sendFilterInfo(filter: filter, operation: .fetch)
         } else {
-            self.viewController?.filterResult.onNext(CreateFilter.FilterResult.Fail(error: .cannotFetch("필터를 적용할 수 없습니다")))
+            self.viewController?.filterResult.onNext(CreateFilter.FilterInfoResult.Fail(error: .cannotFetch("필터를 적용할 수 없습니다")))
         }
     }
     
@@ -58,7 +61,7 @@ class CreateFilterPresenter: CreateFilterPresentationLogic
         if let filter = response.filter {
             sendFilterInfo(filter: filter, operation: .create)
         } else {
-            self.viewController?.filterResult.onNext(CreateFilter.FilterResult.Fail(error: .cannotFetch("필터를 생성할 수 없습니다")))
+            self.viewController?.filterResult.onNext(CreateFilter.FilterInfoResult.Fail(error: .cannotFetch("필터를 생성할 수 없습니다")))
         }
     }
     
@@ -66,7 +69,7 @@ class CreateFilterPresenter: CreateFilterPresentationLogic
         if let filter = response.filter {
             sendFilterInfo(filter: filter, operation: .edit)
         } else {
-            self.viewController?.filterResult.onNext(CreateFilter.FilterResult.Fail(error: .cannotFetch("필터를 수정할 수 없습니다")))
+            self.viewController?.filterResult.onNext(CreateFilter.FilterInfoResult.Fail(error: .cannotFetch("필터를 수정할 수 없습니다")))
         }
     }
     
@@ -74,7 +77,7 @@ class CreateFilterPresenter: CreateFilterPresentationLogic
         if let filter = response.filter {
             sendFilterInfo(filter: filter, operation: .edit)
         } else {
-            self.viewController?.filterResult.onNext(CreateFilter.FilterResult.Fail(error: .cannotFetch("필터를 삭제할 수 없습니다")))
+            self.viewController?.filterResult.onNext(CreateFilter.FilterInfoResult.Fail(error: .cannotFetch("필터를 삭제할 수 없습니다")))
         }
     }
     
@@ -83,8 +86,8 @@ class CreateFilterPresenter: CreateFilterPresentationLogic
         var filterInfo = convertToFilterInfo(filter)
         
         guard let baseSampleImage = self.baseSampleImage else {
-            self.viewController?.filterResult.onNext(CreateFilter.FilterResult.Fail(error: .cannotFetch("기본 이미지가 존재하지 않습니다")))
-            self.viewController?.filterResult.onNext(CreateFilter.FilterResult.Success(operation: operation, result: filterInfo))
+            self.viewController?.filterResult.onNext(CreateFilter.FilterInfoResult.Fail(error: .cannotFetch("기본 이미지가 존재하지 않습니다")))
+            self.viewController?.filterResult.onNext(CreateFilter.FilterInfoResult.Success(operation: operation, result: filterInfo))
             return
         }
         
@@ -92,12 +95,12 @@ class CreateFilterPresenter: CreateFilterPresentationLogic
         ciFilter.setValue(CIImage(image: baseSampleImage), forKey: kCIInputImageKey)
         
         guard let outputImage = ciFilter.outputImage else {
-            self.viewController?.filterResult.onNext(CreateFilter.FilterResult.Fail(error: .cannotFetch("필터를 적용할 수 없습니다")))
+            self.viewController?.filterResult.onNext(CreateFilter.FilterInfoResult.Fail(error: .cannotFetch("필터를 적용할 수 없습니다")))
             return
         }
         
         filterInfo.sampleImage = UIImage(ciImage: outputImage)
-        self.viewController?.filterResult.onNext(CreateFilter.FilterResult.Success(operation: operation, result: filterInfo))
+        self.viewController?.filterResult.onNext(CreateFilter.FilterInfoResult.Success(operation: operation, result: filterInfo))
     }
     
     private func convertToFilterInfo(_ filter: CameraFilter) -> CreateFilter.FilterInfo {

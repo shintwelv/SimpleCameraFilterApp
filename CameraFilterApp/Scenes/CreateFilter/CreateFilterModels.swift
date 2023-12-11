@@ -39,7 +39,7 @@ enum CreateFilter
         case cannotDelete(String)
     }
     
-    enum FilterResult {
+    enum FilterInfoResult {
         case Success(operation:FilterOperation, result: FilterInfo)
         case Fail(error: FilterError)
     }

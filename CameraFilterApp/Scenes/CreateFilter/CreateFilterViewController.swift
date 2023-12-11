@@ -16,7 +16,7 @@ import RxSwift
 protocol CreateFilterDisplayLogic: AnyObject
 {    
     var filterCategories: BehaviorSubject<[String]> { get }
-    var filterResult: PublishSubject<CreateFilter.FilterResult> { get }
+    var filterResult: PublishSubject<CreateFilter.FilterInfoResult> { get }
 }
 
 class CreateFilterViewController: UIViewController, CreateFilterDisplayLogic
@@ -532,7 +532,7 @@ class CreateFilterViewController: UIViewController, CreateFilterDisplayLogic
     // MARK: - CreateFilterDisplayLogic
     var filterCategories = BehaviorSubject<[String]>(value: [])
     
-    var filterResult = PublishSubject<CreateFilter.FilterResult>()
+    var filterResult = PublishSubject<CreateFilter.FilterInfoResult>()
     
     lazy var filterInfo: Observable<(CreateFilter.FilterOperation, CreateFilter.FilterInfo)> = {
         self.filterResult.map { result in
