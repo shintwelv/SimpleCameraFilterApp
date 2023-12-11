@@ -131,7 +131,7 @@ class SliderPropertyView: PropertyView {
         self.propertySlider.maximumValue = propertyMaxValue
         self.propertyMinLabel.text = "\(propertyMinValue)"
         self.propertyMaxLabel.text = "\(propertyMaxValue)"
-        self.propertyValueLabel.text = "\(propertyCurrentValue)"
+        self.propertyValueLabel.text = String(format: self.valueResultFormat, propertyCurrentValue)
         self.propertySlider.value = propertyCurrentValue
     }
     
