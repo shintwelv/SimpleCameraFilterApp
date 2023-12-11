@@ -14,20 +14,9 @@ import UIKit
 import RxSwift
 
 protocol CreateFilterDisplayLogic: AnyObject
-{
-    func displayCreatedFilter(viewModel: CreateFilter.CreateFilter.ViewModel)
-    func displayEditedFilter(viewModel: CreateFilter.EditFilter.ViewModel)
-    func displayDeletedFilter(viewModel: CreateFilter.DeleteFilter.ViewModel)
-    
+{    
     var filterCategories: BehaviorSubject<[String]> { get }
-
-    var sampleImage: BehaviorSubject<UIImage?> { get }
-    var filterName: BehaviorSubject<String?> { get }
-    var filterSystemName: BehaviorSubject<CameraFilter.FilterName?> { get }
-    var inputColor: BehaviorSubject<UIColor?> { get }
-    var inputIntensity: BehaviorSubject<CreateFilter.FilterProperty?> { get }
-    var inputRadius: BehaviorSubject<CreateFilter.FilterProperty?> { get }
-    var inputLevels: BehaviorSubject<CreateFilter.FilterProperty?> { get }
+    var filterResult: PublishSubject<CreateFilter.FilterResult> { get }
 }
 
 class CreateFilterViewController: UIViewController, CreateFilterDisplayLogic
@@ -196,7 +185,6 @@ class CreateFilterViewController: UIViewController, CreateFilterDisplayLogic
         button.titleLabel?.font = .systemFont(ofSize: 20, weight: .bold)
         button.backgroundColor = .systemPurple
         button.layer.cornerRadius = 10
-        button.isHidden = true
         return button
     }()
     
@@ -412,39 +400,54 @@ class CreateFilterViewController: UIViewController, CreateFilterDisplayLogic
     private let bag = DisposeBag()
     
     private func configureBinding() {
-        self.sampleImage.subscribe(
-            onNext: { [weak self] image in
-                self?.sampleImageView.image = image
-            }
-        ).disposed(by: self.bag)
-        
-        self.filterName.subscribe(
-            onNext: { [weak self] name in
-                if let name = name {
-                    self?.createButton.isHidden = true
+        self.filterInfo.subscribe(
+            onNext: { [weak self] (operation, filterInfo) in
+                switch operation {
+                case .fetch:
                     self?.editButton.isHidden = false
                     self?.deleteButton.isHidden = false
-                    
-                    self?.filterDisplayNameTextField.text = name
-                } else {
-                    self?.createButton.isHidden = false
-                    self?.editButton.isHidden = true
-                    self?.deleteButton.isHidden = true
-                    
-                    self?.filterDisplayNameTextField.text = ""
+                    self?.createButton.isHidden = true
+                default:
+                    self?.routeToListFilters()
                 }
             }
         ).disposed(by: self.bag)
         
-        self.filterSystemName.subscribe(
-            onNext:{ [weak self] name in
-                if let name = name {
-                    self?.filterCategoryTextField.text = name.rawValue
-                }
+        self.filterError.subscribe(
+            onNext: { [weak self] error in
+                self?.displayPopUp(title: "에러", message: error.localizedDescription)
             }
         ).disposed(by: self.bag)
         
-        self.inputColor.subscribe(
+        self.filterInfo.map { (_, filterInfo) in
+            filterInfo.sampleImage
+        }.subscribe(
+            onNext: { [weak self] sampleImage in
+                self?.sampleImageView.image = sampleImage
+            }
+        ).disposed(by: self.bag)
+        
+        self.filterInfo.map { (_, filterInfo) in
+            filterInfo.filterName
+        }.filter { 
+            !$0.isEmpty
+        }.subscribe(
+            onNext: { [weak self] filterName in
+                self?.filterDisplayNameTextField.text = filterName
+            }
+        ).disposed(by: self.bag)
+        
+        self.filterInfo.map { (_, filterInfo) in
+            filterInfo.filterSystemName
+        }.subscribe(
+            onNext: { [weak self] systemName in
+                self?.filterCategoryTextField.text = systemName.rawValue
+            }
+        ).disposed(by: self.bag)
+        
+        self.filterInfo.map { (_, filterInfo) in
+            filterInfo.inputColor
+        }.subscribe(
             onNext:{ [weak self] inputColor in
                 if let inputColor = inputColor {
                     self?.inputColorPickerView.contentView.isHidden = false
@@ -456,7 +459,9 @@ class CreateFilterViewController: UIViewController, CreateFilterDisplayLogic
             }
         ).disposed(by: self.bag)
         
-        self.inputIntensity.subscribe(
+        self.filterInfo.map { (_, filterInfo) in
+            filterInfo.inputIntensity
+        }.subscribe(
             onNext:{ [weak self] inputIntensity in
                 if let inputIntensity = inputIntensity {
                     self?.inputIntensitySliderView.contentView.isHidden = false
@@ -474,7 +479,9 @@ class CreateFilterViewController: UIViewController, CreateFilterDisplayLogic
             }
         ).disposed(by: self.bag)
         
-        self.inputRadius.subscribe(
+        self.filterInfo.map { (_, filterInfo) in
+            filterInfo.inputRadius
+        }.subscribe(
             onNext:{ [weak self] inputRadius in
                 if let inputRadius = inputRadius {
                     self?.inputRadiusSliderView.contentView.isHidden = false
@@ -491,7 +498,9 @@ class CreateFilterViewController: UIViewController, CreateFilterDisplayLogic
             }
         ).disposed(by: self.bag)
         
-        self.inputLevels.subscribe(
+        self.filterInfo.map { (_, filterInfo) in
+            filterInfo.inputLevels
+        }.subscribe(
             onNext:{ [weak self] inputLevels in
                 if let inputLevels = inputLevels {
                     self?.inputLevelsSliderView.contentView.isHidden = false
@@ -522,38 +531,30 @@ class CreateFilterViewController: UIViewController, CreateFilterDisplayLogic
     
     // MARK: - CreateFilterDisplayLogic
     var filterCategories = BehaviorSubject<[String]>(value: [])
-
-    var sampleImage = BehaviorSubject<UIImage?>(value:nil)
-    var filterName = BehaviorSubject<String?>(value: nil)
-    var filterSystemName = BehaviorSubject<CameraFilter.FilterName?>(value: nil)
-    var inputColor = BehaviorSubject<UIColor?>(value: nil)
-    var inputIntensity = BehaviorSubject<CreateFilter.FilterProperty?>(value: nil)
-    var inputRadius = BehaviorSubject<CreateFilter.FilterProperty?>(value: nil)
-    var inputLevels = BehaviorSubject<CreateFilter.FilterProperty?>(value: nil)
     
-    func displayCreatedFilter(viewModel: CreateFilter.CreateFilter.ViewModel) {
-        if let _ = viewModel.filterInfo {
-            routeToListFilters()
-        } else {
-            displayPopUp(title: "에러", message: "필터를 생성할 수 없습니다")
-        }
-    }
-
-    func displayEditedFilter(viewModel: CreateFilter.EditFilter.ViewModel) {
-        if let _ = viewModel.filterInfo {
-            routeToListFilters()
-        } else {
-            displayPopUp(title: "에러", message: "필터를 수정할 수 없습니다")
-        }
-    }
-
-    func displayDeletedFilter(viewModel: CreateFilter.DeleteFilter.ViewModel) {
-        if let _ = viewModel.filterInfo {
-            routeToListFilters()
-        } else {
-            displayPopUp(title: "에러", message: "필터를 삭제할 수 없습니다")
-        }
-    }
+    var filterResult = PublishSubject<CreateFilter.FilterResult>()
+    
+    lazy var filterInfo: Observable<(CreateFilter.FilterOperation, CreateFilter.FilterInfo)> = {
+        self.filterResult.map { result in
+            switch result{
+            case .Success(let operation, let filterInfo):
+                return (operation, filterInfo)
+            case .Fail(_):
+                return nil
+            }
+        }.compactMap { $0 }
+    }()
+    
+    lazy var filterError: Observable<CreateFilter.FilterError> = {
+        self.filterResult.map { result in
+            switch result{
+            case .Success(_, _):
+                return nil
+            case .Fail(let error):
+                return error
+            }
+        }.compactMap { $0 }
+    }()
     
     // MARK: - Private methods
     private func routeToListFilters() {

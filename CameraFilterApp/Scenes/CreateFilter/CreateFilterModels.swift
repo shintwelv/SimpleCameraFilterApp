@@ -13,14 +13,35 @@ enum CreateFilter
     typealias FilterProperty = (min:CGFloat, max:CGFloat, value:CGFloat)
 
     struct FilterInfo {
-        var filterName: String?
+        var sampleImage: UIImage?
         
-        var filterSystemName: CameraFilter.FilterName?
+        var filterName: String
+        
+        var filterSystemName: CameraFilter.FilterName
 
         var inputColor: UIColor?
         var inputIntensity: FilterProperty?
         var inputRadius: FilterProperty?
         var inputLevels: FilterProperty?
+    }
+    
+    enum FilterOperation {
+        case fetch
+        case edit
+        case create
+        case delete
+    }
+    
+    enum FilterError: Error {
+        case cannotFetch(String)
+        case cannotCreate(String)
+        case cannotEdit(String)
+        case cannotDelete(String)
+    }
+    
+    enum FilterResult {
+        case Success(operation:FilterOperation, result: FilterInfo)
+        case Fail(error: FilterError)
     }
     
     enum FetchFilter {
@@ -53,10 +74,7 @@ enum CreateFilter
             var filterSystemName: CameraFilter.FilterName
         }
         struct Response {
-            var inputColor: UIColor?
-            var inputIntensity: FilterProperty?
-            var inputRadius: FilterProperty?
-            var inputLevels: FilterProperty?
+            var defaultFilter: CameraFilter?
         }
         struct ViewModel {
             var inputColor: UIColor?

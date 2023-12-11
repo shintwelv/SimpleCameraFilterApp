@@ -26,33 +26,10 @@ class CreateFilterPresenter: CreateFilterPresentationLogic
     
     //MARK: - Present CRUD operation result
     func presentFetchedFilter(response: CreateFilter.FetchFilter.Response) {
-        self.viewController?.sampleImage.onNext(baseSampleImage)
-
         if let filter = response.filter {
-            let filterInfo = convertToFilterInfo(filter)
-            
-            self.viewController?.filterName.onNext(filterInfo.filterName)
-            self.viewController?.filterSystemName.onNext(filterInfo.filterSystemName)
-            self.viewController?.inputColor.onNext(filterInfo.inputColor)
-            self.viewController?.inputIntensity.onNext(filterInfo.inputIntensity)
-            self.viewController?.inputRadius.onNext(filterInfo.inputRadius)
-            self.viewController?.inputLevels.onNext(filterInfo.inputLevels)
-            
-            guard let baseSampleImage = self.baseSampleImage else { return }
-            
-            let ciFilter = filter.ciFilter
-            ciFilter.setValue(CIImage(image: baseSampleImage), forKey: kCIInputImageKey)
-            
-            guard let outputImage = ciFilter.outputImage else { return }
-
-            self.viewController?.sampleImage.onNext(UIImage(ciImage: outputImage))
+            sendFilterInfo(filter: filter, operation: .fetch)
         } else {
-            self.viewController?.filterName.onNext(nil)
-            self.viewController?.filterSystemName.onNext(nil)
-            self.viewController?.inputColor.onNext(nil)
-            self.viewController?.inputIntensity.onNext(nil)
-            self.viewController?.inputRadius.onNext(nil)
-            self.viewController?.inputLevels.onNext(nil)
+            self.viewController?.filterResult.onNext(CreateFilter.FilterResult.Fail(error: .cannotFetch("필터 정보를 가져올 수 없습니다")))
         }
     }
     
@@ -62,69 +39,76 @@ class CreateFilterPresenter: CreateFilterPresentationLogic
     }
     
     func presentFetchedProperties(response: CreateFilter.FetchProperties.Response) {
-        self.viewController?.inputColor.onNext(response.inputColor)
-        self.viewController?.inputIntensity.onNext(response.inputIntensity)
-        self.viewController?.inputRadius.onNext(response.inputRadius)
-        self.viewController?.inputLevels.onNext(response.inputLevels)
+        if let filter = response.defaultFilter {
+            sendFilterInfo(filter: filter, operation: .fetch)
+        } else {
+            self.viewController?.filterResult.onNext(CreateFilter.FilterResult.Fail(error: .cannotFetch("필터 정보를 가져올 수 없습니다")))
+        }
     }
     
     func presentFilterAppliedImage(response: CreateFilter.ApplyFilter.Response) {
-        self.viewController?.sampleImage.onNext(self.baseSampleImage)
-        
-        guard let filter = response.filter,
-              let baseSampleImage = self.baseSampleImage else { return }
-        
-        filter.ciFilter.setValue(CIImage(image: baseSampleImage), forKey: kCIInputImageKey)
-        
-        guard let outputImage = filter.ciFilter.outputImage else { return }
-        self.viewController?.sampleImage.onNext(UIImage(ciImage: outputImage))
+        if let filter = response.filter {
+            sendFilterInfo(filter: filter, operation: .fetch)
+        } else {
+            self.viewController?.filterResult.onNext(CreateFilter.FilterResult.Fail(error: .cannotFetch("필터를 적용할 수 없습니다")))
+        }
     }
     
     func presentCreatedFilter(response: CreateFilter.CreateFilter.Response) {
         if let filter = response.filter {
-            let filterInfo = convertToFilterInfo(filter)
-            
-            let viewModel = CreateFilter.CreateFilter.ViewModel(filterInfo: filterInfo)
-            self.viewController?.displayCreatedFilter(viewModel: viewModel)
+            sendFilterInfo(filter: filter, operation: .create)
         } else {
-            let viewModel = CreateFilter.CreateFilter.ViewModel(filterInfo: nil)
-            self.viewController?.displayCreatedFilter(viewModel: viewModel)
+            self.viewController?.filterResult.onNext(CreateFilter.FilterResult.Fail(error: .cannotFetch("필터를 생성할 수 없습니다")))
         }
     }
     
     func presentEditedFilter(response: CreateFilter.EditFilter.Response) {
         if let filter = response.filter {
-            let filterInfo = convertToFilterInfo(filter)
-            
-            let viewModel = CreateFilter.EditFilter.ViewModel(filterInfo: filterInfo)
-            self.viewController?.displayEditedFilter(viewModel: viewModel)
+            sendFilterInfo(filter: filter, operation: .edit)
         } else {
-            let viewModel = CreateFilter.EditFilter.ViewModel(filterInfo: nil)
-            self.viewController?.displayEditedFilter(viewModel: viewModel)
+            self.viewController?.filterResult.onNext(CreateFilter.FilterResult.Fail(error: .cannotFetch("필터를 수정할 수 없습니다")))
         }
     }
     
     func presentDeletedFilter(response: CreateFilter.DeleteFilter.Response) {
         if let filter = response.filter {
-            let filterInfo = convertToFilterInfo(filter)
-            
-            let viewModel = CreateFilter.DeleteFilter.ViewModel(filterInfo: filterInfo)
-            self.viewController?.displayDeletedFilter(viewModel: viewModel)
+            sendFilterInfo(filter: filter, operation: .edit)
         } else {
-            let viewModel = CreateFilter.DeleteFilter.ViewModel(filterInfo: nil)
-            self.viewController?.displayDeletedFilter(viewModel: viewModel)
+            self.viewController?.filterResult.onNext(CreateFilter.FilterResult.Fail(error: .cannotFetch("필터를 삭제할 수 없습니다")))
         }
     }
     
     //MARK: - Private methods
+    private func sendFilterInfo(filter: CameraFilter, operation: CreateFilter.FilterOperation) {
+        var filterInfo = convertToFilterInfo(filter)
+        
+        guard let baseSampleImage = self.baseSampleImage else {
+            self.viewController?.filterResult.onNext(CreateFilter.FilterResult.Fail(error: .cannotFetch("기본 이미지가 존재하지 않습니다")))
+            self.viewController?.filterResult.onNext(CreateFilter.FilterResult.Success(operation: operation, result: filterInfo))
+            return
+        }
+        
+        let ciFilter = filter.ciFilter
+        ciFilter.setValue(CIImage(image: baseSampleImage), forKey: kCIInputImageKey)
+        
+        guard let outputImage = ciFilter.outputImage else {
+            self.viewController?.filterResult.onNext(CreateFilter.FilterResult.Fail(error: .cannotFetch("필터를 적용할 수 없습니다")))
+            return
+        }
+        
+        filterInfo.sampleImage = UIImage(ciImage: outputImage)
+        self.viewController?.filterResult.onNext(CreateFilter.FilterResult.Success(operation: operation, result: filterInfo))
+    }
+    
     private func convertToFilterInfo(_ filter: CameraFilter) -> CreateFilter.FilterInfo {
         
         let inputColor: UIColor? = filter.inputColor != nil ? UIColor(ciColor: filter.inputColor!) : nil
         let inputIntensity: CreateFilter.FilterProperty? = filter.inputIntensity != nil ? (min: 0.0, max: 1.0, value: filter.inputIntensity!) : nil
         let inputRadius: CreateFilter.FilterProperty? = filter.inputRadius != nil ? (min: 0.0, max: 20.0, value: filter.inputRadius!) : nil
-        let inputLevels: CreateFilter.FilterProperty? = filter.inputLevels != nil ? (min: 0.0, max: 10.0, value: filter.inputLevels!) : nil
+        let inputLevels: CreateFilter.FilterProperty? = filter.inputLevels != nil ? (min: 5.0, max: 10.0, value: filter.inputLevels!) : nil
         
-        return CreateFilter.FilterInfo(filterName: filter.displayName,
+        return CreateFilter.FilterInfo(sampleImage: self.baseSampleImage,
+                                       filterName: filter.displayName,
                                        filterSystemName: filter.systemName,
                                        inputColor: inputColor,
                                        inputIntensity: inputIntensity,

@@ -45,9 +45,6 @@ class CreateFilterInteractor: CreateFilterBusinessLogic, CreateFilterDataStore
                 let response = CreateFilter.FetchFilter.Response(filter: filter)
                 self.presenter?.presentFetchedFilter(response: response)
             }
-        } else {
-            let response = CreateFilter.FetchFilter.Response(filter: nil)
-            self.presenter?.presentFetchedFilter(response: response)
         }
     }
     
@@ -61,30 +58,23 @@ class CreateFilterInteractor: CreateFilterBusinessLogic, CreateFilterDataStore
     func fetchProperties(request: CreateFilter.FetchProperties.Request) {
         let filterSystemName = request.filterSystemName
         
-        var response: CreateFilter.FetchProperties.Response
+        var filter: CameraFilter?
         switch filterSystemName {
+        case .CISepiaTone:
+            filter = CameraFilter.createSepiaFilter(filterId: UUID(), displayName: "", inputIntensity: 1.0)
+        case .CIPhotoEffectTonal:
+            filter = CameraFilter.createBlackWhiteFilter(filterId: UUID(), displayName: "")
+        case .CIPhotoEffectTransfer:
+            filter = CameraFilter.createVintageFilter(filterId: UUID(), displayName: "")
         case .CIColorMonochrome:
-            response = CreateFilter.FetchProperties.Response(inputColor: .systemBlue,
-                                                             inputIntensity: (min: 0.0, max: 1.0, value: 1.0),
-                                                             inputRadius: nil,
-                                                             inputLevels: nil)
+            filter = CameraFilter.createMonochromeFilter(filterId: UUID(), displayName: "", inputColor: CIColor(cgColor: UIColor.systemBlue.cgColor), inputIntensity: 1.0)
         case .CIColorPosterize:
-            response = CreateFilter.FetchProperties.Response(inputColor: nil,
-                                                             inputIntensity: nil,
-                                                             inputRadius: nil,
-                                                             inputLevels: (min: 0.0, max: 10.0, value: 6.0))
+            filter = CameraFilter.createPosterizeFilter(filterId: UUID(), displayName: "", inputLevels: 6.0)
         case .CIBoxBlur:
-            response = CreateFilter.FetchProperties.Response(inputColor: nil,
-                                                             inputIntensity: nil,
-                                                             inputRadius: (min: 0.0, max: 20.0, value: 10.0),
-                                                             inputLevels: nil)
-        default:
-            response = CreateFilter.FetchProperties.Response(inputColor: nil,
-                                                             inputIntensity: nil,
-                                                             inputRadius: nil,
-                                                             inputLevels: nil)
+            filter = CameraFilter.createBlurFilter(filterId: UUID(), displayName: "", inputRadius: 10.0)
         }
         
+        let response = CreateFilter.FetchProperties.Response(defaultFilter: filter)
         presenter?.presentFetchedProperties(response: response)
     }
     
