@@ -15,6 +15,7 @@ import RxSwift
 
 protocol CreateFilterDisplayLogic: AnyObject
 {    
+    var isEditingFilter: BehaviorSubject<Bool> { get }
     var filterCategories: BehaviorSubject<[String]> { get }
     var filterResult: PublishSubject<CreateFilter.FilterInfoResult> { get }
 }
@@ -400,13 +401,25 @@ class CreateFilterViewController: UIViewController, CreateFilterDisplayLogic
     private let bag = DisposeBag()
     
     private func configureBinding() {
+        self.isEditingFilter.subscribe(
+            onNext: { [weak self] isEditing in
+                if isEditing {
+                    self?.editButton.isHidden = false
+                    self?.deleteButton.isHidden = false
+                    self?.createButton.isHidden = true
+                } else {
+                    self?.editButton.isHidden = true
+                    self?.deleteButton.isHidden = true
+                    self?.createButton.isHidden = false
+                }
+            }
+        ).disposed(by: self.bag)
+        
         self.filterInfo.subscribe(
             onNext: { [weak self] (operation, filterInfo) in
                 switch operation {
                 case .fetch:
-                    self?.editButton.isHidden = false
-                    self?.deleteButton.isHidden = false
-                    self?.createButton.isHidden = true
+                    break
                 default:
                     self?.routeToListFilters()
                 }
@@ -530,6 +543,8 @@ class CreateFilterViewController: UIViewController, CreateFilterDisplayLogic
     }
     
     // MARK: - CreateFilterDisplayLogic
+    var isEditingFilter = BehaviorSubject<Bool>(value: false)
+    
     var filterCategories = BehaviorSubject<[String]>(value: [])
     
     var filterResult = PublishSubject<CreateFilter.FilterInfoResult>()
@@ -656,7 +671,7 @@ extension CreateFilterViewController: UIPickerViewDelegate, UIPickerViewDataSour
             return ""
         }
     }
-
+    
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
         do {
             let categoryNames = try self.filterCategories.value()

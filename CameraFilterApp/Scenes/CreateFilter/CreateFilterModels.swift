@@ -39,6 +39,11 @@ enum CreateFilter
         case cannotDelete(String)
     }
     
+    enum CameraFilterResult {
+        case Success(operation:FilterOperation, result: CameraFilter)
+        case Fail(error: FilterError)
+    }
+    
     enum FilterInfoResult {
         case Success(operation:FilterOperation, result: FilterInfo)
         case Fail(error: FilterError)

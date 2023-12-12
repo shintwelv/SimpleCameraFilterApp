@@ -33,49 +33,27 @@ class CreateFilterInteractor: CreateFilterBusinessLogic, CreateFilterDataStore
     // MARK: CRUD operations
     func fetchFilter(request: CreateFilter.FetchFilter.Request) {
         if let filterId = self.filterId {
+            self.presenter?.isEditingFilter.onNext(true)
             filtersWorker.fetchFilter(filterId: filterId) { [weak self] filter in
-                guard let self = self else { return }
-                
-                guard let filter = filter else {
-                    let response = CreateFilter.FetchFilter.Response(filter: nil)
-                    self.presenter?.presentFetchedFilter(response: response)
-                    return
-                }
-                
-                let response = CreateFilter.FetchFilter.Response(filter: filter)
-                self.presenter?.presentFetchedFilter(response: response)
+                self?.sendCameraFilter(filter: filter, operation: .fetch)
             }
+        } else {
+            self.presenter?.isEditingFilter.onNext(false)
         }
     }
     
     func fetchFilterCategories(request: CreateFilter.FetchFilterCategories.Request) {
         let filterCategories: [CameraFilter.FilterName] = CameraFilter.FilterName.allCases
         
-        let response = CreateFilter.FetchFilterCategories.Response(filterCategories: filterCategories)
-        presenter?.presentFetchedCategories(response: response)
+        self.presenter?.filterCategories.onNext(filterCategories)
     }
     
     func fetchProperties(request: CreateFilter.FetchProperties.Request) {
         let filterSystemName = request.filterSystemName
         
-        var filter: CameraFilter?
-        switch filterSystemName {
-        case .CISepiaTone:
-            filter = CameraFilter.createSepiaFilter(filterId: UUID(), displayName: "", inputIntensity: 1.0)
-        case .CIPhotoEffectTonal:
-            filter = CameraFilter.createBlackWhiteFilter(filterId: UUID(), displayName: "")
-        case .CIPhotoEffectTransfer:
-            filter = CameraFilter.createVintageFilter(filterId: UUID(), displayName: "")
-        case .CIColorMonochrome:
-            filter = CameraFilter.createMonochromeFilter(filterId: UUID(), displayName: "", inputColor: CIColor(cgColor: UIColor.systemBlue.cgColor), inputIntensity: 1.0)
-        case .CIColorPosterize:
-            filter = CameraFilter.createPosterizeFilter(filterId: UUID(), displayName: "", inputLevels: 6.0)
-        case .CIBoxBlur:
-            filter = CameraFilter.createBlurFilter(filterId: UUID(), displayName: "", inputRadius: 10.0)
-        }
+        let defaultFilter: CameraFilter? = createDefaultFilter(filterSystemName: filterSystemName)
         
-        let response = CreateFilter.FetchProperties.Response(defaultFilter: filter)
-        presenter?.presentFetchedProperties(response: response)
+        self.sendCameraFilter(filter: defaultFilter, operation: .fetch)
     }
     
     func applyFilter(request: CreateFilter.ApplyFilter.Request) {
@@ -93,8 +71,11 @@ class CreateFilterInteractor: CreateFilterBusinessLogic, CreateFilterDataStore
                                                  inputRadius: inputRadius,
                                                  inputLevels: inputLevels)
         
-        let response = CreateFilter.ApplyFilter.Response(filter: filter)
-        self.presenter?.presentFilterAppliedImage(response: response)
+        if let filter = filter {
+            self.presenter?.cameraFilterResult.onNext(CreateFilter.CameraFilterResult.Success(operation: .fetch, result: filter))
+        } else {
+            self.presenter?.cameraFilterResult.onNext(CreateFilter.CameraFilterResult.Fail(error: .cannotFetch("필터를 적용할 수 없습니다")))
+        }
     }
     
     func createFilter(request: CreateFilter.CreateFilter.Request) {
@@ -113,13 +94,13 @@ class CreateFilterInteractor: CreateFilterBusinessLogic, CreateFilterDataStore
                                                  inputRadius: inputRadius,
                                                  inputLevels: inputLevels)
         
-        guard let filter = filter else { return }
+        guard let filter = filter else {
+            self.presenter?.cameraFilterResult.onNext(CreateFilter.CameraFilterResult.Fail(error: .cannotCreate("필터를 생성할 수 없습니다")))
+            return
+        }
         
         filtersWorker.createFilter(filterToCreate: filter) { [weak self] filter in
-            guard let self = self else { return }
-            
-            let response = CreateFilter.CreateFilter.Response(filter: filter)
-            self.presenter?.presentCreatedFilter(response: response)
+            self?.sendCameraFilter(filter: filter, operation: .create)
         }
     }
     
@@ -141,13 +122,13 @@ class CreateFilterInteractor: CreateFilterBusinessLogic, CreateFilterDataStore
                                           inputRadius: inputRadius,
                                           inputLevels: inputLevels)
         
-        guard let filterToUpdate = filterToUpdate else { return }
+        guard let filterToUpdate = filterToUpdate else {
+            self.presenter?.cameraFilterResult.onNext(CreateFilter.CameraFilterResult.Fail(error: .cannotEdit("필터를 수정할 수 없습니다")))
+            return
+        }
         
         filtersWorker.updateFilter(filterToUpdate: filterToUpdate) { [weak self] filter in
-            guard let self = self else { return }
-            
-            let response = CreateFilter.EditFilter.Response(filter: filter)
-            self.presenter?.presentEditedFilter(response: response)
+            self?.sendCameraFilter(filter: filter, operation: .edit)
         }
     }
     
@@ -155,14 +136,45 @@ class CreateFilterInteractor: CreateFilterBusinessLogic, CreateFilterDataStore
         guard let filterId = self.filterId else { return }
         
         filtersWorker.deleteFilter(filterId: filterId) { [weak self] filter in
-            guard let self = self else { return }
-            
-            let response = CreateFilter.DeleteFilter.Response(filter: filter)
-            self.presenter?.presentDeletedFilter(response: response)
+            self?.sendCameraFilter(filter: filter, operation: .delete)
         }
     }
     
     //MARK: - private methods
+    private func sendCameraFilter(filter: CameraFilter?, operation: CreateFilter.FilterOperation) {
+        if let filter = filter {
+            self.presenter?.cameraFilterResult.onNext(CreateFilter.CameraFilterResult.Success(operation: operation, result: filter))
+        } else {
+            switch operation {
+            case .fetch:
+                self.presenter?.cameraFilterResult.onNext(CreateFilter.CameraFilterResult.Fail(error: .cannotFetch("필터 정보를 가져올 수 없습니다")))
+            case .edit:
+                self.presenter?.cameraFilterResult.onNext(CreateFilter.CameraFilterResult.Fail(error: .cannotEdit("필터를 수정할 수 없습니다")))
+            case .create:
+                self.presenter?.cameraFilterResult.onNext(CreateFilter.CameraFilterResult.Fail(error: .cannotCreate("필터를 생성할 수 없습니다")))
+            case .delete:
+                self.presenter?.cameraFilterResult.onNext(CreateFilter.CameraFilterResult.Fail(error: .cannotDelete("필터를 삭제할 수 없습니다")))
+            }
+        }
+    }
+    
+    private func createDefaultFilter(filterSystemName: CameraFilter.FilterName) -> CameraFilter? {
+        switch filterSystemName {
+        case .CISepiaTone:
+            return CameraFilter.createSepiaFilter(filterId: UUID(), displayName: "", inputIntensity: 1.0)
+        case .CIPhotoEffectTonal:
+            return CameraFilter.createBlackWhiteFilter(filterId: UUID(), displayName: "")
+        case .CIPhotoEffectTransfer:
+            return CameraFilter.createVintageFilter(filterId: UUID(), displayName: "")
+        case .CIColorMonochrome:
+            return CameraFilter.createMonochromeFilter(filterId: UUID(), displayName: "", inputColor: CIColor(cgColor: UIColor.systemBlue.cgColor), inputIntensity: 1.0)
+        case .CIColorPosterize:
+            return CameraFilter.createPosterizeFilter(filterId: UUID(), displayName: "", inputLevels: 6.0)
+        case .CIBoxBlur:
+            return CameraFilter.createBlurFilter(filterId: UUID(), displayName: "", inputRadius: 10.0)
+        }
+    }
+    
     private func createFilter(filterId: UUID,
                               displayName: String,
                               systemName: CameraFilter.FilterName,

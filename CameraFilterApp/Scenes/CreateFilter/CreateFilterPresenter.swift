@@ -10,15 +10,9 @@ import RxSwift
 
 protocol CreateFilterPresentationLogic
 {
-    func presentFetchedFilter(response: CreateFilter.FetchFilter.Response)
-    func presentFetchedCategories(response: CreateFilter.FetchFilterCategories.Response)
-    func presentFetchedProperties(response: CreateFilter.FetchProperties.Response)
-    func presentFilterAppliedImage(response: CreateFilter.ApplyFilter.Response)
-    func presentCreatedFilter(response: CreateFilter.CreateFilter.Response)
-    func presentEditedFilter(response: CreateFilter.EditFilter.Response)
-    func presentDeletedFilter(response: CreateFilter.DeleteFilter.Response)
-    
-//    var cameraFilter: PublishSubject<> {get}
+    var isEditingFilter: BehaviorSubject<Bool> { get }
+    var filterCategories: BehaviorSubject<[CameraFilter.FilterName]> { get }
+    var cameraFilterResult: PublishSubject<CreateFilter.CameraFilterResult> { get }
 }
 
 class CreateFilterPresenter: CreateFilterPresentationLogic
@@ -27,58 +21,63 @@ class CreateFilterPresenter: CreateFilterPresentationLogic
     
     let baseSampleImage: UIImage? = UIImage(named: "lena_color")
     
-    //MARK: - Present CRUD operation result
-    func presentFetchedFilter(response: CreateFilter.FetchFilter.Response) {
-        if let filter = response.filter {
-            sendFilterInfo(filter: filter, operation: .fetch)
-        } else {
-            self.viewController?.filterResult.onNext(CreateFilter.FilterInfoResult.Fail(error: .cannotFetch("필터 정보를 가져올 수 없습니다")))
-        }
+    init() {
+        configureBinding()
     }
     
-    func presentFetchedCategories(response: CreateFilter.FetchFilterCategories.Response) {
-        let filterCategories = response.filterCategories.map { $0.rawValue }
-        self.viewController?.filterCategories.onNext(filterCategories)
-    }
+    let bag = DisposeBag()
     
-    func presentFetchedProperties(response: CreateFilter.FetchProperties.Response) {
-        if let filter = response.defaultFilter {
-            sendFilterInfo(filter: filter, operation: .fetch)
-        } else {
-            self.viewController?.filterResult.onNext(CreateFilter.FilterInfoResult.Fail(error: .cannotFetch("필터 정보를 가져올 수 없습니다")))
-        }
-    }
+    var isEditingFilter = BehaviorSubject<Bool>(value: false)
+    var filterCategories = BehaviorSubject<[CameraFilter.FilterName]>(value: [])
+    var cameraFilterResult = PublishSubject<CreateFilter.CameraFilterResult>()
     
-    func presentFilterAppliedImage(response: CreateFilter.ApplyFilter.Response) {
-        if let filter = response.filter {
-            sendFilterInfo(filter: filter, operation: .fetch)
-        } else {
-            self.viewController?.filterResult.onNext(CreateFilter.FilterInfoResult.Fail(error: .cannotFetch("필터를 적용할 수 없습니다")))
-        }
-    }
+    lazy var cameraFilter: Observable<(CreateFilter.FilterOperation, CameraFilter)> = {
+        self.cameraFilterResult.map { filterResult in
+            switch filterResult {
+            case .Success(let operation, let cameraFilter):
+                return (operation, cameraFilter)
+            case .Fail(_):
+                return nil
+            }
+        }.compactMap { $0 }
+    }()
     
-    func presentCreatedFilter(response: CreateFilter.CreateFilter.Response) {
-        if let filter = response.filter {
-            sendFilterInfo(filter: filter, operation: .create)
-        } else {
-            self.viewController?.filterResult.onNext(CreateFilter.FilterInfoResult.Fail(error: .cannotFetch("필터를 생성할 수 없습니다")))
-        }
-    }
+    lazy var filterError: Observable<CreateFilter.FilterError> = {
+        self.cameraFilterResult.map { result in
+            switch result{
+            case .Success(_, _):
+                return nil
+            case .Fail(let error):
+                return error
+            }
+        }.compactMap { $0 }
+    }()
     
-    func presentEditedFilter(response: CreateFilter.EditFilter.Response) {
-        if let filter = response.filter {
-            sendFilterInfo(filter: filter, operation: .edit)
-        } else {
-            self.viewController?.filterResult.onNext(CreateFilter.FilterInfoResult.Fail(error: .cannotFetch("필터를 수정할 수 없습니다")))
-        }
-    }
-    
-    func presentDeletedFilter(response: CreateFilter.DeleteFilter.Response) {
-        if let filter = response.filter {
-            sendFilterInfo(filter: filter, operation: .edit)
-        } else {
-            self.viewController?.filterResult.onNext(CreateFilter.FilterInfoResult.Fail(error: .cannotFetch("필터를 삭제할 수 없습니다")))
-        }
+    private func configureBinding() {
+        self.isEditingFilter.subscribe(
+            onNext: { [weak self] isEditing in
+                self?.viewController?.isEditingFilter.onNext(isEditing)
+            }
+        ).disposed(by: self.bag)
+        
+        self.filterCategories.subscribe(
+            onNext: { [weak self] filterCategories in
+                let systemNames: [String] = filterCategories.map{ $0.rawValue }
+                self?.viewController?.filterCategories.onNext(systemNames)
+            }
+        ).disposed(by: self.bag)
+        
+        self.cameraFilter.subscribe(
+            onNext: { [weak self] (operation, cameraFilter) in
+                self?.sendFilterInfo(filter: cameraFilter, operation: operation)
+            }
+        ).disposed(by: self.bag)
+        
+        self.filterError.subscribe(
+            onNext: { [weak self] error in
+                self?.viewController?.filterResult.onNext(CreateFilter.FilterInfoResult.Fail(error: error))
+            }
+        ).disposed(by: self.bag)
     }
     
     //MARK: - Private methods
