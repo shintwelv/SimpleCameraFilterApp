@@ -6,6 +6,7 @@
 //  Copyright (c) 2023 ___ORGANIZATIONNAME___. All rights reserved.
 
 import UIKit
+import RxSwift
 
 protocol ListFiltersBusinessLogic
 {
@@ -25,14 +26,31 @@ class ListFiltersInteractor: ListFiltersBusinessLogic, ListFiltersDataStore
     
     var selectedFilterId: UUID?
     
+    init() {
+        configureBinding()
+    }
+    
+    private let bag = DisposeBag()
+    
+    private func configureBinding() {
+        self.filtersWorker.filters.map { (result) -> [CameraFilter] in
+            switch result {
+            case .Success(let operation, let filters) where operation == .fetch: return filters
+            default: return []
+            }
+        }.subscribe(
+            onNext: { [weak self] filters in
+                guard let self = self else { return }
+                
+                let response = ListFilters.FetchFilters.Response(filters: filters)
+                self.presenter?.displayFilters(response: response)
+            }
+        ).disposed(by: self.bag)
+    }
+    
     // MARK: Fetch filters
     func fetchFilters(request: ListFilters.FetchFilters.Request) {
-        filtersWorker.fetchFilters { [weak self] filters in
-            guard let self = self else { return }
-            
-            let response = ListFilters.FetchFilters.Response(filters: filters)
-            self.presenter?.displayFilters(response: response)
-        }
+        self.filtersWorker.fetchFilters()
     }
     
     // MARK: - Select filter

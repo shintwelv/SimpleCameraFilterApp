@@ -13,6 +13,7 @@
 import UIKit
 import MetalKit
 import AVFoundation
+import RxSwift
 
 protocol CameraPreviewBusinessLogic
 {
@@ -55,21 +56,63 @@ class CameraPreviewInteractor: NSObject, CameraPreviewBusinessLogic, CameraPrevi
         }
     }
     
+    override init() {
+        super.init()
+        configureBinding()
+    }
+    
+    private let bag = DisposeBag()
+    
+    private lazy var fetchedFilter: Observable<FiltersWorker.OperationResult<CameraFilter>> = {
+        self.filtersWorker.filter.filter {
+            switch $0 {
+            case .Success(let operation, _) where operation == .fetch: return true
+            case .Failure(let error) where error == .cannotFetch(error.localizedDescription): return true
+            default: return false
+            }
+        }
+    }()
+    
+    private func configureBinding() {
+        self.fetchedFilter.map { (result) -> CameraFilter? in
+            switch result {
+            case .Success(_, let filter): return filter
+            case .Failure(_): return nil
+            }
+        }.subscribe(
+            onNext: { [weak self] filter in
+                guard let self = self else { return }
+                
+                if let filter = filter {
+                    self.appliedFilter = filter.ciFilter
+                } else {
+                    self.appliedFilter = nil
+                }
+            }
+        ).disposed(by: self.bag)
+        
+        self.filtersWorker.filters.map { (result) -> [CameraFilter] in
+            switch result {
+            case .Success(let operation, let filters) where operation == .fetch: return filters
+            default: return []
+            }
+        }.subscribe(
+            onNext: { [weak self] filters in
+                guard let self = self else { return }
+                
+                let response = CameraPreview.FetchFilters.Response(filters: filters)
+                self.presenter?.presentAllFilters(response: response)
+            }
+        ).disposed(by: self.bag)
+    }
+    
     func applyFilter(_ request: CameraPreview.ApplyFilter.Request) {
         let filterId = request.filterId
-        
-        filtersWorker.fetchFilter(filterId: filterId) { [weak self] filter in
-            guard let self = self else { return }
-            self.appliedFilter = filter?.ciFilter ?? nil
-        }
+        self.filtersWorker.fetchFilter(filterId: filterId)
     }
     
     func fetchFilters(_ request: CameraPreview.FetchFilters.Request) {
-        filtersWorker.fetchFilters { [weak self] filters in
-            guard let self = self else { return }
-            let response = CameraPreview.FetchFilters.Response(filters: filters)
-            self.presenter?.presentAllFilters(response: response)
-        }
+        self.filtersWorker.fetchFilters()
     }
     
     private func configureCaptureSession() {
