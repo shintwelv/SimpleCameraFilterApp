@@ -50,7 +50,6 @@ class CameraPreviewInteractor: NSObject, CameraPreviewBusinessLogic, CameraPrevi
     private var appliedFilter: CIFilter?
     
     func startSession(_ request: CameraPreview.StartSession.Request) {
-        self.configureCaptureSession()
         cameraQueue.async {
             self.session.startRunning()
         }
@@ -58,6 +57,8 @@ class CameraPreviewInteractor: NSObject, CameraPreviewBusinessLogic, CameraPrevi
     
     override init() {
         super.init()
+        
+        configureCaptureSession()
         configureBinding()
     }
     
@@ -116,22 +117,32 @@ class CameraPreviewInteractor: NSObject, CameraPreviewBusinessLogic, CameraPrevi
     }
     
     private func configureCaptureSession() {
-        let cameraDevice: AVCaptureDevice = worker.getCameraDevice()
-        do {
-            self.deviceInput = try AVCaptureDeviceInput(device: cameraDevice)
-            
-            self.videoOutput = AVCaptureVideoDataOutput()
-            self.videoOutput.setSampleBufferDelegate(self, queue: self.videoQueue)
-            
-            self.session.addInput(self.deviceInput)
-            self.session.addOutput(self.videoOutput)
-            
-            self.videoOutput.connections.first?.videoOrientation = .portrait
-            
-            self.session.sessionPreset = .photo
-        } catch {
-            print("error = \(error.localizedDescription)")
-        }
+        self.worker.cameraDevice.subscribe (
+            onSuccess: { [weak self] cameraDevice in
+                guard let self = self else { return }
+                
+                do {
+                    self.deviceInput = try AVCaptureDeviceInput(device: cameraDevice)
+                    
+                    self.videoOutput = AVCaptureVideoDataOutput()
+                    self.videoOutput.setSampleBufferDelegate(self, queue: self.videoQueue)
+                    
+                    self.session.addInput(self.deviceInput)
+                    self.session.addOutput(self.videoOutput)
+                    
+                    self.videoOutput.connections.first?.videoOrientation = .portrait
+                    
+                    self.session.sessionPreset = .photo
+                } catch {
+                    print("error = \(error.localizedDescription)")
+                }
+                
+            }, onFailure: { error in
+                print(error.localizedDescription)
+            }, onDisposed: {
+                print("cameraDevice observable disposed")
+            }
+        ).disposed(by: self.bag)
     }
 }
 
