@@ -20,6 +20,7 @@
 		C2F1C8172B078F38002F732D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = C2F1C8152B078F38002F732D /* LaunchScreen.storyboard */; };
 		ED442E6A2B195B5700A030C6 /* FiltersWorker.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED442E692B195B5700A030C6 /* FiltersWorker.swift */; };
 		ED442E6C2B19628900A030C6 /* FilterMemStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED442E6B2B19628900A030C6 /* FilterMemStore.swift */; };
+		EDB191212B2971E400DD1BA9 /* RxSwift in Frameworks */ = {isa = PBXBuildFile; productRef = EDB191202B2971E400DD1BA9 /* RxSwift */; };
 		EDE29D282B1F120F00C73406 /* SliderPropertyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDE29D272B1F120F00C73406 /* SliderPropertyView.swift */; };
 		EDE29D2A2B1F652500C73406 /* ColorPickerPropertyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDE29D292B1F652500C73406 /* ColorPickerPropertyView.swift */; };
 		EDE29D2C2B1F668F00C73406 /* PropertyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDE29D2B2B1F668F00C73406 /* PropertyView.swift */; };
@@ -37,6 +38,19 @@
 		EDEC73AD2B18243C00595A95 /* ListFiltersViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDEC73AC2B18243C00595A95 /* ListFiltersViewController.swift */; };
 		EDEC73B12B18244A00595A95 /* ListFiltersRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDEC73B02B18244A00595A95 /* ListFiltersRouter.swift */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		ED97386B2B29593F007030CC /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		C24464482B1B1E3400F0B029 /* ListFilterCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListFilterCell.swift; sourceTree = "<group>"; };
@@ -77,6 +91,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				EDB191212B2971E400DD1BA9 /* RxSwift in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -88,6 +103,7 @@
 			children = (
 				C2F1C8092B078F37002F732D /* CameraFilterApp */,
 				C2F1C8082B078F37002F732D /* Products */,
+				ED97385B2B29593F007030CC /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -129,6 +145,13 @@
 				ED442E6B2B19628900A030C6 /* FilterMemStore.swift */,
 			);
 			path = Services;
+			sourceTree = "<group>";
+		};
+		ED97385B2B29593F007030CC /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 		EDE29D2E2B1F6D3D00C73406 /* PropertyViews */ = {
@@ -218,12 +241,16 @@
 				C2F1C8032B078F37002F732D /* Sources */,
 				C2F1C8042B078F37002F732D /* Frameworks */,
 				C2F1C8052B078F37002F732D /* Resources */,
+				ED97386B2B29593F007030CC /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 			);
 			name = CameraFilterApp;
+			packageProductDependencies = (
+				EDB191202B2971E400DD1BA9 /* RxSwift */,
+			);
 			productName = CameraFilterApp;
 			productReference = C2F1C8072B078F37002F732D /* CameraFilterApp.app */;
 			productType = "com.apple.product-type.application";
@@ -252,6 +279,9 @@
 				Base,
 			);
 			mainGroup = C2F1C7FE2B078F37002F732D;
+			packageReferences = (
+				ED97384A2B295889007030CC /* XCRemoteSwiftPackageReference "RxSwift" */,
+			);
 			productRefGroup = C2F1C8082B078F37002F732D /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -533,6 +563,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		ED97384A2B295889007030CC /* XCRemoteSwiftPackageReference "RxSwift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/ReactiveX/RxSwift";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 6.6.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		EDB191202B2971E400DD1BA9 /* RxSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = ED97384A2B295889007030CC /* XCRemoteSwiftPackageReference "RxSwift" */;
+			productName = RxSwift;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = C2F1C7FF2B078F37002F732D /* Project object */;
 }
