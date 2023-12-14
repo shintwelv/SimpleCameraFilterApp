@@ -109,7 +109,9 @@ extension CameraPreviewInteractor: AVCaptureVideoDataOutputSampleBufferDelegate 
             return
         }
         
-        let ciImage = CIImage(cvImageBuffer: cvBuffer)
+        let copyBuffer = cvBuffer.copy()
+        
+        let ciImage = CIImage(cvImageBuffer: copyBuffer)
         if let _ = self.appliedFilter {
             guard let filteredImage = applyFilter(inputImage: ciImage) else { return }
             
