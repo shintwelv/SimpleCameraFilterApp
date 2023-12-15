@@ -48,6 +48,20 @@ enum EditPhoto
     }
     
     enum SavePhotoError: LocalizedError, Equatable {
+        case cannotSave(String)
+        case noCIImage(String)
+        case cannotConvert(String)
+        
+        var errorDescription: String? {
+            switch self {
+            case .cannotSave(let string):
+                return string
+            case .noCIImage(let string):
+                return string
+            case .cannotConvert(let string):
+                return string
+            }
+        }
     }
     
     enum SavePhoto {
