@@ -9,18 +9,66 @@ import UIKit
 
 protocol EditPhotoPresentationLogic
 {
-  func presentSomething(response: EditPhoto.Something.Response)
+    func presentSomething(response: EditPhoto.Something.Response)
+    func presentFetchedFilters(response: EditPhoto.FetchFilters.Response)
+    func presentFilterAppliedImage(response: EditPhoto.ApplyFilter.Response)
+    func presentSavePhotoResult(response: EditPhoto.SavePhoto.Response)
 }
 
 class EditPhotoPresenter: EditPhotoPresentationLogic
 {
-  weak var viewController: EditPhotoDisplayLogic?
-  
-  // MARK: Do something
-  
-  func presentSomething(response: EditPhoto.Something.Response)
-  {
-    let viewModel = EditPhoto.Something.ViewModel()
-    viewController?.displaySomething(viewModel: viewModel)
-  }
+    weak var viewController: EditPhotoDisplayLogic?
+    
+    private var sampleImage: UIImage = UIImage(named: "lena_color")!
+    
+    // MARK: EditPhotoPresentationLogic
+    
+    func presentFetchedFilters(response: EditPhoto.FetchFilters.Response) {
+        let filters = response.cameraFilters
+        
+        let filterInfos: [EditPhoto.FilterInfo] = filters.map { filter in
+            let filterId = filter.filterId
+            let filterName = filter.displayName
+            
+            filter.ciFilter.setValue(CIImage(image: self.sampleImage), forKey: kCIInputImageKey)
+            let filterAppliedImage = UIImage(ciImage: filter.ciFilter.outputImage!)
+            return EditPhoto.FilterInfo(filterId: filterId, filterName: filterName, sampleImage: filterAppliedImage)
+        }
+        
+        let viewModel = EditPhoto.FetchFilters.ViewModel(filterInfos: filterInfos)
+    }
+    
+    func presentFilterAppliedImage(response: EditPhoto.ApplyFilter.Response) {
+        let photo = response.photo
+        let filter = response.cameraFilter
+        
+        if let filter = response.cameraFilter {
+            
+            let ciFilter = filter.ciFilter
+            
+            ciFilter.setValue(photo, forKey: kCIInputImageKey)
+            
+            guard let ciImage: CIImage = ciFilter.outputImage else {
+                let viewModel = EditPhoto.ApplyFilter.ViewModel(filterAppliedPhoto: photo)
+                return
+            }
+            
+            let filterAppliedImage: UIImage = UIImage(ciImage: ciImage)
+            
+            let viewModel = EditPhoto.ApplyFilter.ViewModel(filterAppliedPhoto: filterAppliedImage)
+        } else {
+            let viewModel = EditPhoto.ApplyFilter.ViewModel(filterAppliedPhoto: photo)
+        }
+    }
+    
+    func presentSavePhotoResult(response: EditPhoto.SavePhoto.Response) {
+        let savePhotoResult = response.savePhotoResult
+        let viewModel = EditPhoto.SavePhoto.ViewModel(savePhotoResult: savePhotoResult)
+    }
+    
+    func presentSomething(response: EditPhoto.Something.Response)
+    {
+        let viewModel = EditPhoto.Something.ViewModel()
+        viewController?.displaySomething(viewModel: viewModel)
+    }
 }
