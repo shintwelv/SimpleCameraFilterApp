@@ -12,6 +12,7 @@
 
 import UIKit
 import MetalKit
+import PhotosUI
 
 protocol CameraPreviewDisplayLogic: AnyObject
 {
@@ -257,7 +258,14 @@ class CameraPreviewViewController: UIViewController, CameraPreviewDisplayLogic
     }
     
     @objc private func galleryButtonTapped(_ button: UIButton) {
-        print(#function)
+        var configuration = PHPickerConfiguration()
+        configuration.selectionLimit = 1
+        configuration.filter = .images
+        
+        let picker = PHPickerViewController(configuration: configuration)
+        picker.delegate = self
+        
+        self.present(picker, animated: true)
     }
     
     // MARK: Do something
@@ -325,5 +333,22 @@ extension CameraPreviewViewController: UICollectionViewDelegate {
         let filterId = filterInfos[indexPath.item].filterId
         let request = CameraPreview.ApplyFilter.Request(filterId: filterId)
         interactor?.applyFilter(request)
+    }
+}
+
+extension CameraPreviewViewController: PHPickerViewControllerDelegate {
+    func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
+        picker.dismiss(animated: true)
+        
+        let itemProvider = results.first?.itemProvider
+        
+        if let itemProvider = itemProvider, 
+            itemProvider.canLoadObject(ofClass: UIImage.self) {
+            itemProvider.loadObject(ofClass: UIImage.self) { image, error in
+                print("image size = \((image as? UIImage)?.size ?? .zero)")
+            }
+        } else {
+            print("cannot load image")
+        }
     }
 }
