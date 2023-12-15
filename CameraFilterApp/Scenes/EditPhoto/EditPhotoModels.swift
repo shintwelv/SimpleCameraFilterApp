@@ -9,18 +9,69 @@ import UIKit
 
 enum EditPhoto
 {
-  // MARK: Use cases
-  
-  enum Something
-  {
-    struct Request
-    {
+    // MARK: Use cases
+    
+    struct FilterInfo {
+        var filterId: UUID
+        var filterName: String
+        
+        var sampleImage: UIImage
     }
-    struct Response
-    {
+    
+    enum FetchFilters {
+        struct Request {
+        }
+        struct Response {
+            var cameraFilters: [CameraFilter]
+        }
+        struct ViewModel {
+            var filterInfos: [FilterInfo]
+        }
     }
-    struct ViewModel
-    {
+    
+    enum ApplyFilter {
+        struct Request {
+            var filterId: UUID
+        }
+        struct Response {
+            var photo: UIImage
+            var cameraFilter: CameraFilter?
+        }
+        struct ViewModel {
+            var filterAppliedPhoto: UIImage
+        }
     }
-  }
+    
+    enum SavePhotoResult <U> {
+        case Success(result: U)
+        case Failure(SavePhotoError)
+    }
+    
+    enum SavePhotoError: LocalizedError, Equatable {
+    }
+    
+    enum SavePhoto {
+        struct Request {
+            var filterAppliedPhoto: UIImage
+        }
+        struct Response {
+            var savePhotoResult: SavePhotoResult<UIImage>
+        }
+        struct ViewModel {
+            var savePhotoResult: SavePhotoResult<UIImage>
+        }
+    }
+    
+    enum Something
+    {
+        struct Request
+        {
+        }
+        struct Response
+        {
+        }
+        struct ViewModel
+        {
+        }
+    }
 }
