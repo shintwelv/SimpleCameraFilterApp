@@ -10,6 +10,7 @@ import RxSwift
 
 protocol EditPhotoBusinessLogic
 {
+    func fetchPhoto(request: EditPhoto.FetchPhoto.Request)
     func fetchFilters(request: EditPhoto.FetchFilters.Request)
     func applyFilter(request: EditPhoto.ApplyFilter.Request)
     func savePhoto(request: EditPhoto.SavePhoto.Request)
@@ -103,6 +104,13 @@ class EditPhotoInteractor: EditPhotoBusinessLogic, EditPhotoDataStore
     }
     
     // MARK: EditPhotoBusinessLogic
+    func fetchPhoto(request: EditPhoto.FetchPhoto.Request) {
+        guard let photo = self.photo else { return }
+        
+        let response = EditPhoto.FetchPhoto.Response(photo: photo)
+        self.presenter?.presentFetchedPhoto(response: response)
+    }
+    
     func fetchFilters(request: EditPhoto.FetchFilters.Request) {
         filtersWorker.fetchFilters()
     }

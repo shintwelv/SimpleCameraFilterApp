@@ -11,11 +11,22 @@ enum EditPhoto
 {
     // MARK: Use cases
     
-    struct FilterInfo {
+    struct FilterInfo: Hashable {
         var filterId: UUID
         var filterName: String
         
         var sampleImage: UIImage
+    }
+    
+    enum FetchPhoto {
+        struct Request {
+        }
+        struct Response {
+            var photo: UIImage
+        }
+        struct ViewModel {
+            var photo: UIImage
+        }
     }
     
     enum FetchFilters {

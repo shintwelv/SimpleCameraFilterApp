@@ -9,6 +9,7 @@ import UIKit
 
 protocol EditPhotoPresentationLogic
 {
+    func presentFetchedPhoto(response: EditPhoto.FetchPhoto.Response)
     func presentFetchedFilters(response: EditPhoto.FetchFilters.Response)
     func presentFilterAppliedImage(response: EditPhoto.ApplyFilter.Response)
     func presentSavePhotoResult(response: EditPhoto.SavePhoto.Response)
@@ -21,6 +22,13 @@ class EditPhotoPresenter: EditPhotoPresentationLogic
     private var sampleImage: UIImage = UIImage(named: "lena_color")!
     
     // MARK: EditPhotoPresentationLogic
+    
+    func presentFetchedPhoto(response: EditPhoto.FetchPhoto.Response) {
+        let photo = response.photo
+        
+        let viewModel = EditPhoto.FetchPhoto.ViewModel(photo: photo)
+        self.viewController?.displayFetchedPhoto(viewModel: viewModel)
+    }
     
     func presentFetchedFilters(response: EditPhoto.FetchFilters.Response) {
         let filters = response.cameraFilters

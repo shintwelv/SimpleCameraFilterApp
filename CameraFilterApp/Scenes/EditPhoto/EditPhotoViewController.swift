@@ -9,6 +9,7 @@ import UIKit
 
 protocol EditPhotoDisplayLogic: AnyObject
 {
+    func displayFetchedPhoto(viewModel: EditPhoto.FetchPhoto.ViewModel)
     func displayFetchedFilters(viewModel: EditPhoto.FetchFilters.ViewModel)
     func displayFilterAppliedImage(viewModel: EditPhoto.ApplyFilter.ViewModel)
     func displayPhotoSaveResult(viewModel: EditPhoto.SavePhoto.ViewModel)
@@ -71,4 +72,6 @@ class EditPhotoViewController: UIViewController, EditPhotoDisplayLogic
     func displayFetchedFilters(viewModel: EditPhoto.FetchFilters.ViewModel) {}
     func displayFilterAppliedImage(viewModel: EditPhoto.ApplyFilter.ViewModel) {}
     func displayPhotoSaveResult(viewModel: EditPhoto.SavePhoto.ViewModel) {}
+    func displayPhotoSaveResult(viewModel: EditPhoto.SavePhoto.ViewModel) {
+    }
 }
