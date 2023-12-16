@@ -128,6 +128,12 @@ class EditPhotoViewController: UIViewController, EditPhotoDisplayLogic
         configureAutoLayout()
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        fetchFilters()
+        fetchPhoto()
+    }
+    
     private func configureUI() {
         self.view.backgroundColor = .white
         
@@ -204,6 +210,10 @@ class EditPhotoViewController: UIViewController, EditPhotoDisplayLogic
     }
     
     @objc private func saveButtonTapped(_ button: UIButton) {
+        guard let filterAppliedPhoto = self.photoImageView.image else { return }
+        
+        let request = EditPhoto.SavePhoto.Request(filterAppliedPhoto: filterAppliedPhoto)
+        self.interactor?.savePhoto(request: request)
     }
     
     @objc private func cancelButtonTapped(_ button: UIButton) {
@@ -212,11 +222,58 @@ class EditPhotoViewController: UIViewController, EditPhotoDisplayLogic
     @objc private func filterButtonTapped(_ button: UIButton) {
     }
     
+    //MARK: - EditPhotoBusinessLogic
+    private func fetchFilters() {
+        let request = EditPhoto.FetchFilters.Request()
+        interactor?.fetchFilters(request: request)
+    }
+    
+    private func fetchPhoto() {
+        let request = EditPhoto.FetchPhoto.Request()
+        interactor?.fetchPhoto(request: request)
+    }
+    
     //MARK: - EditPhotoDisplayLogic
-    func displayFetchedFilters(viewModel: EditPhoto.FetchFilters.ViewModel) {}
-    func displayFilterAppliedImage(viewModel: EditPhoto.ApplyFilter.ViewModel) {}
-    func displayPhotoSaveResult(viewModel: EditPhoto.SavePhoto.ViewModel) {}
+    func displayFetchedPhoto(viewModel: EditPhoto.FetchPhoto.ViewModel) {
+        let photo = viewModel.photo
+        
+        self.photoImageView.backgroundColor = .clear
+        self.photoImageView.image = photo
+    }
+    
+    func displayFetchedFilters(viewModel: EditPhoto.FetchFilters.ViewModel) {
+        let filterInfos = viewModel.filterInfos
+
+        var snapshot = NSDiffableDataSourceSnapshot<Section, Item>()
+        snapshot.appendSections([.main])
+        snapshot.appendItems(filterInfos, toSection: .main)
+        dataSource.apply(snapshot)
+    }
+    
+    func displayFilterAppliedImage(viewModel: EditPhoto.ApplyFilter.ViewModel) {
+        let filterAppliedPhoto = viewModel.filterAppliedPhoto
+        
+        self.photoImageView.backgroundColor = .clear
+        self.photoImageView.image = filterAppliedPhoto
+    }
+    
     func displayPhotoSaveResult(viewModel: EditPhoto.SavePhoto.ViewModel) {
+        let savePhotoResult = viewModel.savePhotoResult
+        
+        var message: String = ""
+        switch savePhotoResult {
+        case .Success(_):
+            message = "이미지가 갤러리에 저장되었습니다"
+        case .Failure(let savePhotoError):
+            message = "\(savePhotoError)"
+        }
+
+        let alertController = UIAlertController(title: "안내", message: message, preferredStyle: .alert)
+        
+        let okAction = UIAlertAction(title: "확인", style: .default)
+        alertController.addAction(okAction)
+        
+        self.present(alertController, animated: true)
     }
 }
 
@@ -224,5 +281,8 @@ extension EditPhotoViewController: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let snapshot = dataSource.snapshot()
         let selectedFilterInfo = snapshot.itemIdentifiers[indexPath.row]
+        
+        let request = EditPhoto.ApplyFilter.Request(filterId: selectedFilterInfo.filterId)
+        self.interactor?.applyFilter(request: request)
     }
 }
