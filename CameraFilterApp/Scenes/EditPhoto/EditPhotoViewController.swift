@@ -217,9 +217,17 @@ class EditPhotoViewController: UIViewController, EditPhotoDisplayLogic
     }
     
     @objc private func cancelButtonTapped(_ button: UIButton) {
+        let selector = NSSelectorFromString("routeToCameraPreviewWithSegue:")
+        if let router = self.router, router.responds(to: selector) {
+            router.perform(selector, with: nil)
+        }
     }
     
     @objc private func filterButtonTapped(_ button: UIButton) {
+        let selector = NSSelectorFromString("routeToListFiltersWithSegue:")
+        if let router = self.router, router.responds(to: selector) {
+            router.perform(selector, with: nil)
+        }
     }
     
     //MARK: - EditPhotoBusinessLogic
