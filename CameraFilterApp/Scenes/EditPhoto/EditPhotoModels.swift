@@ -75,17 +75,4 @@ enum EditPhoto
             var savePhotoResult: SavePhotoResult<UIImage>
         }
     }
-    
-    enum Something
-    {
-        struct Request
-        {
-        }
-        struct Response
-        {
-        }
-        struct ViewModel
-        {
-        }
-    }
 }

@@ -9,7 +9,6 @@ import UIKit
 
 protocol EditPhotoPresentationLogic
 {
-    func presentSomething(response: EditPhoto.Something.Response)
     func presentFetchedFilters(response: EditPhoto.FetchFilters.Response)
     func presentFilterAppliedImage(response: EditPhoto.ApplyFilter.Response)
     func presentSavePhotoResult(response: EditPhoto.SavePhoto.Response)
@@ -64,11 +63,5 @@ class EditPhotoPresenter: EditPhotoPresentationLogic
     func presentSavePhotoResult(response: EditPhoto.SavePhoto.Response) {
         let savePhotoResult = response.savePhotoResult
         let viewModel = EditPhoto.SavePhoto.ViewModel(savePhotoResult: savePhotoResult)
-    }
-    
-    func presentSomething(response: EditPhoto.Something.Response)
-    {
-        let viewModel = EditPhoto.Something.ViewModel()
-        viewController?.displaySomething(viewModel: viewModel)
     }
 }
