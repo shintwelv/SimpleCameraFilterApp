@@ -21,7 +21,7 @@ class EditPhotoWorker: NSObject
                 return
             }
             
-            guard let uiImage = convert(ciImage) else {
+            guard let uiImage = convert(ciImage, scale: image.scale, orientation: image.imageOrientation) else {
                 self.savePhotoResult.onNext(EditPhoto.SavePhotoResult.Failure(.cannotConvert("CIImage를 UIImage로 변환할 수 없습니다")))
                 return
             }
@@ -38,10 +38,10 @@ class EditPhotoWorker: NSObject
         }
     }
     
-    private func convert(_ ciImage:CIImage) -> UIImage? {
+    private func convert(_ ciImage:CIImage, scale: CGFloat, orientation: UIImage.Orientation) -> UIImage? {
         let context:CIContext = CIContext(options: nil)
         guard let cgImage:CGImage = context.createCGImage(ciImage, from: ciImage.extent) else { return nil }
-        let image:UIImage = UIImage(cgImage: cgImage)
+        let image:UIImage = UIImage(cgImage: cgImage, scale: scale, orientation: orientation)
         return image
     }
 }
