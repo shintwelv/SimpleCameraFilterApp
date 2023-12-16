@@ -8,7 +8,7 @@
 import UIKit
 import RxSwift
 
-class EditPhotoWorker
+class EditPhotoWorker: NSObject
 {
     var savePhotoResult = PublishSubject<EditPhoto.SavePhotoResult<UIImage>>()
     
