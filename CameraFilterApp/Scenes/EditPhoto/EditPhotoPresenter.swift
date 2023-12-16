@@ -35,12 +35,12 @@ class EditPhotoPresenter: EditPhotoPresentationLogic
         }
         
         let viewModel = EditPhoto.FetchFilters.ViewModel(filterInfos: filterInfos)
+        self.viewController?.displayFetchedFilters(viewModel: viewModel)
     }
     
     func presentFilterAppliedImage(response: EditPhoto.ApplyFilter.Response) {
         let photo = response.photo
-        let filter = response.cameraFilter
-        
+
         if let filter = response.cameraFilter {
             
             let ciFilter = filter.ciFilter
@@ -49,19 +49,23 @@ class EditPhotoPresenter: EditPhotoPresentationLogic
             
             guard let ciImage: CIImage = ciFilter.outputImage else {
                 let viewModel = EditPhoto.ApplyFilter.ViewModel(filterAppliedPhoto: photo)
+                self.viewController?.displayFilterAppliedImage(viewModel: viewModel)
                 return
             }
             
             let filterAppliedImage: UIImage = UIImage(ciImage: ciImage)
             
             let viewModel = EditPhoto.ApplyFilter.ViewModel(filterAppliedPhoto: filterAppliedImage)
+            self.viewController?.displayFilterAppliedImage(viewModel: viewModel)
         } else {
             let viewModel = EditPhoto.ApplyFilter.ViewModel(filterAppliedPhoto: photo)
+            self.viewController?.displayFilterAppliedImage(viewModel: viewModel)
         }
     }
     
     func presentSavePhotoResult(response: EditPhoto.SavePhoto.Response) {
         let savePhotoResult = response.savePhotoResult
         let viewModel = EditPhoto.SavePhoto.ViewModel(savePhotoResult: savePhotoResult)
+        self.viewController?.displayPhotoSaveResult(viewModel: viewModel)
     }
 }
