@@ -139,8 +139,17 @@ class CameraPreviewViewController: UIViewController, CameraPreviewDisplayLogic
     }
     
     override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        
         let request = CameraPreview.StartSession.Request()
         interactor?.startSession(request)
+    }
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        
+        let request = CameraPreview.PauseSession.Request()
+        interactor?.pauseSession(request)
     }
     
     private func configureUI() {
@@ -344,8 +353,19 @@ extension CameraPreviewViewController: PHPickerViewControllerDelegate {
         
         if let itemProvider = itemProvider, 
             itemProvider.canLoadObject(ofClass: UIImage.self) {
-            itemProvider.loadObject(ofClass: UIImage.self) { image, error in
-                print("image size = \((image as? UIImage)?.size ?? .zero)")
+            itemProvider.loadObject(ofClass: UIImage.self) { [weak self] image, error in
+                guard let self = self,
+                    let image = image as? UIImage else { return }
+                
+                DispatchQueue.main.async {
+                    let request = CameraPreview.SelectPhoto.Request(photo: image)
+                    self.interactor?.selectPhoto(request)
+                    
+                    let selector = NSSelectorFromString("routeToEditPhotoWithSegue:")
+                    if let router = self.router, router.responds(to: selector) {
+                        router.perform(selector, with: nil)
+                    }
+                }
             }
         } else {
             print("cannot load image")
