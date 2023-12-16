@@ -55,7 +55,8 @@ class EditPhotoInteractor: EditPhotoBusinessLogic, EditPhotoDataStore
             onNext: { [weak self] filters in
                 guard let self = self else { return }
             
-                let response = EditPhoto.FetchFilters.Response(cameraFilters: filters)                
+                let response = EditPhoto.FetchFilters.Response(cameraFilters: filters)
+                self.presenter?.presentFetchedFilters(response: response)
             }
         ).disposed(by: self.bag)
         
@@ -70,6 +71,7 @@ class EditPhotoInteractor: EditPhotoBusinessLogic, EditPhotoDataStore
                     let photo = photo else { return }
                 
                 let response = EditPhoto.ApplyFilter.Response(photo: photo, cameraFilter: filter)
+                self.presenter?.presentFilterAppliedImage(response: response)
             }
         ).disposed(by: self.bag)
         
@@ -79,16 +81,22 @@ class EditPhotoInteractor: EditPhotoBusinessLogic, EditPhotoDataStore
                 switch result {
                 case .Success(_):
                     let response = EditPhoto.SavePhoto.Response(savePhotoResult: result)
+                    self.presenter?.presentSavePhotoResult(response: response)
                 case .Failure(let error):
                     switch error {
                     case .cannotConvert(let message):
+                        print("cannotConvert error: \(message)")
                         let response = EditPhoto.SavePhoto.Response(savePhotoResult: .Failure(.cannotConvert("이미지를 저장하지 못했습니다")))
+                        self.presenter?.presentSavePhotoResult(response: response)
                     case .cannotSave(let message):
+                        print("cannotSave error: \(message)")
                         let response = EditPhoto.SavePhoto.Response(savePhotoResult: .Failure(.cannotSave("이미지를 저장하지 못했습니다")))
+                        self.presenter?.presentSavePhotoResult(response: response)
                     case .noCIImage(let message):
+                        print("noCIImage error: \(message)")
                         let response = EditPhoto.SavePhoto.Response(savePhotoResult: .Failure(.noCIImage("이미지를 저장하지 못했습니다")))
+                        self.presenter?.presentSavePhotoResult(response: response)
                     }
-                    break
                 }
             }
         ).disposed(by: self.bag)
