@@ -53,7 +53,7 @@ class EditPhotoPresenter: EditPhotoPresentationLogic
             
             let ciFilter = filter.ciFilter
             
-            ciFilter.setValue(photo, forKey: kCIInputImageKey)
+            ciFilter.setValue(CIImage(image: photo), forKey: kCIInputImageKey)
             
             guard let ciImage: CIImage = ciFilter.outputImage else {
                 let viewModel = EditPhoto.ApplyFilter.ViewModel(filterAppliedPhoto: photo)
@@ -61,7 +61,7 @@ class EditPhotoPresenter: EditPhotoPresentationLogic
                 return
             }
             
-            let filterAppliedImage: UIImage = UIImage(ciImage: ciImage)
+            let filterAppliedImage: UIImage = UIImage(ciImage: ciImage, scale: photo.scale, orientation: photo.imageOrientation)
             
             let viewModel = EditPhoto.ApplyFilter.ViewModel(filterAppliedPhoto: filterAppliedImage)
             self.viewController?.displayFilterAppliedImage(viewModel: viewModel)
