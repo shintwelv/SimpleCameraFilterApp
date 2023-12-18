@@ -67,6 +67,51 @@ class CameraPreviewViewController: UIViewController, CameraPreviewDisplayLogic
         }
     }
     
+    private var topContentView: UIView = {
+        let view = UIView()
+        view.backgroundColor = .white
+        return view
+    }()
+    
+    private var userAccountButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setImage(UIImage(systemName: "person"), for: .normal)
+        return button
+    }()
+    
+    private var userInfoView: UIView = {
+        let view = UIView()
+        view.backgroundColor = .white
+        view.layer.cornerRadius = 10
+        view.alpha = 0.0
+        return view
+    }()
+    
+    private var welcomeMessageLabel: UILabel = {
+        let label = UILabel()
+        label.font = .systemFont(ofSize: 16)
+        label.textAlignment = .left
+        label.numberOfLines = 1
+        label.adjustsFontSizeToFitWidth = true
+        label.text = "로그인 해주세요"
+        return label
+    }()
+    
+    private var logInButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setTitle("로그인", for: .normal)
+        button.tintColor = .systemPurple
+        return button
+    }()
+    
+    private var logOutButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setTitle("로그아웃", for: .normal)
+        button.tintColor = .systemPurple
+        button.isHidden = true
+        return button
+    }()
+    
     private var previewMTKView: MTKView = MTKView()
     
     private var bottomContentView: UIView = {
@@ -157,8 +202,20 @@ class CameraPreviewViewController: UIViewController, CameraPreviewDisplayLogic
         
         [
             self.previewMTKView,
+            self.topContentView,
+            self.userInfoView,
             self.bottomContentView
         ].forEach { self.view.addSubview($0) }
+        
+        [
+            self.welcomeMessageLabel,
+            self.logInButton,
+            self.logOutButton
+        ].forEach { self.userInfoView.addSubview($0) }
+        
+        [
+            self.userAccountButton
+        ].forEach { self.topContentView.addSubview($0) }
         
         [
             self.filterToggleButton,
@@ -168,6 +225,9 @@ class CameraPreviewViewController: UIViewController, CameraPreviewDisplayLogic
             self.shotButton
         ].forEach { self.bottomContentView.addSubview($0) }
         
+        self.userAccountButton.addTarget(self, action: #selector(userAccountButtonTapped), for: .touchUpInside)
+        self.logInButton.addTarget(self, action: #selector(logInButtonTapped), for: .touchUpInside)
+        self.logOutButton.addTarget(self, action: #selector(logOutButtonTapped), for: .touchUpInside)
         self.filterToggleButton.addTarget(self, action: #selector(filterToggleButtonTapped), for: .touchUpInside)
         self.filterEditButton.addTarget(self, action: #selector(filterEditButtonTapped), for: .touchUpInside)
         self.shotButton.addTarget(self, action: #selector(shotButtonTapped), for: .touchUpInside)
@@ -181,8 +241,14 @@ class CameraPreviewViewController: UIViewController, CameraPreviewDisplayLogic
     
     private func configureAutoLayout() {
         [
+            self.topContentView,
+            self.userInfoView,
+            self.welcomeMessageLabel,
+            self.logInButton,
+            self.logOutButton,
             self.previewMTKView,
             self.bottomContentView,
+            self.userAccountButton,
             self.filterToggleButton,
             self.filterEditButton,
             self.filterCollectionView,
@@ -191,7 +257,36 @@ class CameraPreviewViewController: UIViewController, CameraPreviewDisplayLogic
         ].forEach { $0.translatesAutoresizingMaskIntoConstraints = false }
         
         NSLayoutConstraint.activate([
-            self.previewMTKView.topAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.topAnchor, constant: 50),
+            self.topContentView.topAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.topAnchor),
+            self.topContentView.leadingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.leadingAnchor),
+            self.topContentView.trailingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.trailingAnchor),
+            self.topContentView.heightAnchor.constraint(equalToConstant: 50),
+            
+            self.userAccountButton.centerYAnchor.constraint(equalTo: self.topContentView.centerYAnchor),
+            self.userAccountButton.heightAnchor.constraint(equalToConstant: 50),
+            self.userAccountButton.widthAnchor.constraint(equalTo: self.userAccountButton.heightAnchor, multiplier: 1.0),
+            self.userAccountButton.leadingAnchor.constraint(equalTo: self.topContentView.leadingAnchor, constant: 15),
+            
+            self.userInfoView.topAnchor.constraint(equalTo: self.previewMTKView.topAnchor, constant: 5),
+            self.userInfoView.leadingAnchor.constraint(equalTo: self.previewMTKView.leadingAnchor, constant: 5),
+            self.userInfoView.widthAnchor.constraint(equalTo: self.previewMTKView.widthAnchor, multiplier: 0.5),
+            self.userInfoView.heightAnchor.constraint(equalTo: self.previewMTKView.heightAnchor, multiplier: 1/7),
+        
+            self.welcomeMessageLabel.topAnchor.constraint(equalTo: self.userInfoView.topAnchor, constant: 15),
+            self.welcomeMessageLabel.leadingAnchor.constraint(equalTo: self.userInfoView.leadingAnchor, constant: 15),
+            self.welcomeMessageLabel.trailingAnchor.constraint(equalTo: self.userInfoView.trailingAnchor, constant: -15),
+            
+            self.logInButton.bottomAnchor.constraint(equalTo: self.userInfoView.bottomAnchor, constant: -15),
+            self.logInButton.trailingAnchor.constraint(equalTo: self.userInfoView.trailingAnchor, constant: -15),
+            self.logInButton.widthAnchor.constraint(equalToConstant: 60),
+            self.logInButton.heightAnchor.constraint(equalToConstant: 20),
+            
+            self.logOutButton.bottomAnchor.constraint(equalTo: self.userInfoView.bottomAnchor, constant: -15),
+            self.logOutButton.trailingAnchor.constraint(equalTo: self.userInfoView.trailingAnchor, constant: -15),
+            self.logOutButton.widthAnchor.constraint(equalToConstant: 60),
+            self.logOutButton.heightAnchor.constraint(equalToConstant: 20),
+            
+            self.previewMTKView.topAnchor.constraint(equalTo: self.topContentView.bottomAnchor),
             self.previewMTKView.leadingAnchor.constraint(equalTo: self.view.leadingAnchor),
             self.previewMTKView.trailingAnchor.constraint(equalTo: self.view.trailingAnchor),
             self.previewMTKView.heightAnchor.constraint(equalTo: self.previewMTKView.widthAnchor, multiplier: 4/3),
@@ -240,6 +335,20 @@ class CameraPreviewViewController: UIViewController, CameraPreviewDisplayLogic
         self.previewMTKView.delegate = self
         
         self.previewMTKView.framebufferOnly = false
+    }
+    
+    @objc private func userAccountButtonTapped(_ button: UIButton) {
+        UIView.animate(withDuration: 0.2) {
+            self.userInfoView.alpha = (1.0 - self.userInfoView.alpha)
+        }
+    }
+    
+    @objc private func logInButtonTapped(_ button: UIButton) {
+        print(#function)
+    }
+    
+    @objc private func logOutButtonTapped(_ button: UIButton) {
+        print(#function)
     }
 
     @objc private func filterToggleButtonTapped(_ button: UIButton) {
