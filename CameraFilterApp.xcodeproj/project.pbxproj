@@ -22,6 +22,8 @@
 		ED442E6A2B195B5700A030C6 /* FiltersWorker.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED442E692B195B5700A030C6 /* FiltersWorker.swift */; };
 		ED442E6C2B19628900A030C6 /* FilterMemStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED442E6B2B19628900A030C6 /* FilterMemStore.swift */; };
 		EDB191212B2971E400DD1BA9 /* RxSwift in Frameworks */ = {isa = PBXBuildFile; productRef = EDB191202B2971E400DD1BA9 /* RxSwift */; };
+		EDBE1C602B2FC4E500C41B37 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = EDBE1C5F2B2FC4E500C41B37 /* GoogleService-Info.plist */; };
+		EDBE1C632B2FC59800C41B37 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = EDBE1C622B2FC59800C41B37 /* FirebaseAnalytics */; };
 		EDC5DF552B2BE1A60089BCA3 /* EditPhotoPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDC5DF4F2B2BE1A60089BCA3 /* EditPhotoPresenter.swift */; };
 		EDC5DF562B2BE1A60089BCA3 /* EditPhotoWorker.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDC5DF502B2BE1A60089BCA3 /* EditPhotoWorker.swift */; };
 		EDC5DF572B2BE1A60089BCA3 /* EditPhotoRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDC5DF512B2BE1A60089BCA3 /* EditPhotoRouter.swift */; };
@@ -76,6 +78,7 @@
 		C2F1C8182B078F38002F732D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		ED442E692B195B5700A030C6 /* FiltersWorker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FiltersWorker.swift; sourceTree = "<group>"; };
 		ED442E6B2B19628900A030C6 /* FilterMemStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterMemStore.swift; sourceTree = "<group>"; };
+		EDBE1C5F2B2FC4E500C41B37 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		EDC5DF4F2B2BE1A60089BCA3 /* EditPhotoPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditPhotoPresenter.swift; sourceTree = "<group>"; };
 		EDC5DF502B2BE1A60089BCA3 /* EditPhotoWorker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditPhotoWorker.swift; sourceTree = "<group>"; };
 		EDC5DF512B2BE1A60089BCA3 /* EditPhotoRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditPhotoRouter.swift; sourceTree = "<group>"; };
@@ -105,6 +108,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				EDBE1C632B2FC59800C41B37 /* FirebaseAnalytics in Frameworks */,
 				EDB191212B2971E400DD1BA9 /* RxSwift in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -115,6 +119,7 @@
 		C2F1C7FE2B078F37002F732D = {
 			isa = PBXGroup;
 			children = (
+				EDBE1C5F2B2FC4E500C41B37 /* GoogleService-Info.plist */,
 				C2F1C8092B078F37002F732D /* CameraFilterApp */,
 				C2F1C8082B078F37002F732D /* Products */,
 				ED97385B2B29593F007030CC /* Frameworks */,
@@ -279,6 +284,7 @@
 			name = CameraFilterApp;
 			packageProductDependencies = (
 				EDB191202B2971E400DD1BA9 /* RxSwift */,
+				EDBE1C622B2FC59800C41B37 /* FirebaseAnalytics */,
 			);
 			productName = CameraFilterApp;
 			productReference = C2F1C8072B078F37002F732D /* CameraFilterApp.app */;
@@ -310,6 +316,7 @@
 			mainGroup = C2F1C7FE2B078F37002F732D;
 			packageReferences = (
 				ED97384A2B295889007030CC /* XCRemoteSwiftPackageReference "RxSwift" */,
+				EDBE1C612B2FC59800C41B37 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 			);
 			productRefGroup = C2F1C8082B078F37002F732D /* Products */;
 			projectDirPath = "";
@@ -327,6 +334,7 @@
 			files = (
 				C2F1C8172B078F38002F732D /* LaunchScreen.storyboard in Resources */,
 				C2F1C8142B078F38002F732D /* Assets.xcassets in Resources */,
+				EDBE1C602B2FC4E500C41B37 /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -609,6 +617,14 @@
 				minimumVersion = 6.6.0;
 			};
 		};
+		EDBE1C612B2FC59800C41B37 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 10.19.1;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -616,6 +632,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = ED97384A2B295889007030CC /* XCRemoteSwiftPackageReference "RxSwift" */;
 			productName = RxSwift;
+		};
+		EDBE1C622B2FC59800C41B37 /* FirebaseAnalytics */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = EDBE1C612B2FC59800C41B37 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAnalytics;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
