@@ -24,6 +24,7 @@
 		EDB191212B2971E400DD1BA9 /* RxSwift in Frameworks */ = {isa = PBXBuildFile; productRef = EDB191202B2971E400DD1BA9 /* RxSwift */; };
 		EDBE1C602B2FC4E500C41B37 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = EDBE1C5F2B2FC4E500C41B37 /* GoogleService-Info.plist */; };
 		EDBE1C632B2FC59800C41B37 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = EDBE1C622B2FC59800C41B37 /* FirebaseAnalytics */; };
+		EDBE1C652B2FEA0900C41B37 /* UserAuthenticationWorker.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDBE1C642B2FEA0900C41B37 /* UserAuthenticationWorker.swift */; };
 		EDBE1C672B30099300C41B37 /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDBE1C662B30099300C41B37 /* User.swift */; };
 		EDC5DF552B2BE1A60089BCA3 /* EditPhotoPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDC5DF4F2B2BE1A60089BCA3 /* EditPhotoPresenter.swift */; };
 		EDC5DF562B2BE1A60089BCA3 /* EditPhotoWorker.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDC5DF502B2BE1A60089BCA3 /* EditPhotoWorker.swift */; };
@@ -80,6 +81,7 @@
 		ED442E692B195B5700A030C6 /* FiltersWorker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FiltersWorker.swift; sourceTree = "<group>"; };
 		ED442E6B2B19628900A030C6 /* FilterMemStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterMemStore.swift; sourceTree = "<group>"; };
 		EDBE1C5F2B2FC4E500C41B37 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		EDBE1C642B2FEA0900C41B37 /* UserAuthenticationWorker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserAuthenticationWorker.swift; sourceTree = "<group>"; };
 		EDBE1C662B30099300C41B37 /* User.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
 		EDC5DF4F2B2BE1A60089BCA3 /* EditPhotoPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditPhotoPresenter.swift; sourceTree = "<group>"; };
 		EDC5DF502B2BE1A60089BCA3 /* EditPhotoWorker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditPhotoWorker.swift; sourceTree = "<group>"; };
@@ -156,6 +158,7 @@
 			isa = PBXGroup;
 			children = (
 				ED442E692B195B5700A030C6 /* FiltersWorker.swift */,
+				EDBE1C642B2FEA0900C41B37 /* UserAuthenticationWorker.swift */,
 			);
 			path = Workers;
 			sourceTree = "<group>";
@@ -378,6 +381,7 @@
 				C24464572B1B4EC200F0B029 /* CreateFilterRouter.swift in Sources */,
 				EDEC73972B17329E00595A95 /* CreateFilterModels.swift in Sources */,
 				EDEC73A92B1823DE00595A95 /* ListFiltersInteractor.swift in Sources */,
+				EDBE1C652B2FEA0900C41B37 /* UserAuthenticationWorker.swift in Sources */,
 				EDC5DF5A2B2BE1A60089BCA3 /* EditPhotoInteractor.swift in Sources */,
 				EDBE1C672B30099300C41B37 /* User.swift in Sources */,
 				EDC5DF562B2BE1A60089BCA3 /* EditPhotoWorker.swift in Sources */,
