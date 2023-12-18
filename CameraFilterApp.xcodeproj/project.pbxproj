@@ -23,9 +23,12 @@
 		ED442E6C2B19628900A030C6 /* FilterMemStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED442E6B2B19628900A030C6 /* FilterMemStore.swift */; };
 		EDB191212B2971E400DD1BA9 /* RxSwift in Frameworks */ = {isa = PBXBuildFile; productRef = EDB191202B2971E400DD1BA9 /* RxSwift */; };
 		EDBE1C602B2FC4E500C41B37 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = EDBE1C5F2B2FC4E500C41B37 /* GoogleService-Info.plist */; };
-		EDBE1C632B2FC59800C41B37 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = EDBE1C622B2FC59800C41B37 /* FirebaseAnalytics */; };
 		EDBE1C652B2FEA0900C41B37 /* UserAuthenticationWorker.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDBE1C642B2FEA0900C41B37 /* UserAuthenticationWorker.swift */; };
 		EDBE1C672B30099300C41B37 /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDBE1C662B30099300C41B37 /* User.swift */; };
+		EDBE1C692B300B8400C41B37 /* FirebaseAuthentication.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDBE1C682B300B8400C41B37 /* FirebaseAuthentication.swift */; };
+		EDBE1C6F2B300CD000C41B37 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = EDBE1C6E2B300CD000C41B37 /* FirebaseAnalytics */; };
+		EDBE1C732B300CD000C41B37 /* FirebaseAnalyticsSwift in Frameworks */ = {isa = PBXBuildFile; productRef = EDBE1C722B300CD000C41B37 /* FirebaseAnalyticsSwift */; };
+		EDBE1C792B300D1900C41B37 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = EDBE1C782B300D1900C41B37 /* FirebaseAuth */; };
 		EDC5DF552B2BE1A60089BCA3 /* EditPhotoPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDC5DF4F2B2BE1A60089BCA3 /* EditPhotoPresenter.swift */; };
 		EDC5DF562B2BE1A60089BCA3 /* EditPhotoWorker.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDC5DF502B2BE1A60089BCA3 /* EditPhotoWorker.swift */; };
 		EDC5DF572B2BE1A60089BCA3 /* EditPhotoRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDC5DF512B2BE1A60089BCA3 /* EditPhotoRouter.swift */; };
@@ -83,6 +86,7 @@
 		EDBE1C5F2B2FC4E500C41B37 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		EDBE1C642B2FEA0900C41B37 /* UserAuthenticationWorker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserAuthenticationWorker.swift; sourceTree = "<group>"; };
 		EDBE1C662B30099300C41B37 /* User.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
+		EDBE1C682B300B8400C41B37 /* FirebaseAuthentication.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseAuthentication.swift; sourceTree = "<group>"; };
 		EDC5DF4F2B2BE1A60089BCA3 /* EditPhotoPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditPhotoPresenter.swift; sourceTree = "<group>"; };
 		EDC5DF502B2BE1A60089BCA3 /* EditPhotoWorker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditPhotoWorker.swift; sourceTree = "<group>"; };
 		EDC5DF512B2BE1A60089BCA3 /* EditPhotoRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditPhotoRouter.swift; sourceTree = "<group>"; };
@@ -112,8 +116,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				EDBE1C632B2FC59800C41B37 /* FirebaseAnalytics in Frameworks */,
+				EDBE1C792B300D1900C41B37 /* FirebaseAuth in Frameworks */,
 				EDB191212B2971E400DD1BA9 /* RxSwift in Frameworks */,
+				EDBE1C732B300CD000C41B37 /* FirebaseAnalyticsSwift in Frameworks */,
+				EDBE1C6F2B300CD000C41B37 /* FirebaseAnalytics in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -167,6 +173,7 @@
 			isa = PBXGroup;
 			children = (
 				ED442E6B2B19628900A030C6 /* FilterMemStore.swift */,
+				EDBE1C682B300B8400C41B37 /* FirebaseAuthentication.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -290,7 +297,9 @@
 			name = CameraFilterApp;
 			packageProductDependencies = (
 				EDB191202B2971E400DD1BA9 /* RxSwift */,
-				EDBE1C622B2FC59800C41B37 /* FirebaseAnalytics */,
+				EDBE1C6E2B300CD000C41B37 /* FirebaseAnalytics */,
+				EDBE1C722B300CD000C41B37 /* FirebaseAnalyticsSwift */,
+				EDBE1C782B300D1900C41B37 /* FirebaseAuth */,
 			);
 			productName = CameraFilterApp;
 			productReference = C2F1C8072B078F37002F732D /* CameraFilterApp.app */;
@@ -377,6 +386,7 @@
 				EDEC73822B14636B00595A95 /* CameraFilter.swift in Sources */,
 				EDC5DF572B2BE1A60089BCA3 /* EditPhotoRouter.swift in Sources */,
 				EDEC737A2B145DA400595A95 /* CameraPreviewPresenter.swift in Sources */,
+				EDBE1C692B300B8400C41B37 /* FirebaseAuthentication.swift in Sources */,
 				C2F1C80D2B078F37002F732D /* SceneDelegate.swift in Sources */,
 				C24464572B1B4EC200F0B029 /* CreateFilterRouter.swift in Sources */,
 				EDEC73972B17329E00595A95 /* CreateFilterModels.swift in Sources */,
@@ -641,10 +651,20 @@
 			package = ED97384A2B295889007030CC /* XCRemoteSwiftPackageReference "RxSwift" */;
 			productName = RxSwift;
 		};
-		EDBE1C622B2FC59800C41B37 /* FirebaseAnalytics */ = {
+		EDBE1C6E2B300CD000C41B37 /* FirebaseAnalytics */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = EDBE1C612B2FC59800C41B37 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseAnalytics;
+		};
+		EDBE1C722B300CD000C41B37 /* FirebaseAnalyticsSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = EDBE1C612B2FC59800C41B37 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAnalyticsSwift;
+		};
+		EDBE1C782B300D1900C41B37 /* FirebaseAuth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = EDBE1C612B2FC59800C41B37 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAuth;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
