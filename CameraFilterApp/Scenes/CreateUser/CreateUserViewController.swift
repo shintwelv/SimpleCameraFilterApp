@@ -9,6 +9,10 @@ import UIKit
 
 protocol CreateUserDisplayLogic: AnyObject
 {
+    func displayLoginStatus(viewModel: CreateUser.LoginStatus.ViewModel)
+    func displaySignedInUser(viewModel: CreateUser.SignIn.ViewModel)
+    func displaySignedOutUser(viewModel: CreateUser.SignOut.ViewModel)
+    func displaySignedUpUser(viewModel: CreateUser.SignUp.ViewModel)
 }
 
 class CreateUserViewController: UIViewController, CreateUserDisplayLogic
@@ -68,4 +72,15 @@ class CreateUserViewController: UIViewController, CreateUserDisplayLogic
     // MARK: - CreateUserBusinessLogic
     
     // MARK: CreateUserDisplayLogic
+    func displayLoginStatus(viewModel: CreateUser.LoginStatus.ViewModel) {
+    }
+    
+    func displaySignedInUser(viewModel: CreateUser.SignIn.ViewModel) {
+    }
+    
+    func displaySignedOutUser(viewModel: CreateUser.SignOut.ViewModel) {
+    }
+    
+    func displaySignedUpUser(viewModel: CreateUser.SignUp.ViewModel) {
+    }
 }

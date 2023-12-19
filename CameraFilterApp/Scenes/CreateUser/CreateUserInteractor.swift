@@ -28,14 +28,18 @@ class CreateUserInteractor: CreateUserBusinessLogic, CreateUserDataStore
     // MARK: CreateUserBusinessLogic
     func isSignedIn(request: CreateUser.LoginStatus.Request) {
         
-        authenticateProvider.loggedInUser { authResult in
+        authenticateProvider.loggedInUser { [weak self] authResult in
+            guard let self = self else { return }
+            
             switch authResult {
             case .Success(let user):
                 let userResult = CreateUser.UserResult.Success(result: user)
                 let response = CreateUser.LoginStatus.Response(signedInUser: userResult)
+                self.presenter?.presentLoginStatus(response: response)
             case .Failure(let error):
                 let userResult = CreateUser.UserResult<User?>.Failure(error: .cannotCheckLogin("\(error)"))
                 let response = CreateUser.LoginStatus.Response(signedInUser: userResult)
+                self.presenter?.presentLoginStatus(response: response)
             }
         }
     }
@@ -44,28 +48,36 @@ class CreateUserInteractor: CreateUserBusinessLogic, CreateUserDataStore
         let userEmail = request.userEmail
         let userPassword = request.userPassword
         
-        authenticateProvider.login(email: userEmail, password: userPassword) { authResult in
+        authenticateProvider.login(email: userEmail, password: userPassword) { [weak self] authResult in
+            guard let self = self else { return }
+            
             switch authResult {
             case .Success(let user):
                 let userResult = CreateUser.UserResult<User>.Success(result: user)
                 let response = CreateUser.SignIn.Response(signedInUser: userResult)
+                self.presenter?.presentSignedInUser(response: response)
             case .Failure(let error):
                 let userResult = CreateUser.UserResult<User>.Failure(error:.cannotSignIn("\(error)"))
                 let response = CreateUser.SignIn.Response(signedInUser: userResult)
+                self.presenter?.presentSignedInUser(response: response)
             }
         }
     }
     
     func signOut(request: CreateUser.SignOut.Request) {
         
-        authenticateProvider.logOut { authResult in
+        authenticateProvider.logOut { [weak self] authResult in
+            guard let self = self else { return }
+            
             switch authResult {
             case .Success(let user):
                 let userResult = CreateUser.UserResult<User>.Success(result: user)
                 let response = CreateUser.SignOut.Response(signedOutUser: userResult)
+                self.presenter?.presentSignedOutUser(response: response)
             case .Failure(let error):
                 let userResult = CreateUser.UserResult<User>.Failure(error: .cannotSignOut("\(error)"))
                 let response = CreateUser.SignOut.Response(signedOutUser: userResult)
+                self.presenter?.presentSignedOutUser(response: response)
             }
         }
     }
@@ -74,14 +86,18 @@ class CreateUserInteractor: CreateUserBusinessLogic, CreateUserDataStore
         let newEmail = request.newEmail
         let newPassword = request.newPassword
         
-        authenticateProvider.signUp(email: newEmail, password: newPassword) { authResult in
+        authenticateProvider.signUp(email: newEmail, password: newPassword) { [weak self] authResult in
+            guard let self = self else { return }
+            
             switch authResult {
             case .Success(let createUser):
                 let userResult = CreateUser.UserResult<User>.Success(result: createUser)
                 let response = CreateUser.SignUp.Response(createdUser: userResult)
+                self.presenter?.presentSignedUpUser(response: response)
             case .Failure(let error):
                 let userResult = CreateUser.UserResult<User>.Failure(error: .cannotSignUp("\(error)"))
                 let response = CreateUser.SignUp.Response(createdUser: userResult)
+                self.presenter?.presentSignedUpUser(response: response)
             }
         }
     }

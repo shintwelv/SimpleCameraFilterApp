@@ -27,11 +27,14 @@ class CreateUserPresenter: CreateUserPresentationLogic
         case .Success(let user):
             if let user = user {
                 let viewModel = CreateUser.LoginStatus.ViewModel(signedInUserEmail: user.email)
+                self.viewController?.displayLoginStatus(viewModel: viewModel)
             } else {
                 let viewModel = CreateUser.LoginStatus.ViewModel(signedInUserEmail: nil)
+                self.viewController?.displayLoginStatus(viewModel: viewModel)
             }
-        case .Failure(let error):
+        case .Failure(_):
             let viewModel = CreateUser.LoginStatus.ViewModel(signedInUserEmail: nil)
+            self.viewController?.displayLoginStatus(viewModel: viewModel)
         }
     }
     
@@ -41,8 +44,10 @@ class CreateUserPresenter: CreateUserPresentationLogic
         switch signedInUser {
         case .Success(let user):
             let viewModel = CreateUser.SignIn.ViewModel(signedInUserEmail: user.email)
-        case .Failure(let error):
+            self.viewController?.displaySignedInUser(viewModel: viewModel)
+        case .Failure(_):
             let viewModel = CreateUser.SignIn.ViewModel(signedInUserEmail: nil)
+            self.viewController?.displaySignedInUser(viewModel: viewModel)
         }
     }
     
@@ -52,8 +57,10 @@ class CreateUserPresenter: CreateUserPresentationLogic
         switch signedOutUser {
         case .Success(let user):
             let viewModel = CreateUser.SignOut.ViewModel(signedOutUserEmail: user.email)
-        case .Failure(let error):
+            self.viewController?.displaySignedOutUser(viewModel: viewModel)
+        case .Failure(_):
             let viewModel = CreateUser.SignOut.ViewModel(signedOutUserEmail: nil)
+            self.viewController?.displaySignedOutUser(viewModel: viewModel)
         }
     }
     
@@ -63,8 +70,10 @@ class CreateUserPresenter: CreateUserPresentationLogic
         switch createdUser {
         case .Success(let user):
             let viewModel = CreateUser.SignUp.ViewModel(createdUserEmail: user.email)
-        case .Failure(let error):
+            self.viewController?.displaySignedUpUser(viewModel: viewModel)
+        case .Failure(_):
             let viewModel = CreateUser.SignUp.ViewModel(createdUserEmail: nil)
+            self.viewController?.displaySignedUpUser(viewModel: viewModel)
         }
     }
 }
