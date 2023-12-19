@@ -344,7 +344,10 @@ class CameraPreviewViewController: UIViewController, CameraPreviewDisplayLogic
     }
     
     @objc private func logInButtonTapped(_ button: UIButton) {
-        print(#function)
+        let selector = NSSelectorFromString("routeToCreateUserWithSegue:")
+        if let router = self.router, router.responds(to: selector) {
+            router.perform(selector, with: nil)
+        }
     }
     
     @objc private func logOutButtonTapped(_ button: UIButton) {

@@ -16,6 +16,7 @@ import UIKit
 {
     func routeToListFilters(segue: UIStoryboardSegue?)
     func routeToEditPhoto(segue: UIStoryboardSegue?)
+    func routeToCreateUser(segue: UIStoryboardSegue?)
 }
 
 protocol CameraPreviewDataPassing
@@ -59,6 +60,22 @@ class CameraPreviewRouter: NSObject, CameraPreviewRoutingLogic, CameraPreviewDat
         }
     }
     
+    func routeToCreateUser(segue: UIStoryboardSegue?) {
+        if let segue = segue {
+            guard let dstVC = segue.destination as? CreateUserViewController,
+              var dstDS = dstVC.router?.dataStore else { return }
+            
+            passDataToCreateUser(source: dataStore!, destination: &dstDS)
+            navigateToCreateUser(source: viewController!, destination: dstVC)
+        } else {
+            let dstVC = CreateUserViewController()
+            guard var dstDS = dstVC.router?.dataStore else { return }
+            
+            passDataToCreateUser(source: dataStore!, destination: &dstDS)
+            navigateToCreateUser(source: viewController!, destination: dstVC)
+        }
+    }
+    
     // MARK: Navigation
     func navigateToListFilters(source: CameraPreviewViewController, destination: ListFiltersViewController) {
         source.show(destination, sender: nil)
@@ -69,6 +86,10 @@ class CameraPreviewRouter: NSObject, CameraPreviewRoutingLogic, CameraPreviewDat
         source.present(destination, animated: true)
     }
     
+    func navigateToCreateUser(source: CameraPreviewViewController, destination: CreateUserViewController) {
+        source.show(destination, sender: nil)
+    }
+    
     // MARK: Passing data
     func passDataToListFilters(source: CameraPreviewDataStore, destination: inout ListFiltersDataStore) {
         
@@ -76,5 +97,9 @@ class CameraPreviewRouter: NSObject, CameraPreviewRoutingLogic, CameraPreviewDat
     
     func passDataToEditPhoto(source: CameraPreviewDataStore, destination: inout EditPhotoDataStore) {
         destination.photo = source.selectedPhoto
+    }
+    
+    func passDataToCreateUser(source: CameraPreviewDataStore, destination: inout CreateUserDataStore) {
+        
     }
 }
