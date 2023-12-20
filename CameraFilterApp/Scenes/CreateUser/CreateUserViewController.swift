@@ -63,6 +63,13 @@ class CreateUserViewController: UIViewController, CreateUserDisplayLogic
     }
     
     // MARK: - UI
+    private var closeButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setTitle("닫기", for: .normal)
+        button.tintColor = .systemPurple
+        return button
+    }()
+    
     private var titleLabel: UILabel = {
         let label = UILabel()
         label.textColor = .black
@@ -174,6 +181,7 @@ class CreateUserViewController: UIViewController, CreateUserDisplayLogic
         self.view.backgroundColor = .white
         
         [
+            self.closeButton,
             self.titleLabel,
             self.emailTitleLabel,
             self.emailTextField,
@@ -185,6 +193,7 @@ class CreateUserViewController: UIViewController, CreateUserDisplayLogic
             self.signUpButton,
         ].forEach { self.view.addSubview($0) }
         
+        self.closeButton.addTarget(self, action: #selector(closeButtonTapped), for: .touchUpInside)
         self.signInModeButton.addTarget(self, action: #selector(signInModeButtonTapped), for: .touchUpInside)
         self.signUpModeButton.addTarget(self, action: #selector(signUpModeButtonTapped), for: .touchUpInside)
         self.signInButton.addTarget(self, action: #selector(signInButtonTapped), for: .touchUpInside)
@@ -196,6 +205,7 @@ class CreateUserViewController: UIViewController, CreateUserDisplayLogic
     
     private func configureAutoLayout() {
         [
+            self.closeButton,
             self.titleLabel,
             self.emailTitleLabel,
             self.emailTextField,
@@ -208,6 +218,11 @@ class CreateUserViewController: UIViewController, CreateUserDisplayLogic
         ].forEach { $0.translatesAutoresizingMaskIntoConstraints = false }
         
         NSLayoutConstraint.activate([
+            self.closeButton.topAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.topAnchor),
+            self.closeButton.trailingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.trailingAnchor, constant: -15),
+            self.closeButton.heightAnchor.constraint(equalToConstant: 50),
+            self.closeButton.widthAnchor.constraint(equalToConstant: 50),
+            
             self.titleLabel.topAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.topAnchor, constant: 50),
             self.titleLabel.leadingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.leadingAnchor),
             self.titleLabel.trailingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.trailingAnchor),
@@ -250,6 +265,10 @@ class CreateUserViewController: UIViewController, CreateUserDisplayLogic
             self.signUpButton.trailingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.trailingAnchor, constant: -15),
             self.signUpButton.heightAnchor.constraint(equalToConstant: 50),
         ])
+    }
+    
+    @objc private func closeButtonTapped(_ button: UIButton) {
+        moveToCameraPreview()
     }
     
     @objc private func signInModeButtonTapped(_ button: UIButton) {

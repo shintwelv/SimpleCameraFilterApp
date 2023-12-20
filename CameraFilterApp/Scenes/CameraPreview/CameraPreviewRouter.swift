@@ -87,6 +87,7 @@ class CameraPreviewRouter: NSObject, CameraPreviewRoutingLogic, CameraPreviewDat
     }
     
     func navigateToCreateUser(source: CameraPreviewViewController, destination: CreateUserViewController) {
+        destination.modalPresentationStyle = .fullScreen
         source.show(destination, sender: nil)
     }
     
