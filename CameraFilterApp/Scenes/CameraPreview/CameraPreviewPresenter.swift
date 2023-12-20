@@ -33,11 +33,14 @@ class CameraPreviewPresenter: CameraPreviewPresentationLogic
         case .Success(let user):
             if let user = user {
                 let viewModel = CameraPreview.LoginStatus.ViewModel(signedInUserEmail: user.email)
+                self.viewController?.displayLoginStatus(viewModel: viewModel)
             } else {
                 let viewModel = CameraPreview.LoginStatus.ViewModel(signedInUserEmail: nil)
+                self.viewController?.displayLoginStatus(viewModel: viewModel)
             }
         case .Failure(_):
             let viewModel = CameraPreview.LoginStatus.ViewModel(signedInUserEmail: nil)
+            self.viewController?.displayLoginStatus(viewModel: viewModel)
         }
     }
     
@@ -47,8 +50,10 @@ class CameraPreviewPresenter: CameraPreviewPresentationLogic
         switch signedOutUser {
         case .Success(let user):
             let viewModel = CameraPreview.SignOut.ViewModel(signedOutUserEmail: user.email)
+            self.viewController?.displaySignedOutUser(viewModel: viewModel)
         case .Failure(_):
             let viewModel = CameraPreview.SignOut.ViewModel(signedOutUserEmail: nil)
+            self.viewController?.displaySignedOutUser(viewModel: viewModel)
         }
     }
     

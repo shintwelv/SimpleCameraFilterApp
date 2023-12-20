@@ -16,6 +16,8 @@ import PhotosUI
 
 protocol CameraPreviewDisplayLogic: AnyObject
 {
+    func displayLoginStatus(viewModel: CameraPreview.LoginStatus.ViewModel)
+    func displaySignedOutUser(viewModel: CameraPreview.SignOut.ViewModel)
     func displayFilterNames(viewModel: CameraPreview.FetchFilters.ViewModel)
     func displayFrameImage(viewModel: CameraPreview.DrawFrameImage.ViewModel)
 }
@@ -183,6 +185,12 @@ class CameraPreviewViewController: UIViewController, CameraPreviewDisplayLogic
         configureMTKView()
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        checkLoginStatus()
+    }
+    
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         
@@ -344,6 +352,8 @@ class CameraPreviewViewController: UIViewController, CameraPreviewDisplayLogic
     }
     
     @objc private func logInButtonTapped(_ button: UIButton) {
+        self.userInfoView.alpha = 0.0
+        
         let selector = NSSelectorFromString("routeToCreateUserWithSegue:")
         if let router = self.router, router.responds(to: selector) {
             router.perform(selector, with: nil)
@@ -351,7 +361,8 @@ class CameraPreviewViewController: UIViewController, CameraPreviewDisplayLogic
     }
     
     @objc private func logOutButtonTapped(_ button: UIButton) {
-        print(#function)
+        let request = CameraPreview.SignOut.Request()
+        interactor?.signOut(request)
     }
 
     @objc private func filterToggleButtonTapped(_ button: UIButton) {
@@ -393,6 +404,42 @@ class CameraPreviewViewController: UIViewController, CameraPreviewDisplayLogic
     func fetchFilterNames() {
         let request = CameraPreview.FetchFilters.Request()
         interactor?.fetchFilters(request)
+    }
+    
+    func checkLoginStatus() {
+        let request = CameraPreview.LoginStatus.Request()
+        interactor?.isSignedIn(request)
+    }
+    
+    func displayLoginStatus(viewModel: CameraPreview.LoginStatus.ViewModel) {
+        let signedInUserEmail = viewModel.signedInUserEmail
+        
+        if let _ = signedInUserEmail {
+            self.welcomeMessageLabel.text = "회원님 환영합니다"
+            self.logInButton.isHidden = true
+            self.logOutButton.isHidden = false
+        } else {
+            self.welcomeMessageLabel.text = "로그인 해주세요"
+            self.logInButton.isHidden = false
+            self.logOutButton.isHidden = true
+        }
+    }
+    
+    func displaySignedOutUser(viewModel: CameraPreview.SignOut.ViewModel) {
+        let signedOutUserEmail = viewModel.signedOutUserEmail
+        
+        if let _ = signedOutUserEmail {
+            self.welcomeMessageLabel.text = "로그인 해주세요"
+            self.logInButton.isHidden = false
+            self.logOutButton.isHidden = true
+        } else {
+            let alertController = UIAlertController(title: "에러", message: "로그아웃에 실패했습니다", preferredStyle: .alert)
+            
+            let okAction = UIAlertAction(title: "확인", style: .default)
+            alertController.addAction(okAction)
+            
+            self.present(alertController, animated:true)
+        }
     }
     
     func displayFilterNames(viewModel: CameraPreview.FetchFilters.ViewModel) {
