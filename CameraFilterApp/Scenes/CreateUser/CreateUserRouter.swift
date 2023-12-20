@@ -9,7 +9,7 @@ import UIKit
 
 @objc protocol CreateUserRoutingLogic
 {
-    //func routeToSomewhere(segue: UIStoryboardSegue?)
+    func routeToCameraPreview(segue: UIStoryboardSegue?)
 }
 
 protocol CreateUserDataPassing
@@ -23,33 +23,28 @@ class CreateUserRouter: NSObject, CreateUserRoutingLogic, CreateUserDataPassing
     var dataStore: CreateUserDataStore?
     
     // MARK: Routing
-    
-    //func routeToSomewhere(segue: UIStoryboardSegue?)
-    //{
-    //  if let segue = segue {
-    //    let destinationVC = segue.destination as! SomewhereViewController
-    //    var destinationDS = destinationVC.router!.dataStore!
-    //    passDataToSomewhere(source: dataStore!, destination: &destinationDS)
-    //  } else {
-    //    let storyboard = UIStoryboard(name: "Main", bundle: nil)
-    //    let destinationVC = storyboard.instantiateViewController(withIdentifier: "SomewhereViewController") as! SomewhereViewController
-    //    var destinationDS = destinationVC.router!.dataStore!
-    //    passDataToSomewhere(source: dataStore!, destination: &destinationDS)
-    //    navigateToSomewhere(source: viewController!, destination: destinationVC)
-    //  }
-    //}
+    func routeToCameraPreview(segue: UIStoryboardSegue?) {
+        if let segue = segue {
+            guard let dstVC = segue.destination as? CameraPreviewViewController,
+                  var dstDS = dstVC.router?.dataStore else { return }
+            
+            passDataToCameraPreview(source: dataStore!, destination: &dstDS)
+            navigateToCameraPreview(source: viewController!, destination: dstVC)
+        } else {
+            let dstVC = CameraPreviewViewController()
+            guard var dstDS = dstVC.router?.dataStore else { return }
+            
+            passDataToCameraPreview(source: dataStore!, destination: &dstDS)
+            navigateToCameraPreview(source: viewController!, destination: dstVC)
+        }
+    }
     
     // MARK: Navigation
-    
-    //func navigateToSomewhere(source: CreateUserViewController, destination: SomewhereViewController)
-    //{
-    //  source.show(destination, sender: nil)
-    //}
+    func navigateToCameraPreview(source: CreateUserViewController, destination: CameraPreviewViewController) {
+        source.dismiss(animated: true)
+    }
     
     // MARK: Passing data
-    
-    //func passDataToSomewhere(source: CreateUserDataStore, destination: inout SomewhereDataStore)
-    //{
-    //  destination.name = source.name
-    //}
+    func passDataToCameraPreview(source: CreateUserDataStore, destination: inout CameraPreviewDataStore) {
+    }
 }

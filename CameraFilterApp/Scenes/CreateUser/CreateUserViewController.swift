@@ -165,6 +165,11 @@ class CreateUserViewController: UIViewController, CreateUserDisplayLogic
         configureAutoLayout()
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        checkLoginStatus()
+    }
+    
     private func configureUI() {
         self.view.backgroundColor = .white
         
@@ -277,23 +282,133 @@ class CreateUserViewController: UIViewController, CreateUserDisplayLogic
     }
     
     // MARK: - CreateUserBusinessLogic
+    private func checkLoginStatus() {
+        let request = CreateUser.LoginStatus.Request()
+        self.interactor?.isSignedIn(request: request)
+    }
+    
     @objc private func signInButtonTapped(_ button: UIButton) {
+        guard let typedEmail = self.emailTextField.text,
+              let typedPassword = self.passwordTextField.text else { return }
+        
+        let request = CreateUser.SignIn.Request(userEmail: typedEmail, userPassword: typedPassword)
+        self.interactor?.signIn(request: request)
     }
     
     @objc private func signUpButtonTapped(_ button: UIButton) {
+        guard let typedEmail = self.emailTextField.text,
+              let typedPassword = self.passwordTextField.text else { return }
+        
+        let request = CreateUser.SignUp.Request(newEmail: typedEmail, newPassword: typedPassword)
+        self.interactor?.signUp(request: request)
     }
     
     // MARK: CreateUserDisplayLogic
     func displayLoginStatus(viewModel: CreateUser.LoginStatus.ViewModel) {
+        let signedInUserEmail = viewModel.signedInUserEmail
+        if let _ = signedInUserEmail {
+            hideSigningForm()
+        } else {
+            showSigningForm()
+        }
     }
     
     func displaySignedInUser(viewModel: CreateUser.SignIn.ViewModel) {
+        let signedInUserEmail = viewModel.signedInUserEmail
+        if let _ = signedInUserEmail {
+            hideSigningForm()
+            
+            let alertController = okAlertController(title: "안내", message: "로그인 되었습니다") { [weak self] action in
+                guard let self = self else { return }
+                
+                self.moveToCameraPreview()
+            }
+            
+            self.present(alertController, animated: true)
+        } else {
+            let alertController = okAlertController(title: "에러", message: "로그인 할 수 없습니다")
+            self.present(alertController, animated: true)
+        }
     }
     
     func displaySignedOutUser(viewModel: CreateUser.SignOut.ViewModel) {
+        let signedOutUserEmail = viewModel.signedOutUserEmail
+        if let _ = signedOutUserEmail {
+            showSigningForm()
+            
+            let alertController = okAlertController(title: "안내", message: "로그아웃 되었습니다")
+            self.present(alertController, animated: true)
+        } else {
+            let alertController = okAlertController(title: "에러", message: "로그아웃에 실패했습니다")
+            self.present(alertController, animated: true)
+        }
     }
     
     func displaySignedUpUser(viewModel: CreateUser.SignUp.ViewModel) {
+        let createdUserEmail = viewModel.createdUserEmail
+        if let _ = createdUserEmail {
+            hideSigningForm()
+            
+            let alertController = okAlertController(title: "안내", message: "회원가입이 완료되었습니다") { [weak self] action in
+                guard let self = self else { return }
+                
+                self.moveToCameraPreview()
+            }
+            
+            self.present(alertController, animated: true)
+        } else {
+            let alertController = okAlertController(title: "에러", message: "회원가입에 실패했습니다")
+            self.present(alertController, animated: true)
+        }
+    }
+    
+    private func okAlertController(title: String, message: String, okButtonTappedHandler: ((UIAlertAction) -> Void)? = nil) -> UIAlertController {
+        let alertController = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        
+        let okAction = UIAlertAction(title: "확인", style: .default, handler: okButtonTappedHandler)
+        alertController.addAction(okAction)
+        
+        return alertController
+    }
+    
+    private func moveToCameraPreview() {
+        let selector = NSSelectorFromString("routeToCameraPreviewWithSegue:")
+        if let router = self.router, router.responds(to: selector) {
+            router.perform(selector, with: nil)
+        }
+    }
+    
+    private func hideSigningForm() {
+        [
+            self.emailTitleLabel,
+            self.emailTextField,
+            self.passwordTitleLabel,
+            self.passwordTextField,
+            self.signInModeButton,
+            self.signUpModeButton,
+            self.signInButton,
+            self.signUpButton,
+        ].forEach { $0.isHidden = true }
+        
+        self.titleLabel.text = "로그인 되었습니다"
+    }
+    
+    private func showSigningForm() {
+        [
+            self.signInModeButton,
+            self.signUpButton,
+        ].forEach { $0.isHidden = true }
+        
+        [
+            self.emailTitleLabel,
+            self.emailTextField,
+            self.passwordTitleLabel,
+            self.passwordTextField,
+            self.signUpModeButton,
+            self.signInButton,
+        ].forEach { $0.isHidden = false }
+        
+        self.titleLabel.text = "로그인"
     }
 }
 
