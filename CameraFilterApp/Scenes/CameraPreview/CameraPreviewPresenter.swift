@@ -14,6 +14,8 @@ import UIKit
 
 protocol CameraPreviewPresentationLogic
 {
+    func presentLoginStatus(response: CameraPreview.LoginStatus.Response)
+    func presentSignedOutUser(response: CameraPreview.SignOut.Response)
     func presentAllFilters(response: CameraPreview.FetchFilters.Response)
     func presentFrameImage(response: CameraPreview.DrawFrameImage.Response)
 }
@@ -23,6 +25,32 @@ class CameraPreviewPresenter: CameraPreviewPresentationLogic
     weak var viewController: CameraPreviewDisplayLogic?
     
     // MARK: Do something
+    
+    func presentLoginStatus(response: CameraPreview.LoginStatus.Response) {
+        let signedInUser = response.signedInUser
+        
+        switch signedInUser {
+        case .Success(let user):
+            if let user = user {
+                let viewModel = CameraPreview.LoginStatus.ViewModel(signedInUserEmail: user.email)
+            } else {
+                let viewModel = CameraPreview.LoginStatus.ViewModel(signedInUserEmail: nil)
+            }
+        case .Failure(_):
+            let viewModel = CameraPreview.LoginStatus.ViewModel(signedInUserEmail: nil)
+        }
+    }
+    
+    func presentSignedOutUser(response: CameraPreview.SignOut.Response) {
+        let signedOutUser = response.signedOutUser
+        
+        switch signedOutUser {
+        case .Success(let user):
+            let viewModel = CameraPreview.SignOut.ViewModel(signedOutUserEmail: user.email)
+        case .Failure(_):
+            let viewModel = CameraPreview.SignOut.ViewModel(signedOutUserEmail: nil)
+        }
+    }
     
     func presentAllFilters(response: CameraPreview.FetchFilters.Response) {
         let filters = response.filters

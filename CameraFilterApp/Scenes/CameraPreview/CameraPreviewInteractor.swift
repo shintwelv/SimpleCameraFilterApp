@@ -127,9 +127,11 @@ class CameraPreviewInteractor: NSObject, CameraPreviewBusinessLogic, CameraPrevi
             case .Success(let user):
                 let userResult = CameraPreview.UserResult.Success(result: user)
                 let response = CameraPreview.LoginStatus.Response(signedInUser: userResult)
+                self.presenter?.presentLoginStatus(response: response)
             case .Failure(let error):
                 let userResult = CameraPreview.UserResult<User?>.Failure(error: .cannotCheckLogin("\(error)"))
                 let response = CameraPreview.LoginStatus.Response(signedInUser: userResult)
+                self.presenter?.presentLoginStatus(response: response)
             }
         }
     }
@@ -142,9 +144,11 @@ class CameraPreviewInteractor: NSObject, CameraPreviewBusinessLogic, CameraPrevi
             case .Success(let user):
                 let userResult = CameraPreview.UserResult<User>.Success(result: user)
                 let response = CameraPreview.SignOut.Response(signedOutUser: userResult)
+                self.presenter?.presentSignedOutUser(response: response)
             case .Failure(let error):
                 let userResult = CameraPreview.UserResult<User>.Failure(error: .cannotSignOut("\(error)"))
                 let response = CameraPreview.SignOut.Response(signedOutUser: userResult)
+                self.presenter?.presentSignedOutUser(response: response)
             }
         }
     }
