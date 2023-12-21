@@ -5,7 +5,7 @@
 //  Created by siheo on 12/18/23.
 //
 
-import Foundation
+import UIKit
 
 class UserAuthenticationWorker {
     
@@ -17,6 +17,10 @@ class UserAuthenticationWorker {
     
     func loggedInUser(completionHandler: @escaping LoggedInUserCompletionHandler) {
         authenticationProvider.loggedInUser(completionHandler: completionHandler)
+    }
+    
+    func googleLogin(presentingViewController vc: UIViewController, completionHandler: @escaping UserLogInCompletionHandler) {
+        authenticationProvider.googleLogin(presentingViewController: vc, completionHandler: completionHandler)
     }
     
     func login(email: String, password: String, completionHandler: @escaping UserLogInCompletionHandler) {
@@ -35,6 +39,7 @@ class UserAuthenticationWorker {
 protocol UserAuthenticationProtocol {
     func loggedInUser(completionHandler: @escaping LoggedInUserCompletionHandler)
     func logIn(email: String, password: String, completionHandler: @escaping UserLogInCompletionHandler)
+    func googleLogin(presentingViewController: UIViewController, completionHandler: @escaping UserLogInCompletionHandler)
     func logOut(completionHandler: @escaping UserLogOutCompletionHandler)
     func signUp(email: String, password: String, completionHandler: @escaping UserSignUpCompletionHandler)
 }

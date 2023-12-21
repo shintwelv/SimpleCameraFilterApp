@@ -7,6 +7,8 @@
 
 import Foundation
 import FirebaseAuth
+import FirebaseCore
+import GoogleSignIn
 
 class FirebaseAuthentication: UserAuthenticationProtocol {
 
@@ -21,6 +23,52 @@ class FirebaseAuthentication: UserAuthenticationProtocol {
             let result = UserAuthenticationResult.Success(result: nil as User?)
             completionHandler(result)
         }
+    }
+    
+    func googleLogin(presentingViewController vc: UIViewController, completionHandler: @escaping UserLogInCompletionHandler) {
+        guard let clientID = FirebaseApp.app()?.options.clientID else { return }
+        
+        let config = GIDConfiguration(clientID: clientID)
+        GIDSignIn.sharedInstance.configuration = config
+        
+        GIDSignIn.sharedInstance.signIn(withPresenting: vc) { [weak self] result, error in
+            guard let self = self else { return }
+            
+            if let error = error {
+                let result = UserAuthenticationResult<User>.Failure(error: .cannotLogIn("\(error)"))
+                completionHandler(result)
+            }
+            
+            guard let user = result?.user, 
+                let idToken = user.idToken?.tokenString else {
+                let result = UserAuthenticationResult<User>.Failure(error: .cannotLogIn("User를 받아오는 데 실패했습니다"))
+                completionHandler(result)
+                return
+            }
+            
+            let credential = GoogleAuthProvider.credential(withIDToken: idToken, accessToken: user.accessToken.tokenString)
+            
+            self.login(with: credential, handler: { authResult, error in
+                if let error = error {
+                    let result = UserAuthenticationResult<User>.Failure(error: .cannotLogIn("\(error)"))
+                    completionHandler(result)
+                }
+                
+                guard let authResult = authResult else {
+                    let result = UserAuthenticationResult<User>.Failure(error: .cannotLogIn("로그인할 수 없습니다"))
+                    completionHandler(result)
+                    return
+                }
+                
+                let loggedUser = User(email: authResult.user.email ?? "")
+                let result = UserAuthenticationResult.Success(result: loggedUser)
+                completionHandler(result)
+            })
+        }
+    }
+    
+    private func login(with credential: AuthCredential, handler: @escaping (AuthDataResult?, Error?) -> Void) {
+        Auth.auth().signIn(with: credential, completion: handler)
     }
 
     func logIn(email: String, password: String, completionHandler: @escaping (UserAuthenticationResult<User>) -> Void) {
