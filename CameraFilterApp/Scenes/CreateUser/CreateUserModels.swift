@@ -51,6 +51,18 @@ enum CreateUser
         }
     }
     
+    enum GoogleSignIn {
+        struct Request {
+            weak var presentingViewController: UIViewController?
+        }
+        struct Response {
+            var signedInUser: UserResult<User>
+        }
+        struct ViewModel {
+            var signedInUserEmail: String?
+        }
+    }
+    
     enum SignIn {
         struct Request {
             var userEmail: String
