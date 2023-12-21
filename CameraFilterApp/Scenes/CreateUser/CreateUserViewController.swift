@@ -356,6 +356,8 @@ class CreateUserViewController: UIViewController, CreateUserDisplayLogic
     }
     
     @objc private func googleLoginButtonTapped(_ button: GIDSignInButton) {
+        let request = CreateUser.GoogleSignIn.Request(presentingViewController: self)
+        self.interactor?.googleSignIn(request: request)
     }
     
     @objc private func signInButtonTapped(_ button: UIButton) {

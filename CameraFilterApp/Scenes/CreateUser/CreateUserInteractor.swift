@@ -46,6 +46,20 @@ class CreateUserInteractor: CreateUserBusinessLogic, CreateUserDataStore
     }
     
     func googleSignIn(request: CreateUser.GoogleSignIn.Request) {
+        guard let presentingViewController = request.presentingViewController else { return }
+        
+        authenticateProvider.googleLogin(presentingViewController: presentingViewController) { [weak self] authResult in
+            guard let self = self else { return }
+            
+            switch authResult {
+            case .Success(let user):
+                let userResult = CreateUser.UserResult<User>.Success(result: user)
+                let response = CreateUser.GoogleSignIn.Response(signedInUser: userResult)
+            case .Failure(let error):
+                let userResult = CreateUser.UserResult<User>.Failure(error:.cannotSignIn("\(error)"))
+                let response = CreateUser.GoogleSignIn.Response(signedInUser: userResult)
+            }
+        }
     }
     
     func signIn(request: CreateUser.SignIn.Request) {
