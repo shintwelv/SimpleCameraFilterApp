@@ -55,9 +55,11 @@ class CreateUserInteractor: CreateUserBusinessLogic, CreateUserDataStore
             case .Success(let user):
                 let userResult = CreateUser.UserResult<User>.Success(result: user)
                 let response = CreateUser.GoogleSignIn.Response(signedInUser: userResult)
+                self.presenter?.presentUserSignInWithGoogle(response: response)
             case .Failure(let error):
                 let userResult = CreateUser.UserResult<User>.Failure(error:.cannotSignIn("\(error)"))
                 let response = CreateUser.GoogleSignIn.Response(signedInUser: userResult)
+                self.presenter?.presentUserSignInWithGoogle(response: response)
             }
         }
     }
