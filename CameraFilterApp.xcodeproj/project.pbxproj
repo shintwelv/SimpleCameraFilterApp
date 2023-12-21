@@ -41,6 +41,7 @@
 		EDC5DF582B2BE1A60089BCA3 /* EditPhotoModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDC5DF522B2BE1A60089BCA3 /* EditPhotoModels.swift */; };
 		EDC5DF592B2BE1A60089BCA3 /* EditPhotoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDC5DF532B2BE1A60089BCA3 /* EditPhotoViewController.swift */; };
 		EDC5DF5A2B2BE1A60089BCA3 /* EditPhotoInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDC5DF542B2BE1A60089BCA3 /* EditPhotoInteractor.swift */; };
+		EDD195602B32C8EA0039A16B /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = EDD1955F2B32C8EA0039A16B /* GoogleSignIn */; };
 		EDE29D282B1F120F00C73406 /* SliderPropertyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDE29D272B1F120F00C73406 /* SliderPropertyView.swift */; };
 		EDE29D2A2B1F652500C73406 /* ColorPickerPropertyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDE29D292B1F652500C73406 /* ColorPickerPropertyView.swift */; };
 		EDE29D2C2B1F668F00C73406 /* PropertyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDE29D2B2B1F668F00C73406 /* PropertyView.swift */; };
@@ -89,6 +90,7 @@
 		C2F1C8182B078F38002F732D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		ED442E692B195B5700A030C6 /* FiltersWorker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FiltersWorker.swift; sourceTree = "<group>"; };
 		ED442E6B2B19628900A030C6 /* FilterMemStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterMemStore.swift; sourceTree = "<group>"; };
+		ED6A15AA2B33BB1700C4A42D /* CameraFilterApp.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = CameraFilterApp.entitlements; sourceTree = "<group>"; };
 		EDBE1C5F2B2FC4E500C41B37 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		EDBE1C642B2FEA0900C41B37 /* UserAuthenticationWorker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserAuthenticationWorker.swift; sourceTree = "<group>"; };
 		EDBE1C662B30099300C41B37 /* User.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
@@ -128,6 +130,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				EDD195602B32C8EA0039A16B /* GoogleSignIn in Frameworks */,
 				EDBE1C792B300D1900C41B37 /* FirebaseAuth in Frameworks */,
 				EDB191212B2971E400DD1BA9 /* RxSwift in Frameworks */,
 				EDBE1C732B300CD000C41B37 /* FirebaseAnalyticsSwift in Frameworks */,
@@ -159,6 +162,7 @@
 		C2F1C8092B078F37002F732D /* CameraFilterApp */ = {
 			isa = PBXGroup;
 			children = (
+				ED6A15AA2B33BB1700C4A42D /* CameraFilterApp.entitlements */,
 				EDEC73802B14636400595A95 /* Models */,
 				ED442E682B195B4200A030C6 /* Services */,
 				ED442E672B195B2500A030C6 /* Workers */,
@@ -326,6 +330,7 @@
 				EDBE1C6E2B300CD000C41B37 /* FirebaseAnalytics */,
 				EDBE1C722B300CD000C41B37 /* FirebaseAnalyticsSwift */,
 				EDBE1C782B300D1900C41B37 /* FirebaseAuth */,
+				EDD1955F2B32C8EA0039A16B /* GoogleSignIn */,
 			);
 			productName = CameraFilterApp;
 			productReference = C2F1C8072B078F37002F732D /* CameraFilterApp.app */;
@@ -358,6 +363,7 @@
 			packageReferences = (
 				ED97384A2B295889007030CC /* XCRemoteSwiftPackageReference "RxSwift" */,
 				EDBE1C612B2FC59800C41B37 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+				EDD1955E2B32C8EA0039A16B /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */,
 			);
 			productRefGroup = C2F1C8082B078F37002F732D /* Products */;
 			projectDirPath = "";
@@ -570,6 +576,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = CameraFilterApp/CameraFilterApp.entitlements;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1;
@@ -605,6 +612,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = CameraFilterApp/CameraFilterApp.entitlements;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1;
@@ -675,6 +683,14 @@
 				minimumVersion = 10.19.1;
 			};
 		};
+		EDD1955E2B32C8EA0039A16B /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/google/GoogleSignIn-iOS";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 7.0.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -697,6 +713,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = EDBE1C612B2FC59800C41B37 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseAuth;
+		};
+		EDD1955F2B32C8EA0039A16B /* GoogleSignIn */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = EDD1955E2B32C8EA0039A16B /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;
+			productName = GoogleSignIn;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
