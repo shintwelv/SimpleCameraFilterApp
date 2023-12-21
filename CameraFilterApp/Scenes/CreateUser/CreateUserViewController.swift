@@ -11,6 +11,7 @@ import GoogleSignIn
 protocol CreateUserDisplayLogic: AnyObject
 {
     func displayLoginStatus(viewModel: CreateUser.LoginStatus.ViewModel)
+    func displayUserSignedInWithGoogle(viewModel: CreateUser.GoogleSignIn.ViewModel)
     func displaySignedInUser(viewModel: CreateUser.SignIn.ViewModel)
     func displaySignedOutUser(viewModel: CreateUser.SignOut.ViewModel)
     func displaySignedUpUser(viewModel: CreateUser.SignUp.ViewModel)
@@ -386,9 +387,18 @@ class CreateUserViewController: UIViewController, CreateUserDisplayLogic
         }
     }
     
+    func displayUserSignedInWithGoogle(viewModel: CreateUser.GoogleSignIn.ViewModel) {
+        let signedInUserEmail = viewModel.signedInUserEmail
+        displaySignedInUser(userEmail: signedInUserEmail)
+    }
+    
     func displaySignedInUser(viewModel: CreateUser.SignIn.ViewModel) {
         let signedInUserEmail = viewModel.signedInUserEmail
-        if let _ = signedInUserEmail {
+        displaySignedInUser(userEmail: signedInUserEmail)
+    }
+    
+    private func displaySignedInUser(userEmail: String?) {
+        if let _ = userEmail {
             hideSigningForm()
             
             let alertController = okAlertController(title: "안내", message: "로그인 되었습니다") { [weak self] action in

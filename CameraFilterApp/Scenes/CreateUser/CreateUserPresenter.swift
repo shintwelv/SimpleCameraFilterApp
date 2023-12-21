@@ -45,8 +45,10 @@ class CreateUserPresenter: CreateUserPresentationLogic
         switch signedInUser {
         case .Success(let user):
             let viewModel = CreateUser.GoogleSignIn.ViewModel(signedInUserEmail: user.email)
+            self.viewController?.displayUserSignedInWithGoogle(viewModel: viewModel)
         case .Failure(_):
             let viewModel = CreateUser.GoogleSignIn.ViewModel(signedInUserEmail: nil)
+            self.viewController?.displayUserSignedInWithGoogle(viewModel: viewModel)
         }
     }
     
