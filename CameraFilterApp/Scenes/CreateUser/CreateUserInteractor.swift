@@ -10,6 +10,7 @@ import UIKit
 protocol CreateUserBusinessLogic
 {
     func isSignedIn(request: CreateUser.LoginStatus.Request)
+    func googleSignIn(request: CreateUser.GoogleSignIn.Request)
     func signIn(request: CreateUser.SignIn.Request)
     func signOut(request: CreateUser.SignOut.Request)
     func signUp(request: CreateUser.SignUp.Request)
@@ -42,6 +43,9 @@ class CreateUserInteractor: CreateUserBusinessLogic, CreateUserDataStore
                 self.presenter?.presentLoginStatus(response: response)
             }
         }
+    }
+    
+    func googleSignIn(request: CreateUser.GoogleSignIn.Request) {
     }
     
     func signIn(request: CreateUser.SignIn.Request) {

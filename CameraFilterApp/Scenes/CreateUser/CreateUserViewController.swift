@@ -6,6 +6,7 @@
 //  Copyright (c) 2023 ___ORGANIZATIONNAME___. All rights reserved.
 
 import UIKit
+import GoogleSignIn
 
 protocol CreateUserDisplayLogic: AnyObject
 {
@@ -140,6 +141,28 @@ class CreateUserViewController: UIViewController, CreateUserDisplayLogic
         return button
     }()
     
+    private var horizontalDivider: UIView = {
+        let view = UIView()
+        view.backgroundColor = .systemGray4
+        return view
+    }()
+    
+    private var socialLoginTitle: UILabel = {
+        let label = UILabel()
+        label.text = "소셜로그인"
+        label.backgroundColor = .white
+        label.textAlignment = .center
+        label.numberOfLines = 1
+        label.textColor = .black
+        return label
+    }()
+    
+    private var googleLoginButton: GIDSignInButton = {
+        let button = GIDSignInButton()
+        button.style = .wide
+        return button
+    }()
+    
     private var signUpButton: UIButton = {
         let button = UIButton(type: .system)
         button.setTitle("회원가입", for: .normal)
@@ -189,6 +212,12 @@ class CreateUserViewController: UIViewController, CreateUserDisplayLogic
             self.passwordTextField,
             self.signInModeButton,
             self.signUpModeButton,
+            
+            self.horizontalDivider,
+            self.socialLoginTitle,
+            
+            self.googleLoginButton,
+            
             self.signInButton,
             self.signUpButton,
         ].forEach { self.view.addSubview($0) }
@@ -196,6 +225,7 @@ class CreateUserViewController: UIViewController, CreateUserDisplayLogic
         self.closeButton.addTarget(self, action: #selector(closeButtonTapped), for: .touchUpInside)
         self.signInModeButton.addTarget(self, action: #selector(signInModeButtonTapped), for: .touchUpInside)
         self.signUpModeButton.addTarget(self, action: #selector(signUpModeButtonTapped), for: .touchUpInside)
+        self.googleLoginButton.addTarget(self, action: #selector(googleLoginButtonTapped), for: .touchUpInside)
         self.signInButton.addTarget(self, action: #selector(signInButtonTapped), for: .touchUpInside)
         self.signUpButton.addTarget(self, action: #selector(signUpButtonTapped), for: .touchUpInside)
         
@@ -213,6 +243,12 @@ class CreateUserViewController: UIViewController, CreateUserDisplayLogic
             self.passwordTextField,
             self.signInModeButton,
             self.signUpModeButton,
+            
+            self.horizontalDivider,
+            self.socialLoginTitle,
+            
+            self.googleLoginButton,
+            
             self.signInButton,
             self.signUpButton,
         ].forEach { $0.translatesAutoresizingMaskIntoConstraints = false }
@@ -254,6 +290,19 @@ class CreateUserViewController: UIViewController, CreateUserDisplayLogic
             self.signUpModeButton.centerXAnchor.constraint(equalTo: self.passwordTextField.centerXAnchor),
             self.signUpModeButton.heightAnchor.constraint(equalToConstant: 20),
             self.signUpModeButton.widthAnchor.constraint(equalTo: self.passwordTextField.widthAnchor),
+            
+            self.socialLoginTitle.topAnchor.constraint(equalTo: self.signUpModeButton.bottomAnchor, constant: 15),
+            self.socialLoginTitle.widthAnchor.constraint(equalToConstant: 100),
+            self.socialLoginTitle.heightAnchor.constraint(equalToConstant: 20),
+            self.socialLoginTitle.centerXAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.centerXAnchor),
+
+            self.horizontalDivider.centerYAnchor.constraint(equalTo: self.socialLoginTitle.centerYAnchor),
+            self.horizontalDivider.leadingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.leadingAnchor, constant: 15),
+            self.horizontalDivider.trailingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.trailingAnchor, constant: -15),
+            self.horizontalDivider.heightAnchor.constraint(equalToConstant: 1),
+            
+            self.googleLoginButton.topAnchor.constraint(equalTo: self.socialLoginTitle.bottomAnchor, constant: 15),
+            self.googleLoginButton.centerXAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.centerXAnchor),
             
             self.signInButton.bottomAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.bottomAnchor, constant: -15),
             self.signInButton.leadingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.leadingAnchor, constant: 15),
@@ -304,6 +353,9 @@ class CreateUserViewController: UIViewController, CreateUserDisplayLogic
     private func checkLoginStatus() {
         let request = CreateUser.LoginStatus.Request()
         self.interactor?.isSignedIn(request: request)
+    }
+    
+    @objc private func googleLoginButtonTapped(_ button: GIDSignInButton) {
     }
     
     @objc private func signInButtonTapped(_ button: UIButton) {
