@@ -361,6 +361,8 @@ class CameraPreviewViewController: UIViewController, CameraPreviewDisplayLogic
     }
     
     @objc private func userInfoButtonTapped(_ button: UIButton) {
+        self.userInfoView.alpha = 0.0
+        
         self.router?.routeToCreateUser(segue: nil)
     }
 
