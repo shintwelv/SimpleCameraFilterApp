@@ -46,8 +46,10 @@ class CreateUserPresenter: CreateUserPresentationLogic
         switch signedInUser {
         case .Success(let user):
             let viewModel = CreateUser.AppleSignIn.ViewModel(signedInUserEmail: user.email)
+            self.viewController?.displayUserSignedInWithApple(viewModel: viewModel)
         case .Failure(_):
             let viewModel = CreateUser.AppleSignIn.ViewModel(signedInUserEmail: nil)
+            self.viewController?.displayUserSignedInWithApple(viewModel: viewModel)
         }
     }
     

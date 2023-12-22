@@ -12,6 +12,7 @@ import AuthenticationServices
 protocol CreateUserDisplayLogic: AnyObject
 {
     func displayLoginStatus(viewModel: CreateUser.LoginStatus.ViewModel)
+    func displayUserSignedInWithApple(viewModel: CreateUser.AppleSignIn.ViewModel)
     func displayUserSignedInWithGoogle(viewModel: CreateUser.GoogleSignIn.ViewModel)
     func displaySignedInUser(viewModel: CreateUser.SignIn.ViewModel)
     func displaySignedOutUser(viewModel: CreateUser.SignOut.ViewModel)
@@ -406,6 +407,11 @@ class CreateUserViewController: UIViewController, CreateUserDisplayLogic
         }
     }
     
+    func displayUserSignedInWithApple(viewModel: CreateUser.AppleSignIn.ViewModel) {
+        let signedInUserEmail = viewModel.signedInUserEmail
+        displaySignedInUser(userEmail: signedInUserEmail)
+    }
+    
     func displayUserSignedInWithGoogle(viewModel: CreateUser.GoogleSignIn.ViewModel) {
         let signedInUserEmail = viewModel.signedInUserEmail
         displaySignedInUser(userEmail: signedInUserEmail)
@@ -486,8 +492,16 @@ class CreateUserViewController: UIViewController, CreateUserDisplayLogic
             self.emailTextField,
             self.passwordTitleLabel,
             self.passwordTextField,
+            
             self.signInModeButton,
             self.signUpModeButton,
+            
+            self.horizontalDivider,
+            self.socialLoginTitle,
+            
+            self.googleLoginButton,
+            self.appleLoginButton,
+            
             self.signInButton,
             self.signUpButton,
         ].forEach { $0.isHidden = true }
