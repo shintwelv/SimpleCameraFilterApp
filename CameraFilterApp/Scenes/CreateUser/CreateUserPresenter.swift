@@ -15,6 +15,7 @@ protocol CreateUserPresentationLogic
     func presentSignedInUser(response: CreateUser.SignIn.Response)
     func presentSignedOutUser(response: CreateUser.SignOut.Response)
     func presentSignedUpUser(response: CreateUser.SignUp.Response)
+    func presentDeletedUser(response: CreateUser.Delete.Response)
 }
 
 class CreateUserPresenter: CreateUserPresentationLogic
@@ -102,6 +103,19 @@ class CreateUserPresenter: CreateUserPresentationLogic
         case .Failure(_):
             let viewModel = CreateUser.SignUp.ViewModel(createdUserEmail: nil)
             self.viewController?.displaySignedUpUser(viewModel: viewModel)
+        }
+    }
+    
+    func presentDeletedUser(response: CreateUser.Delete.Response) {
+        let deletedUser = response.deletedUser
+        
+        switch deletedUser {
+        case .Success(let user):
+            let viewModel = CreateUser.Delete.ViewModel(deletedUserEmail: user.email)
+            self.viewController?.displayDeletedUser(viewModel: viewModel)
+        case .Failure(_):
+            let viewModel = CreateUser.Delete.ViewModel(deletedUserEmail: nil)
+            self.viewController?.displayDeletedUser(viewModel: viewModel)
         }
     }
 }

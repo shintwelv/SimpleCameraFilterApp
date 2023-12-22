@@ -151,9 +151,11 @@ class CreateUserInteractor: CreateUserBusinessLogic, CreateUserDataStore
             case .Success(let deletedUser):
                 let userResult = CreateUser.UserResult<User>.Success(result: deletedUser)
                 let response = CreateUser.Delete.Response(deletedUser: userResult)
+                self.presenter?.presentDeletedUser(response: response)
             case.Failure(let error):
                 let userResult = CreateUser.UserResult<User>.Failure(error: .cannotDelete("\(error)"))
                 let response = CreateUser.Delete.Response(deletedUser: userResult)
+                self.presenter?.presentDeletedUser(response: response)
             }
         }
     }
