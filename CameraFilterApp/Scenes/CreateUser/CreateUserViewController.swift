@@ -7,6 +7,7 @@
 
 import UIKit
 import GoogleSignIn
+import AuthenticationServices
 
 protocol CreateUserDisplayLogic: AnyObject
 {
@@ -164,6 +165,8 @@ class CreateUserViewController: UIViewController, CreateUserDisplayLogic
         return button
     }()
     
+    private var appleLoginButton = ASAuthorizationAppleIDButton(type: .signIn, style: .black)
+    
     private var signUpButton: UIButton = {
         let button = UIButton(type: .system)
         button.setTitle("회원가입", for: .normal)
@@ -218,15 +221,20 @@ class CreateUserViewController: UIViewController, CreateUserDisplayLogic
             self.socialLoginTitle,
             
             self.googleLoginButton,
+            self.appleLoginButton,
             
             self.signInButton,
             self.signUpButton,
         ].forEach { self.view.addSubview($0) }
         
         self.closeButton.addTarget(self, action: #selector(closeButtonTapped), for: .touchUpInside)
+        
         self.signInModeButton.addTarget(self, action: #selector(signInModeButtonTapped), for: .touchUpInside)
         self.signUpModeButton.addTarget(self, action: #selector(signUpModeButtonTapped), for: .touchUpInside)
+        
         self.googleLoginButton.addTarget(self, action: #selector(googleLoginButtonTapped), for: .touchUpInside)
+        self.appleLoginButton.addTarget(self, action: #selector(appleLoginButtonTapped), for: .touchUpInside)
+        
         self.signInButton.addTarget(self, action: #selector(signInButtonTapped), for: .touchUpInside)
         self.signUpButton.addTarget(self, action: #selector(signUpButtonTapped), for: .touchUpInside)
         
@@ -249,6 +257,7 @@ class CreateUserViewController: UIViewController, CreateUserDisplayLogic
             self.socialLoginTitle,
             
             self.googleLoginButton,
+            self.appleLoginButton,
             
             self.signInButton,
             self.signUpButton,
@@ -304,6 +313,11 @@ class CreateUserViewController: UIViewController, CreateUserDisplayLogic
             
             self.googleLoginButton.topAnchor.constraint(equalTo: self.socialLoginTitle.bottomAnchor, constant: 15),
             self.googleLoginButton.centerXAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.centerXAnchor),
+            
+            self.appleLoginButton.topAnchor.constraint(equalTo: self.googleLoginButton.bottomAnchor, constant: 10),
+            self.appleLoginButton.widthAnchor.constraint(equalTo: self.googleLoginButton.widthAnchor),
+            self.appleLoginButton.heightAnchor.constraint(equalTo: self.googleLoginButton.heightAnchor),
+            self.appleLoginButton.centerXAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.centerXAnchor),
             
             self.signInButton.bottomAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.bottomAnchor, constant: -15),
             self.signInButton.leadingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.leadingAnchor, constant: 15),
@@ -361,6 +375,8 @@ class CreateUserViewController: UIViewController, CreateUserDisplayLogic
         self.interactor?.googleSignIn(request: request)
     }
     
+    @objc private func appleLoginButtonTapped(_ button: ASAuthorizationAppleIDButton) {
+    }
     @objc private func signInButtonTapped(_ button: UIButton) {
         guard let typedEmail = self.emailTextField.text,
               let typedPassword = self.passwordTextField.text else { return }
