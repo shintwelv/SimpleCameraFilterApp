@@ -15,6 +15,7 @@ protocol CreateUserBusinessLogic
     func signIn(request: CreateUser.SignIn.Request)
     func signOut(request: CreateUser.SignOut.Request)
     func signUp(request: CreateUser.SignUp.Request)
+    func deleteUser(request: CreateUser.Delete.Request)
 }
 
 protocol CreateUserDataStore
@@ -138,6 +139,21 @@ class CreateUserInteractor: CreateUserBusinessLogic, CreateUserDataStore
                 let userResult = CreateUser.UserResult<User>.Failure(error: .cannotSignUp("\(error)"))
                 let response = CreateUser.SignUp.Response(createdUser: userResult)
                 self.presenter?.presentSignedUpUser(response: response)
+            }
+        }
+    }
+    
+    func deleteUser(request: CreateUser.Delete.Request) {
+        authenticateProvider.deleteUser { [weak self] authResult in
+            guard let self = self else { return }
+            
+            switch authResult {
+            case .Success(let deletedUser):
+                let userResult = CreateUser.UserResult<User>.Success(result: deletedUser)
+                let response = CreateUser.Delete.Response(deletedUser: userResult)
+            case.Failure(let error):
+                let userResult = CreateUser.UserResult<User>.Failure(error: .cannotDelete("\(error)"))
+                let response = CreateUser.Delete.Response(deletedUser: userResult)
             }
         }
     }

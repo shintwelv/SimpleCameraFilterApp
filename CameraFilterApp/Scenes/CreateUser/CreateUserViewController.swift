@@ -417,6 +417,8 @@ class CreateUserViewController: UIViewController, CreateUserDisplayLogic
         let deleteAction = UIAlertAction(title: "삭제", style: .destructive) { [weak self] action in
             guard let self = self else { return }
             
+            let request = CreateUser.Delete.Request()
+            self.interactor?.deleteUser(request: request)
         }
         
         let cancelAction = UIAlertAction(title: "취소", style: .default)
