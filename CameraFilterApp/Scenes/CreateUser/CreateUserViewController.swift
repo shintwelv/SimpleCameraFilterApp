@@ -400,8 +400,8 @@ class CreateUserViewController: UIViewController, CreateUserDisplayLogic
     // MARK: CreateUserDisplayLogic
     func displayLoginStatus(viewModel: CreateUser.LoginStatus.ViewModel) {
         let signedInUserEmail = viewModel.signedInUserEmail
-        if let _ = signedInUserEmail {
-            hideSigningForm()
+        if let userEmail = signedInUserEmail {
+            hideSigningForm(userEmail: userEmail)
         } else {
             showSigningForm()
         }
@@ -423,8 +423,8 @@ class CreateUserViewController: UIViewController, CreateUserDisplayLogic
     }
     
     private func displaySignedInUser(userEmail: String?) {
-        if let _ = userEmail {
-            hideSigningForm()
+        if let userEmail = userEmail {
+            hideSigningForm(userEmail: userEmail)
             
             let alertController = okAlertController(title: "안내", message: "로그인 되었습니다") { [weak self] action in
                 guard let self = self else { return }
@@ -454,8 +454,8 @@ class CreateUserViewController: UIViewController, CreateUserDisplayLogic
     
     func displaySignedUpUser(viewModel: CreateUser.SignUp.ViewModel) {
         let createdUserEmail = viewModel.createdUserEmail
-        if let _ = createdUserEmail {
-            hideSigningForm()
+        if let userEmail = createdUserEmail {
+            hideSigningForm(userEmail: userEmail)
             
             let alertController = okAlertController(title: "안내", message: "회원가입이 완료되었습니다") { [weak self] action in
                 guard let self = self else { return }
@@ -486,10 +486,8 @@ class CreateUserViewController: UIViewController, CreateUserDisplayLogic
         }
     }
     
-    private func hideSigningForm() {
+    private func hideSigningForm(userEmail: String) {
         [
-            self.emailTitleLabel,
-            self.emailTextField,
             self.passwordTitleLabel,
             self.passwordTextField,
             
@@ -506,7 +504,9 @@ class CreateUserViewController: UIViewController, CreateUserDisplayLogic
             self.signUpButton,
         ].forEach { $0.isHidden = true }
         
-        self.titleLabel.text = "로그인 되었습니다"
+        self.titleLabel.text = "로그인 정보"
+        self.emailTextField.text = userEmail
+        self.emailTextField.isEnabled = false
     }
     
     private func showSigningForm() {
@@ -516,8 +516,6 @@ class CreateUserViewController: UIViewController, CreateUserDisplayLogic
         ].forEach { $0.isHidden = true }
         
         [
-            self.emailTitleLabel,
-            self.emailTextField,
             self.passwordTitleLabel,
             self.passwordTextField,
             self.signUpModeButton,
@@ -525,6 +523,8 @@ class CreateUserViewController: UIViewController, CreateUserDisplayLogic
         ].forEach { $0.isHidden = false }
         
         self.titleLabel.text = "로그인"
+        self.emailTextField.text = ""
+        self.emailTextField.isEnabled = true
     }
 }
 
