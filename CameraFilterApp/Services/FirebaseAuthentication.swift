@@ -164,6 +164,27 @@ class FirebaseAuthentication: NSObject, UserAuthenticationProtocol {
         }
     }
     
+    func delete(completionHandler: @escaping UserDeleteCompletionHandler) {
+        let currentUser = Auth.auth().currentUser
+        
+        guard let currentUser = currentUser else {
+            let result = UserAuthenticationResult<User>.Failure(error: .cannotDelete("로그인이 되어 있지 않습니다"))
+            completionHandler(result)
+            return
+        }
+        
+        currentUser.delete(completion: { error in
+            if let error = error {
+                let result = UserAuthenticationResult<User>.Failure(error: .cannotDelete("\(error)"))
+                completionHandler(result)
+            }
+            
+            let deletedUser = User(email: currentUser.email ?? "")
+            let result = UserAuthenticationResult.Success(result: deletedUser)
+            completionHandler(result)
+        })
+    }
+    
     private func sha256(_ input: String) -> String {
         let inputData = Data(input.utf8)
         let hashedData = SHA256.hash(data: inputData)

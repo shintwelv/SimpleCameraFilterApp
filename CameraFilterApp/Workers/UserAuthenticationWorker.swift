@@ -38,6 +38,10 @@ class UserAuthenticationWorker {
     func signUp(email: String, password: String, completionHandler: @escaping UserSignUpCompletionHandler) {
         authenticationProvider.signUp(email: email, password: password, completionHandler: completionHandler)
     }
+    
+    func deleteUser(completionHandler: @escaping UserDeleteCompletionHandler) {
+        authenticationProvider.delete(completionHandler: completionHandler)
+    }
 }
 
 protocol UserAuthenticationProtocol {
@@ -47,9 +51,11 @@ protocol UserAuthenticationProtocol {
     func googleLogin(presentingViewController: UIViewController, completionHandler: @escaping UserLogInCompletionHandler)
     func logOut(completionHandler: @escaping UserLogOutCompletionHandler)
     func signUp(email: String, password: String, completionHandler: @escaping UserSignUpCompletionHandler)
+    func delete(completionHandler: @escaping UserDeleteCompletionHandler)
 }
 
 typealias LoggedInUserCompletionHandler = (UserAuthenticationResult<User?>) -> Void
+typealias UserDeleteCompletionHandler = (UserAuthenticationResult<User>) -> Void
 typealias UserLogInCompletionHandler = (UserAuthenticationResult<User>) -> Void
 typealias UserLogOutCompletionHandler = (UserAuthenticationResult<User>) -> Void
 typealias UserSignUpCompletionHandler = (UserAuthenticationResult<User>) -> Void
@@ -63,10 +69,11 @@ enum UserAuthenticationError: Equatable, LocalizedError {
     case cannotLogIn(String)
     case cannotSignUp(String)
     case cannotLogOut(String)
+    case cannotDelete(String)
     
     var errorDescription: String? {
         switch self {
-        case .cannotLogIn(let string), .cannotSignUp(let string), .cannotLogOut(let string):
+        case .cannotLogIn(let string), .cannotSignUp(let string), .cannotLogOut(let string), .cannotDelete(let string):
             return string
         }
     }
@@ -77,6 +84,7 @@ func ==(lhs: UserAuthenticationError, rhs: UserAuthenticationError) -> Bool {
     case (.cannotLogIn(let a), .cannotLogIn(let b)) where a == b: return true
     case (.cannotSignUp(let a), .cannotSignUp(let b)) where a == b: return true
     case (.cannotLogOut(let a), .cannotLogOut(let b)) where a == b: return true
+    case (.cannotDelete(let a), .cannotDelete(let b)) where a == b: return true
     default: return false
     }
 }
