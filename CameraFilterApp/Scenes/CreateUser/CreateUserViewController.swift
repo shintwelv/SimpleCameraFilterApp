@@ -376,7 +376,10 @@ class CreateUserViewController: UIViewController, CreateUserDisplayLogic
     }
     
     @objc private func appleLoginButtonTapped(_ button: ASAuthorizationAppleIDButton) {
+        let request = CreateUser.AppleSignIn.Request(presentingViewController: self)
+        self.interactor?.appleSignIn(request: request)
     }
+    
     @objc private func signInButtonTapped(_ button: UIButton) {
         guard let typedEmail = self.emailTextField.text,
               let typedPassword = self.passwordTextField.text else { return }

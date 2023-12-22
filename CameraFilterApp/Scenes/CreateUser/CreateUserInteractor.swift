@@ -10,6 +10,7 @@ import UIKit
 protocol CreateUserBusinessLogic
 {
     func isSignedIn(request: CreateUser.LoginStatus.Request)
+    func appleSignIn(request: CreateUser.AppleSignIn.Request)
     func googleSignIn(request: CreateUser.GoogleSignIn.Request)
     func signIn(request: CreateUser.SignIn.Request)
     func signOut(request: CreateUser.SignOut.Request)
@@ -41,6 +42,23 @@ class CreateUserInteractor: CreateUserBusinessLogic, CreateUserDataStore
                 let userResult = CreateUser.UserResult<User?>.Failure(error: .cannotCheckLogin("\(error)"))
                 let response = CreateUser.LoginStatus.Response(signedInUser: userResult)
                 self.presenter?.presentLoginStatus(response: response)
+            }
+        }
+    }
+    
+    func appleSignIn(request: CreateUser.AppleSignIn.Request) {
+        guard let presentingViewController = request.presentingViewController else { return }
+        
+        authenticateProvider.appleLogin(presentingViewController: presentingViewController) { [weak self] authResult in
+            guard let self = self else { return }
+            
+            switch authResult {
+            case .Success(let user):
+                let userResult = CreateUser.UserResult<User>.Success(result: user)
+                let response = CreateUser.AppleSignIn.Response(signedInUser: userResult)
+            case .Failure(let error):
+                let userResult = CreateUser.UserResult<User>.Failure(error:.cannotSignIn("\(error)"))
+                let response = CreateUser.AppleSignIn.Response(signedInUser: userResult)
             }
         }
     }
