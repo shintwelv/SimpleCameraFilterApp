@@ -19,6 +19,10 @@ class UserAuthenticationWorker {
         authenticationProvider.loggedInUser(completionHandler: completionHandler)
     }
     
+    func appleLogin(presentingViewController vc: UIViewController, completionHandler: @escaping UserLogInCompletionHandler) {
+        authenticationProvider.appleLogin(presentingViewController: vc, completionHandler: completionHandler)
+    }
+    
     func googleLogin(presentingViewController vc: UIViewController, completionHandler: @escaping UserLogInCompletionHandler) {
         authenticationProvider.googleLogin(presentingViewController: vc, completionHandler: completionHandler)
     }
@@ -39,6 +43,7 @@ class UserAuthenticationWorker {
 protocol UserAuthenticationProtocol {
     func loggedInUser(completionHandler: @escaping LoggedInUserCompletionHandler)
     func logIn(email: String, password: String, completionHandler: @escaping UserLogInCompletionHandler)
+    func appleLogin(presentingViewController: UIViewController, completionHandler: @escaping UserLogInCompletionHandler)
     func googleLogin(presentingViewController: UIViewController, completionHandler: @escaping UserLogInCompletionHandler)
     func logOut(completionHandler: @escaping UserLogOutCompletionHandler)
     func signUp(email: String, password: String, completionHandler: @escaping UserSignUpCompletionHandler)
