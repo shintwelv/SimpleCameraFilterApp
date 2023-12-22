@@ -10,6 +10,7 @@ import UIKit
 protocol CreateUserPresentationLogic
 {
     func presentLoginStatus(response: CreateUser.LoginStatus.Response)
+    func presentUserSignInWithApple(response: CreateUser.AppleSignIn.Response)
     func presentUserSignInWithGoogle(response: CreateUser.GoogleSignIn.Response)
     func presentSignedInUser(response: CreateUser.SignIn.Response)
     func presentSignedOutUser(response: CreateUser.SignOut.Response)
@@ -36,6 +37,17 @@ class CreateUserPresenter: CreateUserPresentationLogic
         case .Failure(_):
             let viewModel = CreateUser.LoginStatus.ViewModel(signedInUserEmail: nil)
             self.viewController?.displayLoginStatus(viewModel: viewModel)
+        }
+    }
+    
+    func presentUserSignInWithApple(response: CreateUser.AppleSignIn.Response) {
+        let signedInUser = response.signedInUser
+        
+        switch signedInUser {
+        case .Success(let user):
+            let viewModel = CreateUser.AppleSignIn.ViewModel(signedInUserEmail: user.email)
+        case .Failure(_):
+            let viewModel = CreateUser.AppleSignIn.ViewModel(signedInUserEmail: nil)
         }
     }
     
