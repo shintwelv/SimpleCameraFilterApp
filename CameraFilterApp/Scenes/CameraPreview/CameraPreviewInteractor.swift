@@ -22,6 +22,7 @@ protocol CameraPreviewBusinessLogic
     func startSession(_ request: CameraPreview.StartSession.Request)
     func applyFilter(_ request: CameraPreview.ApplyFilter.Request)
     func fetchFilters(_ request: CameraPreview.FetchFilters.Request)
+    func takePhoto(_ request: CameraPreview.TakePhoto.Request)
     var metalDevice: MTLDevice? { get }
 }
 
@@ -39,6 +40,8 @@ class CameraPreviewInteractor: NSObject, CameraPreviewBusinessLogic, CameraPrevi
     
     private let cameraQueue = DispatchQueue(label: "cameraQueue")
     private let videoQueue = DispatchQueue(label: "videoQueue")
+    private let imageProcessQueue = DispatchQueue(label: "imageProcessQueue")
+    private let takePhotoQueue = DispatchQueue(label: "takePhotoQueue")
     
     private let session = AVCaptureSession()
     
@@ -51,7 +54,10 @@ class CameraPreviewInteractor: NSObject, CameraPreviewBusinessLogic, CameraPrevi
     
     private var appliedFilter: CIFilter?
     
+    private var takingPhoto: Bool = false
+    
     func startSession(_ request: CameraPreview.StartSession.Request) {
+        self.configureCaptureSession()
         cameraQueue.async {
             self.session.startRunning()
         }
@@ -108,6 +114,10 @@ class CameraPreviewInteractor: NSObject, CameraPreviewBusinessLogic, CameraPrevi
             }
         ).disposed(by: self.bag)
     }
+
+    func takePhoto(_ request: CameraPreview.TakePhoto.Request) {
+        takingPhoto = true
+    }
     
     func isSignedIn(_ request: CameraPreview.LoginStatus.Request) {
         authenticateProvider.loggedInUser { [weak self] authResult in
@@ -157,21 +167,21 @@ class CameraPreviewInteractor: NSObject, CameraPreviewBusinessLogic, CameraPrevi
             onSuccess: { [weak self] cameraDevice in
                 guard let self = self else { return }
                 
-                do {
-                    self.deviceInput = try AVCaptureDeviceInput(device: cameraDevice)
-                    
-                    self.videoOutput = AVCaptureVideoDataOutput()
-                    self.videoOutput.setSampleBufferDelegate(self, queue: self.videoQueue)
-                    
-                    self.session.addInput(self.deviceInput)
-                    self.session.addOutput(self.videoOutput)
-                    
-                    self.videoOutput.connections.first?.videoOrientation = .portrait
-                    
-                    self.session.sessionPreset = .photo
-                } catch {
-                    print("error = \(error.localizedDescription)")
-                }
+        do {
+            self.deviceInput = try AVCaptureDeviceInput(device: cameraDevice)
+            
+            self.videoOutput = AVCaptureVideoDataOutput()
+            self.videoOutput.setSampleBufferDelegate(self, queue: self.videoQueue)
+            
+            self.session.addInput(self.deviceInput)
+            self.session.addOutput(self.videoOutput)
+            
+            self.videoOutput.connections.first?.videoOrientation = .portrait
+            
+            self.session.sessionPreset = .photo
+        } catch {
+            print("error = \(error.localizedDescription)")
+        }
                 
             }, onFailure: { error in
                 print(error.localizedDescription)
@@ -190,18 +200,36 @@ extension CameraPreviewInteractor: AVCaptureVideoDataOutputSampleBufferDelegate 
             return
         }
         
-        let ciImage = CIImage(cvImageBuffer: cvBuffer)
+        let copyBuffer = cvBuffer.copy()
+        
+        let ciImage = CIImage(cvImageBuffer: copyBuffer)
         if let _ = self.appliedFilter {
-            guard let filteredImage = applyFilter(inputImage: ciImage) else {
-                return
+            guard let filteredImage = applyFilter(inputImage: ciImage) else { return }
+            
+            if self.takingPhoto {
+                takePhotoQueue.async {
+                    self.takingPhoto = false
+                    
+                    guard let uiImage = self.convert(filteredImage) else { return }
+                    UIImageWriteToSavedPhotosAlbum(uiImage, self, #selector(self.imageSaved(_:didFinishSavingWithError:contextInfo:)), nil)
+                }
             }
             
             let response = CameraPreview.DrawFrameImage.Response(frameImage: filteredImage, commandBuffer: commandBuffer)
             
             presenter?.presentFrameImage(response: response)
         } else {
+            if self.takingPhoto {
+                takePhotoQueue.async {
+                    self.takingPhoto = false
+                    
+                    guard let uiImage = self.convert(ciImage) else { return }
+                    UIImageWriteToSavedPhotosAlbum(uiImage, self, #selector(self.imageSaved(_:didFinishSavingWithError:contextInfo:)), nil)
+                }
+            }
+            
             let response = CameraPreview.DrawFrameImage.Response(frameImage: ciImage, commandBuffer: commandBuffer)
-
+            
             presenter?.presentFrameImage(response: response)
         }
     }
@@ -213,5 +241,21 @@ extension CameraPreviewInteractor: AVCaptureVideoDataOutputSampleBufferDelegate 
         filteredImage = self.appliedFilter?.outputImage
         
         return filteredImage
+    }
+    
+    @objc private func imageSaved(_ image: UIImage, didFinishSavingWithError error: NSError?, contextInfo: UnsafeRawPointer) {
+        if let error = error {
+            print("Saving Photo Error: \(error.localizedDescription)")
+        } else {
+            let response = CameraPreview.TakePhoto.Response()
+            self.presenter?.presentTakePhotoCompletion(response: response)
+        }
+    }
+    
+    private func convert(_ ciImage:CIImage) -> UIImage? {
+        let context:CIContext = CIContext(options: nil)
+        guard let cgImage:CGImage = context.createCGImage(ciImage, from: ciImage.extent) else { return nil }
+        let image:UIImage = UIImage(cgImage: cgImage)
+        return image
     }
 }

@@ -18,6 +18,7 @@ protocol CameraPreviewPresentationLogic
     func presentSignedOutUser(response: CameraPreview.SignOut.Response)
     func presentAllFilters(response: CameraPreview.FetchFilters.Response)
     func presentFrameImage(response: CameraPreview.DrawFrameImage.Response)
+    func presentTakePhotoCompletion(response: CameraPreview.TakePhoto.Response)
 }
 
 class CameraPreviewPresenter: CameraPreviewPresentationLogic
@@ -80,5 +81,10 @@ class CameraPreviewPresenter: CameraPreviewPresentationLogic
         
         let viewModel = CameraPreview.DrawFrameImage.ViewModel(frameImage: frameImage, commandBuffer: commandBuffer)
         viewController?.displayFrameImage(viewModel: viewModel)
+    }
+    
+    func presentTakePhotoCompletion(response: CameraPreview.TakePhoto.Response) {
+        let viewModel = CameraPreview.TakePhoto.ViewModel()
+        self.viewController?.displayTakePhotoCopmletion(viewModel: viewModel)
     }
 }

@@ -41,6 +41,7 @@
 		EDC5DF582B2BE1A60089BCA3 /* EditPhotoModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDC5DF522B2BE1A60089BCA3 /* EditPhotoModels.swift */; };
 		EDC5DF592B2BE1A60089BCA3 /* EditPhotoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDC5DF532B2BE1A60089BCA3 /* EditPhotoViewController.swift */; };
 		EDC5DF5A2B2BE1A60089BCA3 /* EditPhotoInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDC5DF542B2BE1A60089BCA3 /* EditPhotoInteractor.swift */; };
+		EDB191432B2AA92F00DD1BA9 /* CVPixelBuffer+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDB191422B2AA92F00DD1BA9 /* CVPixelBuffer+Extension.swift */; };
 		EDE29D282B1F120F00C73406 /* SliderPropertyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDE29D272B1F120F00C73406 /* SliderPropertyView.swift */; };
 		EDE29D2A2B1F652500C73406 /* ColorPickerPropertyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDE29D292B1F652500C73406 /* ColorPickerPropertyView.swift */; };
 		EDE29D2C2B1F668F00C73406 /* PropertyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDE29D2B2B1F668F00C73406 /* PropertyView.swift */; };
@@ -105,6 +106,7 @@
 		EDC5DF522B2BE1A60089BCA3 /* EditPhotoModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditPhotoModels.swift; sourceTree = "<group>"; };
 		EDC5DF532B2BE1A60089BCA3 /* EditPhotoViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditPhotoViewController.swift; sourceTree = "<group>"; };
 		EDC5DF542B2BE1A60089BCA3 /* EditPhotoInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditPhotoInteractor.swift; sourceTree = "<group>"; };
+		EDB191422B2AA92F00DD1BA9 /* CVPixelBuffer+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CVPixelBuffer+Extension.swift"; sourceTree = "<group>"; };
 		EDE29D272B1F120F00C73406 /* SliderPropertyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SliderPropertyView.swift; sourceTree = "<group>"; };
 		EDE29D292B1F652500C73406 /* ColorPickerPropertyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorPickerPropertyView.swift; sourceTree = "<group>"; };
 		EDE29D2B2B1F668F00C73406 /* PropertyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PropertyView.swift; sourceTree = "<group>"; };
@@ -256,6 +258,7 @@
 				EDEC73752B145DA400595A95 /* CameraPreviewWorker.swift */,
 				EDEC73762B145DA400595A95 /* CameraPreviewRouter.swift */,
 				C284660D2B15EC7C006D4E40 /* FilterCell.swift */,
+				EDB191422B2AA92F00DD1BA9 /* CVPixelBuffer+Extension.swift */,
 			);
 			path = CameraPreview;
 			sourceTree = "<group>";
@@ -411,6 +414,7 @@
 				C244644D2B1B4E7100F0B029 /* CreateFilterInteractor.swift in Sources */,
 				EDBE1C902B302F3D00C41B37 /* CreateUserRouter.swift in Sources */,
 				EDEC737C2B145DA400595A95 /* CameraPreviewRouter.swift in Sources */,
+				EDB191432B2AA92F00DD1BA9 /* CVPixelBuffer+Extension.swift in Sources */,
 				EDE29D282B1F120F00C73406 /* SliderPropertyView.swift in Sources */,
 				EDEC739D2B181E1300595A95 /* ListFiltersModels.swift in Sources */,
 				EDC5DF582B2BE1A60089BCA3 /* EditPhotoModels.swift in Sources */,
