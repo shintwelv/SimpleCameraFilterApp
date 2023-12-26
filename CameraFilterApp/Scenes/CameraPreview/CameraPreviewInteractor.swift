@@ -13,24 +13,28 @@
 import UIKit
 import MetalKit
 import AVFoundation
+import RxSwift
 
 protocol CameraPreviewBusinessLogic
 {
     func startSession(_ request: CameraPreview.StartSession.Request)
+    func pauseSession(_ request: CameraPreview.PauseSession.Request)
     func applyFilter(_ request: CameraPreview.ApplyFilter.Request)
     func fetchFilters(_ request: CameraPreview.FetchFilters.Request)
+    func selectPhoto(_ request: CameraPreview.SelectPhoto.Request)
     var metalDevice: MTLDevice? { get }
 }
 
 protocol CameraPreviewDataStore
 {
-    //var name: String { get set }
+    var selectedPhoto: UIImage? { get set }
 }
 
 class CameraPreviewInteractor: NSObject, CameraPreviewBusinessLogic, CameraPreviewDataStore
 {
     var presenter: CameraPreviewPresentationLogic?
     var worker: CameraPreviewWorker = CameraPreviewWorker()
+    var filtersWorker: FiltersWorker = FiltersWorker(filtersStore: FilterMemStore())
     
     
     private let cameraQueue = DispatchQueue(label: "cameraQueue")
@@ -47,44 +51,113 @@ class CameraPreviewInteractor: NSObject, CameraPreviewBusinessLogic, CameraPrevi
     
     private var appliedFilter: CIFilter?
     
+    var selectedPhoto: UIImage?
+    
     func startSession(_ request: CameraPreview.StartSession.Request) {
-        self.configureCaptureSession()
         cameraQueue.async {
             self.session.startRunning()
         }
     }
     
+    func pauseSession(_ request: CameraPreview.PauseSession.Request) {
+        cameraQueue.async {
+            self.session.stopRunning()
+        }
+    }
+    
+    override init() {
+        super.init()
+        
+        configureCaptureSession()
+        configureBinding()
+    }
+    
+    private let bag = DisposeBag()
+    
+    private lazy var fetchedFilter: Observable<FiltersWorker.OperationResult<CameraFilter>> = {
+        self.filtersWorker.filter.filter {
+            switch $0 {
+            case .Success(let operation, _) where operation == .fetch: return true
+            case .Failure(let error) where error == .cannotFetch(error.localizedDescription): return true
+            default: return false
+            }
+        }
+    }()
+    
+    private func configureBinding() {
+        self.fetchedFilter.map { (result) -> CameraFilter? in
+            switch result {
+            case .Success(_, let filter): return filter
+            case .Failure(_): return nil
+            }
+        }.subscribe(
+            onNext: { [weak self] filter in
+                guard let self = self else { return }
+                
+                if let filter = filter {
+                    self.appliedFilter = filter.ciFilter
+                } else {
+                    self.appliedFilter = nil
+                }
+            }
+        ).disposed(by: self.bag)
+        
+        self.filtersWorker.filters.map { (result) -> [CameraFilter] in
+            switch result {
+            case .Success(let operation, let filters) where operation == .fetch: return filters
+            default: return []
+            }
+        }.subscribe(
+            onNext: { [weak self] filters in
+                guard let self = self else { return }
+                
+                let response = CameraPreview.FetchFilters.Response(filters: filters)
+                self.presenter?.presentAllFilters(response: response)
+            }
+        ).disposed(by: self.bag)
+    }
+    
     func applyFilter(_ request: CameraPreview.ApplyFilter.Request) {
-        let filterName = request.filterName
-        
-        let filter = worker.getFilter(by: filterName)
-        
-        self.appliedFilter = filter?.ciFilter ?? nil
+        let filterId = request.filterId
+        self.filtersWorker.fetchFilter(filterId: filterId)
     }
     
     func fetchFilters(_ request: CameraPreview.FetchFilters.Request) {
-        let filters: [CameraFilter] = worker.allFilters
-        let response = CameraPreview.FetchFilters.Response(filters: filters)
-        presenter?.presentAllFilters(response: response)
+        self.filtersWorker.fetchFilters()
+    }
+    
+    func selectPhoto(_ request: CameraPreview.SelectPhoto.Request) {
+        let photo = request.photo
+        self.selectedPhoto = photo
     }
     
     private func configureCaptureSession() {
-        let cameraDevice: AVCaptureDevice = worker.getCameraDevice()
-        do {
-            self.deviceInput = try AVCaptureDeviceInput(device: cameraDevice)
-            
-            self.videoOutput = AVCaptureVideoDataOutput()
-            self.videoOutput.setSampleBufferDelegate(self, queue: self.videoQueue)
-            
-            self.session.addInput(self.deviceInput)
-            self.session.addOutput(self.videoOutput)
-            
-            self.videoOutput.connections.first?.videoOrientation = .portrait
-            
-            self.session.sessionPreset = .photo
-        } catch {
-            print("error = \(error.localizedDescription)")
-        }
+        self.worker.cameraDevice.subscribe (
+            onSuccess: { [weak self] cameraDevice in
+                guard let self = self else { return }
+                
+                do {
+                    self.deviceInput = try AVCaptureDeviceInput(device: cameraDevice)
+                    
+                    self.videoOutput = AVCaptureVideoDataOutput()
+                    self.videoOutput.setSampleBufferDelegate(self, queue: self.videoQueue)
+                    
+                    self.session.addInput(self.deviceInput)
+                    self.session.addOutput(self.videoOutput)
+                    
+                    self.videoOutput.connections.first?.videoOrientation = .portrait
+                    
+                    self.session.sessionPreset = .photo
+                } catch {
+                    print("error = \(error.localizedDescription)")
+                }
+                
+            }, onFailure: { error in
+                print(error.localizedDescription)
+            }, onDisposed: {
+                print("cameraDevice observable disposed")
+            }
+        ).disposed(by: self.bag)
     }
 }
 

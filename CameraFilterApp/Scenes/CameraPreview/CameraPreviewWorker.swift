@@ -12,35 +12,33 @@
 
 import UIKit
 import AVFoundation
+import RxSwift
 
 class CameraPreviewWorker
 {
-    var allFilters: [CameraFilter] = {
-        let filters: [CameraFilter?] = [
-            SepiaFilter(inputIntensity: 1.0),
-            VintageFilter(),
-            BlackWhiteFilter(),
-            MonochromeFilter(displayName: "시안", inputColor: CIColor.cyan),
-            MonochromeFilter(displayName: "로즈", inputColor: CIColor.magenta),
-            MonochromeFilter(displayName: "블루", inputColor: CIColor.blue),
-            BlurFilter(displayName: "블러"),
-            PosterizeFilter(displayName: "포스터")
-        ]
+    enum CameraError: LocalizedError {
+        case noCamera(String)
         
-        return filters.compactMap {$0}
-    }()
-    
-    func getFilter(by name: String) -> CameraFilter? {
-        return allFilters.filter { $0.displayName == name }.first
-    }
-    
-    func getCameraDevice() -> AVCaptureDevice {
-        let discoverySession = AVCaptureDevice.DiscoverySession(deviceTypes: [.builtInWideAngleCamera,.builtInUltraWideCamera], mediaType: .video, position: .back)
-        
-        guard let cameraDevice = discoverySession.devices.first else {
-            fatalError("no camera device is available")
+        var errorDescription: String? {
+            switch self {
+            case .noCamera(let string):
+                return string
+            }
         }
-        
-        return cameraDevice
     }
+    
+    var cameraDevice: Single<AVCaptureDevice> = {
+        return Observable<AVCaptureDevice>.create { observer in
+            let discoverySession = AVCaptureDevice.DiscoverySession(deviceTypes: [.builtInWideAngleCamera,.builtInUltraWideCamera], mediaType: .video, position: .back)
+
+            if let cameraDevice = discoverySession.devices.first {
+                observer.onNext(cameraDevice)
+                observer.onCompleted()
+            } else {
+                observer.onError(CameraError.noCamera("사용할 수 있는 카메라가 존재하지 않습니다"))
+            }
+            
+            return Disposables.create()
+        }.asSingle()
+    }()
 }

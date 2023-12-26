@@ -10,79 +10,126 @@ import UIKit
 enum CreateFilter
 {
     // MARK: Use cases
-    enum FilterType {
-        case blur
-        case monochrome
-        case sepia
-        case posterize
+    typealias FilterProperty = (min:CGFloat, max:CGFloat, value:CGFloat)
+
+    struct FilterInfo {
+        var filterName: String?
+        
+        var filterSystemName: CameraFilter.FilterName?
+
+        var inputColor: UIColor?
+        var inputIntensity: FilterProperty?
+        var inputRadius: FilterProperty?
+        var inputLevels: FilterProperty?
     }
     
     enum FetchFilter {
         struct Request {
-            var filterId: UUID
+            
         }
         struct Response {
-            var filter: CameraFilter
+            var filter: CameraFilter?
         }
         struct ViewModel {
-            var filterId: UUID
-            var filterName: String
-            var properties: [String : Any?]
-            var filterType: [FilterType]
+            var sampleImage: UIImage?
+            var filterInfo: FilterInfo?
+        }
+    }
+    
+    enum FetchFilterCategories {
+        struct Request {
+            
+        }
+        struct Response {
+            var filterCategories: [CameraFilter.FilterName]
+        }
+        struct ViewModel {
+            var filterCategories: [String]
         }
     }
     
     enum FetchProperties {
         struct Request {
-            var filterType: [FilterType]
+            var filterSystemName: CameraFilter.FilterName
         }
         struct Response {
-            var properties: [String : Any?]
+            var inputColor: UIColor?
+            var inputIntensity: FilterProperty?
+            var inputRadius: FilterProperty?
+            var inputLevels: FilterProperty?
         }
         struct ViewModel {
-            var properties: [String : Any?]
+            var inputColor: UIColor?
+            var inputIntensity: FilterProperty?
+            var inputRadius: FilterProperty?
+            var inputLevels: FilterProperty?
+        }
+    }
+    
+    enum ApplyFilter {
+        struct Request {
+            var filterSystemName: CameraFilter.FilterName
+            
+            var inputColor: UIColor?
+            var inputIntensity: CGFloat?
+            var inputRadius: CGFloat?
+            var inputLevels: CGFloat?
+        }
+        struct Response {
+            var filter: CameraFilter?
+        }
+        struct ViewModel {
+            var filteredImage: UIImage?
         }
     }
     
     enum CreateFilter {
         struct Request {
             var filterName: String
-            var properties: [String : Any?]
+            
+            var filterSystemName: CameraFilter.FilterName
+            
+            var inputColor: UIColor?
+            var inputIntensity: CGFloat?
+            var inputRadius: CGFloat?
+            var inputLevels: CGFloat?
         }
         struct Response {
             var filter: CameraFilter?
         }
         struct ViewModel {
-            
+            var filterInfo: FilterInfo?
         }
     }
     
     enum EditFilter {
         struct Request {
-            var filterId: UUID
-            var newFilterName: String
-            var newProperties: [String : Any?]
+            var filterName: String
+            
+            var filterSystemName: CameraFilter.FilterName
+            
+            var inputColor: UIColor?
+            var inputIntensity: CGFloat?
+            var inputRadius: CGFloat?
+            var inputLevels: CGFloat?
         }
         struct Response {
-            var filter: CameraFilter
+            var filter: CameraFilter?
         }
         struct ViewModel {
-            var filterId: UUID
-            var filterName: String
-            var properties: [String : Any?]
+            var filterInfo: FilterInfo?
         }
     }
     
     enum DeleteFilter {
         struct Request {
-            var filterId: UUID
+            
         }
         struct Response {
-            var success: Bool
+            var filter: CameraFilter?
         }
         struct ViewModel {
-            var success: Bool
-            var resultMessage: String
+            var filterInfo: FilterInfo?
         }
     }
 }

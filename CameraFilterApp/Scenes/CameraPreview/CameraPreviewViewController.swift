@@ -12,6 +12,7 @@
 
 import UIKit
 import MetalKit
+import PhotosUI
 
 protocol CameraPreviewDisplayLogic: AnyObject
 {
@@ -121,7 +122,7 @@ class CameraPreviewViewController: UIViewController, CameraPreviewDisplayLogic
         return collectionView
     }()
     
-    private var filterNames:[String] = []
+    private var filterInfos:[CameraPreview.FilterInfo] = []
     
     private var ciContext: CIContext?
     private var currentCIImage: CIImage?
@@ -135,13 +136,20 @@ class CameraPreviewViewController: UIViewController, CameraPreviewDisplayLogic
         configureUI()
         configureAutoLayout()
         configureMTKView()
-        
-        fetchFilterNames()
     }
     
     override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        
         let request = CameraPreview.StartSession.Request()
         interactor?.startSession(request)
+    }
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        
+        let request = CameraPreview.PauseSession.Request()
+        interactor?.pauseSession(request)
     }
     
     private func configureUI() {
@@ -235,6 +243,10 @@ class CameraPreviewViewController: UIViewController, CameraPreviewDisplayLogic
     }
 
     @objc private func filterToggleButtonTapped(_ button: UIButton) {
+        if self.filterCollectionView.isHidden {
+            fetchFilterNames()
+        }
+        
         self.filterCollectionView.isHidden.toggle()
         self.filterEditButton.isHidden.toggle()
         self.galleryButton.isHidden.toggle()
@@ -242,6 +254,8 @@ class CameraPreviewViewController: UIViewController, CameraPreviewDisplayLogic
     }
     
     @objc private func filterEditButtonTapped(_ button: UIButton) {
+        self.filterToggleButtonTapped(self.filterToggleButton)
+        
         let selector = NSSelectorFromString("routeToListFiltersWithSegue:")
         if let router = router, router.responds(to: selector) {
             router.perform(selector, with: nil)
@@ -253,7 +267,14 @@ class CameraPreviewViewController: UIViewController, CameraPreviewDisplayLogic
     }
     
     @objc private func galleryButtonTapped(_ button: UIButton) {
-        print(#function)
+        var configuration = PHPickerConfiguration()
+        configuration.selectionLimit = 1
+        configuration.filter = .images
+        
+        let picker = PHPickerViewController(configuration: configuration)
+        picker.delegate = self
+        
+        self.present(picker, animated: true)
     }
     
     // MARK: Do something
@@ -263,7 +284,7 @@ class CameraPreviewViewController: UIViewController, CameraPreviewDisplayLogic
     }
     
     func displayFilterNames(viewModel: CameraPreview.FetchFilters.ViewModel) {
-        self.filterNames = viewModel.filterNames
+        self.filterInfos = viewModel.filterInfos
         self.filterCollectionView.reloadData()
     }
     
@@ -305,19 +326,49 @@ extension CameraPreviewViewController: UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "filterCell", for: indexPath) as? FilterCell else { return UICollectionViewCell() }
         
-        cell.configure(name: filterNames[indexPath.row])
+        let filterInfo = filterInfos[indexPath.row]
+        
+        cell.configure(name: filterInfo.filterName)
         return cell
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return self.filterNames.count
+        return self.filterInfos.count
     }
 }
 
 extension CameraPreviewViewController: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        let filterName = filterNames[indexPath.item]
-        let request = CameraPreview.ApplyFilter.Request(filterName: filterName)
+        let filterId = filterInfos[indexPath.item].filterId
+        let request = CameraPreview.ApplyFilter.Request(filterId: filterId)
         interactor?.applyFilter(request)
+    }
+}
+
+extension CameraPreviewViewController: PHPickerViewControllerDelegate {
+    func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
+        picker.dismiss(animated: true)
+        
+        let itemProvider = results.first?.itemProvider
+        
+        if let itemProvider = itemProvider, 
+            itemProvider.canLoadObject(ofClass: UIImage.self) {
+            itemProvider.loadObject(ofClass: UIImage.self) { [weak self] image, error in
+                guard let self = self,
+                    let image = image as? UIImage else { return }
+                
+                DispatchQueue.main.async {
+                    let request = CameraPreview.SelectPhoto.Request(photo: image)
+                    self.interactor?.selectPhoto(request)
+                    
+                    let selector = NSSelectorFromString("routeToEditPhotoWithSegue:")
+                    if let router = self.router, router.responds(to: selector) {
+                        router.perform(selector, with: nil)
+                    }
+                }
+            }
+        } else {
+            print("cannot load image")
+        }
     }
 }
