@@ -27,10 +27,10 @@ class FilterCell: UICollectionViewCell {
         self.nameLabel = {
             let label = UILabel()
             label.font = .systemFont(ofSize: 18)
+            label.adjustsFontSizeToFitWidth = true
             label.textColor = .black
             label.textAlignment = .center
             label.numberOfLines = 1
-            label.lineBreakMode = .byTruncatingTail
             return label
         }()
         

@@ -15,7 +15,6 @@ import UIKit
 @objc protocol CameraPreviewRoutingLogic
 {
     func routeToListFilters(segue: UIStoryboardSegue?)
-    func routeToEditPhoto(segue: UIStoryboardSegue?)
 }
 
 protocol CameraPreviewDataPassing
@@ -45,38 +44,13 @@ class CameraPreviewRouter: NSObject, CameraPreviewRoutingLogic, CameraPreviewDat
         }
     }
     
-    func routeToEditPhoto(segue: UIStoryboardSegue?) {
-        if let segue = segue {
-            guard let dstVC = segue.destination as? EditPhotoViewController,
-                    var dstDS = dstVC.router?.dataStore else { return }
-            
-            passDataToEditPhoto(source: dataStore!, destination: &dstDS)
-            navigateToEditPhoto(source: viewController!, destination: dstVC)
-        } else {
-            let dstVC = EditPhotoViewController()
-            guard var dstDS = dstVC.router?.dataStore else { return }
-            
-            passDataToEditPhoto(source: dataStore!, destination: &dstDS)
-            navigateToEditPhoto(source: viewController!, destination: dstVC)
-        }
-    }
-    
     // MARK: Navigation
     func navigateToListFilters(source: CameraPreviewViewController, destination: ListFiltersViewController) {
         source.show(destination, sender: nil)
     }
     
-    func navigateToEditPhoto(source: CameraPreviewViewController, destination: EditPhotoViewController) {
-        destination.modalPresentationStyle = .fullScreen
-        source.present(destination, animated: true)
-    }
-    
     // MARK: Passing data
     func passDataToListFilters(source: CameraPreviewDataStore, destination: inout ListFiltersDataStore) {
         
-    }
-    
-    func passDataToEditPhoto(source: CameraPreviewDataStore, destination: inout EditPhotoDataStore) {
-        destination.photo = source.selectedPhoto
     }
 }
