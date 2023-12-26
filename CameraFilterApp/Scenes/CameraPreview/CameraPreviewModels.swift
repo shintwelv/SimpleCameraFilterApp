@@ -78,11 +78,6 @@ enum CameraPreview
         }
     }
     
-    enum PauseSession {
-        struct Request {
-        }
-    }
-    
     enum FetchFilters {
         struct Request {
         }
@@ -116,12 +111,6 @@ enum CameraPreview
         struct ViewModel {
             var frameImage: CIImage
             var commandBuffer: MTLCommandBuffer
-        }
-    }
-    
-    enum SelectPhoto {
-        struct Request {
-            var photo: UIImage
         }
     }
 }

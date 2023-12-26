@@ -20,16 +20,14 @@ protocol CameraPreviewBusinessLogic
     func isSignedIn(_ request: CameraPreview.LoginStatus.Request)
     func signOut(_ request: CameraPreview.SignOut.Request)
     func startSession(_ request: CameraPreview.StartSession.Request)
-    func pauseSession(_ request: CameraPreview.PauseSession.Request)
     func applyFilter(_ request: CameraPreview.ApplyFilter.Request)
     func fetchFilters(_ request: CameraPreview.FetchFilters.Request)
-    func selectPhoto(_ request: CameraPreview.SelectPhoto.Request)
     var metalDevice: MTLDevice? { get }
 }
 
 protocol CameraPreviewDataStore
 {
-    var selectedPhoto: UIImage? { get set }
+    //var name: String { get set }
 }
 
 class CameraPreviewInteractor: NSObject, CameraPreviewBusinessLogic, CameraPreviewDataStore
@@ -53,17 +51,9 @@ class CameraPreviewInteractor: NSObject, CameraPreviewBusinessLogic, CameraPrevi
     
     private var appliedFilter: CIFilter?
     
-    var selectedPhoto: UIImage?
-    
     func startSession(_ request: CameraPreview.StartSession.Request) {
         cameraQueue.async {
             self.session.startRunning()
-        }
-    }
-    
-    func pauseSession(_ request: CameraPreview.PauseSession.Request) {
-        cameraQueue.async {
-            self.session.stopRunning()
         }
     }
     
@@ -160,11 +150,6 @@ class CameraPreviewInteractor: NSObject, CameraPreviewBusinessLogic, CameraPrevi
     
     func fetchFilters(_ request: CameraPreview.FetchFilters.Request) {
         self.filtersWorker.fetchFilters()
-    }
-    
-    func selectPhoto(_ request: CameraPreview.SelectPhoto.Request) {
-        let photo = request.photo
-        self.selectedPhoto = photo
     }
     
     private func configureCaptureSession() {
