@@ -12,33 +12,16 @@
 
 import UIKit
 import AVFoundation
-import RxSwift
 
 class CameraPreviewWorker
 {
-    enum CameraError: LocalizedError {
-        case noCamera(String)
+    func getCameraDevice() -> AVCaptureDevice {
+        let discoverySession = AVCaptureDevice.DiscoverySession(deviceTypes: [.builtInWideAngleCamera,.builtInUltraWideCamera], mediaType: .video, position: .back)
         
-        var errorDescription: String? {
-            switch self {
-            case .noCamera(let string):
-                return string
-            }
+        guard let cameraDevice = discoverySession.devices.first else {
+            fatalError("no camera device is available")
         }
+        
+        return cameraDevice
     }
-    
-    var cameraDevice: Single<AVCaptureDevice> = {
-        return Observable<AVCaptureDevice>.create { observer in
-            let discoverySession = AVCaptureDevice.DiscoverySession(deviceTypes: [.builtInWideAngleCamera,.builtInUltraWideCamera], mediaType: .video, position: .back)
-
-            if let cameraDevice = discoverySession.devices.first {
-                observer.onNext(cameraDevice)
-                observer.onCompleted()
-            } else {
-                observer.onError(CameraError.noCamera("사용할 수 있는 카메라가 존재하지 않습니다"))
-            }
-            
-            return Disposables.create()
-        }.asSingle()
-    }()
 }
