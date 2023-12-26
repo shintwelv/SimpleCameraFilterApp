@@ -15,6 +15,8 @@ import UIKit
 @objc protocol CameraPreviewRoutingLogic
 {
     func routeToListFilters(segue: UIStoryboardSegue?)
+    func routeToEditPhoto(segue: UIStoryboardSegue?)
+    func routeToCreateUser(segue: UIStoryboardSegue?)
 }
 
 protocol CameraPreviewDataPassing
@@ -44,13 +46,63 @@ class CameraPreviewRouter: NSObject, CameraPreviewRoutingLogic, CameraPreviewDat
         }
     }
     
+    func routeToEditPhoto(segue: UIStoryboardSegue?) {
+        if let segue = segue {
+            guard let dstVC = segue.destination as? EditPhotoViewController,
+                    var dstDS = dstVC.router?.dataStore else { return }
+            
+            passDataToEditPhoto(source: dataStore!, destination: &dstDS)
+            navigateToEditPhoto(source: viewController!, destination: dstVC)
+        } else {
+            let dstVC = EditPhotoViewController()
+            guard var dstDS = dstVC.router?.dataStore else { return }
+            
+            passDataToEditPhoto(source: dataStore!, destination: &dstDS)
+            navigateToEditPhoto(source: viewController!, destination: dstVC)
+        }
+    }
+    
+    func routeToCreateUser(segue: UIStoryboardSegue?) {
+        if let segue = segue {
+            guard let dstVC = segue.destination as? CreateUserViewController,
+              var dstDS = dstVC.router?.dataStore else { return }
+            
+            passDataToCreateUser(source: dataStore!, destination: &dstDS)
+            navigateToCreateUser(source: viewController!, destination: dstVC)
+        } else {
+            let dstVC = CreateUserViewController()
+            guard var dstDS = dstVC.router?.dataStore else { return }
+            
+            passDataToCreateUser(source: dataStore!, destination: &dstDS)
+            navigateToCreateUser(source: viewController!, destination: dstVC)
+        }
+    }
+    
     // MARK: Navigation
     func navigateToListFilters(source: CameraPreviewViewController, destination: ListFiltersViewController) {
         source.show(destination, sender: nil)
     }
     
+    func navigateToEditPhoto(source: CameraPreviewViewController, destination: EditPhotoViewController) {
+        destination.modalPresentationStyle = .fullScreen
+        source.present(destination, animated: true)
+    }
+    
+    func navigateToCreateUser(source: CameraPreviewViewController, destination: CreateUserViewController) {
+        destination.modalPresentationStyle = .fullScreen
+        source.show(destination, sender: nil)
+    }
+    
     // MARK: Passing data
     func passDataToListFilters(source: CameraPreviewDataStore, destination: inout ListFiltersDataStore) {
+        
+    }
+    
+    func passDataToEditPhoto(source: CameraPreviewDataStore, destination: inout EditPhotoDataStore) {
+        destination.photo = source.selectedPhoto
+    }
+    
+    func passDataToCreateUser(source: CameraPreviewDataStore, destination: inout CreateUserDataStore) {
         
     }
 }

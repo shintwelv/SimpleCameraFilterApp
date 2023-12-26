@@ -6,6 +6,7 @@
 //  Copyright (c) 2023 ___ORGANIZATIONNAME___. All rights reserved.
 
 import UIKit
+import RxSwift
 
 protocol CreateFilterBusinessLogic
 {
@@ -30,21 +31,114 @@ class CreateFilterInteractor: CreateFilterBusinessLogic, CreateFilterDataStore
     
     var filterId: UUID?
     
-    // MARK: CRUD operations
-    func fetchFilter(request: CreateFilter.FetchFilter.Request) {
-        if let filterId = self.filterId {
-            filtersWorker.fetchFilter(filterId: filterId) { [weak self] filter in
+    init() {
+        configureBinding()
+    }
+    
+    private let bag = DisposeBag()
+    
+    private lazy var fetchedFilter: Observable<FiltersWorker.OperationResult<CameraFilter>> = {
+        self.filtersWorker.filter.filter {
+            switch $0 {
+            case .Success(let operation, _) where operation == .fetch: return true
+            case .Failure(let error) where error == .cannotFetch(error.localizedDescription): return true
+            default: return false
+            }
+        }
+    }()
+    
+    private lazy var createdFilter: Observable<FiltersWorker.OperationResult<CameraFilter>> = {
+        self.filtersWorker.filter.filter {
+            switch $0 {
+            case .Success(let operation, _) where operation == .create: return true
+            case .Failure(let error) where error == .cannotCreate(error.localizedDescription): return true
+            default: return false
+            }
+        }
+    }()
+    
+    private lazy var editedFilter: Observable<FiltersWorker.OperationResult<CameraFilter>> = {
+        self.filtersWorker.filter.filter {
+            switch $0 {
+            case .Success(let operation, _) where operation == .update: return true
+            case .Failure(let error) where error == .cannotUpdate(error.localizedDescription): return true
+            default: return false
+            }
+        }
+    }()
+    
+    private lazy var deletedFilter: Observable<FiltersWorker.OperationResult<CameraFilter>> = {
+        self.filtersWorker.filter.filter {
+            switch $0 {
+            case .Success(let operation, _) where operation == .delete: return true
+            case .Failure(let error) where error == .cannotDelete(error.localizedDescription): return true
+            default: return false
+            }
+        }
+    }()
+    
+    private func configureBinding() {
+        self.fetchedFilter.map { (result) -> CameraFilter? in
+            switch result {
+            case .Success(_, let filter): return filter
+            case .Failure(_): return nil
+            }
+        }.subscribe(
+            onNext: { [weak self] filter in
                 guard let self = self else { return }
-                
-                guard let filter = filter else {
-                    let response = CreateFilter.FetchFilter.Response(filter: nil)
-                    self.presenter?.presentFetchedFilter(response: response)
-                    return
-                }
                 
                 let response = CreateFilter.FetchFilter.Response(filter: filter)
                 self.presenter?.presentFetchedFilter(response: response)
             }
+        ).disposed(by: self.bag)
+        
+        self.createdFilter.map { (result) -> CameraFilter? in
+            switch result {
+            case .Success(_, let filter): return filter
+            case .Failure(_): return nil
+            }
+        }.subscribe(
+            onNext: { [weak self] filter in
+                guard let self = self else { return }
+                
+                let response = CreateFilter.CreateFilter.Response(filter: filter)
+                self.presenter?.presentCreatedFilter(response: response)
+            }
+        ).disposed(by: self.bag)
+        
+        self.editedFilter.map { (result) -> CameraFilter? in
+            switch result {
+            case .Success(_, let filter): return filter
+            case .Failure(_): return nil
+            }
+        }.subscribe(
+            onNext: { [weak self] filter in
+                guard let self = self else { return }
+                
+                let response = CreateFilter.EditFilter.Response(filter: filter)
+                self.presenter?.presentEditedFilter(response: response)
+            }
+        ).disposed(by: self.bag)
+        
+        self.deletedFilter.map { (result) -> CameraFilter? in
+            switch result {
+            case .Success(_, let filter): return filter
+            case .Failure(_): return nil
+            }
+        }.subscribe(
+            onNext: { [weak self] filter in
+                guard let self = self else { return }
+                
+                let response = CreateFilter.DeleteFilter.Response(filter: filter)
+                self.presenter?.presentDeletedFilter(response: response)
+            }
+        ).disposed(by: self.bag)
+    }
+    
+    // MARK: CRUD operations
+    func fetchFilter(request: CreateFilter.FetchFilter.Request) {
+        if let filterId = self.filterId {
+            filtersWorker.fetchFilter(filterId: filterId)
         } else {
             let response = CreateFilter.FetchFilter.Response(filter: nil)
             self.presenter?.presentFetchedFilter(response: response)
@@ -115,7 +209,7 @@ class CreateFilterInteractor: CreateFilterBusinessLogic, CreateFilterDataStore
         let inputRadius = request.inputRadius
         let inputLevels = request.inputLevels
         
-        let filter: CameraFilter? = createFilter(filterId: UUID(),
+        let filterToCreate: CameraFilter? = createFilter(filterId: UUID(),
                                                  displayName: filterName,
                                                  systemName: filterSystemName,
                                                  inputColor: inputColor,
@@ -123,13 +217,11 @@ class CreateFilterInteractor: CreateFilterBusinessLogic, CreateFilterDataStore
                                                  inputRadius: inputRadius,
                                                  inputLevels: inputLevels)
         
-        guard let filter = filter else { return }
-        
-        filtersWorker.createFilter(filterToCreate: filter) { [weak self] filter in
-            guard let self = self else { return }
-            
-            let response = CreateFilter.CreateFilter.Response(filter: filter)
-            self.presenter?.presentCreatedFilter(response: response)
+        if let filterToCreate = filterToCreate {
+            filtersWorker.createFilter(filterToCreate: filterToCreate)
+        } else {
+            let response = CreateFilter.EditFilter.Response(filter: nil)
+            self.presenter?.presentEditedFilter(response: response)
         }
     }
     
@@ -151,23 +243,19 @@ class CreateFilterInteractor: CreateFilterBusinessLogic, CreateFilterDataStore
                                           inputRadius: inputRadius,
                                           inputLevels: inputLevels)
         
-        guard let filterToUpdate = filterToUpdate else { return }
-        
-        filtersWorker.updateFilter(filterToUpdate: filterToUpdate) { [weak self] filter in
-            guard let self = self else { return }
-            
-            let response = CreateFilter.EditFilter.Response(filter: filter)
+        if let filterToUpdate = filterToUpdate {
+            self.filtersWorker.updateFilter(filterToUpdate: filterToUpdate)
+        } else {
+            let response = CreateFilter.EditFilter.Response(filter: nil)
             self.presenter?.presentEditedFilter(response: response)
         }
     }
     
     func deleteFilter(request: CreateFilter.DeleteFilter.Request) {
-        guard let filterId = self.filterId else { return }
-        
-        filtersWorker.deleteFilter(filterId: filterId) { [weak self] filter in
-            guard let self = self else { return }
-            
-            let response = CreateFilter.DeleteFilter.Response(filter: filter)
+        if let filterId = self.filterId {
+            self.filtersWorker.deleteFilter(filterId: filterId)
+        } else {
+            let response = CreateFilter.DeleteFilter.Response(filter: nil)
             self.presenter?.presentDeletedFilter(response: response)
         }
     }

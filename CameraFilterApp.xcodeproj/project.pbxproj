@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		C241E0E52B2DDC2500234A36 /* EditPhotoFilterCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C241E0E42B2DDC2500234A36 /* EditPhotoFilterCell.swift */; };
 		C24464492B1B1E3400F0B029 /* ListFilterCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C24464482B1B1E3400F0B029 /* ListFilterCell.swift */; };
 		C244644D2B1B4E7100F0B029 /* CreateFilterInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = C244644C2B1B4E7100F0B029 /* CreateFilterInteractor.swift */; };
 		C24464512B1B4EA100F0B029 /* CreateFilterViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C24464502B1B4EA100F0B029 /* CreateFilterViewController.swift */; };
@@ -21,6 +22,26 @@
 		ED442E6A2B195B5700A030C6 /* FiltersWorker.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED442E692B195B5700A030C6 /* FiltersWorker.swift */; };
 		ED442E6C2B19628900A030C6 /* FilterMemStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED442E6B2B19628900A030C6 /* FilterMemStore.swift */; };
 		EDB191432B2AA92F00DD1BA9 /* CVPixelBuffer+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDB191422B2AA92F00DD1BA9 /* CVPixelBuffer+Extension.swift */; };
+		EDB191212B2971E400DD1BA9 /* RxSwift in Frameworks */ = {isa = PBXBuildFile; productRef = EDB191202B2971E400DD1BA9 /* RxSwift */; };
+		EDBE1C602B2FC4E500C41B37 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = EDBE1C5F2B2FC4E500C41B37 /* GoogleService-Info.plist */; };
+		EDBE1C652B2FEA0900C41B37 /* UserAuthenticationWorker.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDBE1C642B2FEA0900C41B37 /* UserAuthenticationWorker.swift */; };
+		EDBE1C672B30099300C41B37 /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDBE1C662B30099300C41B37 /* User.swift */; };
+		EDBE1C692B300B8400C41B37 /* FirebaseAuthentication.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDBE1C682B300B8400C41B37 /* FirebaseAuthentication.swift */; };
+		EDBE1C6F2B300CD000C41B37 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = EDBE1C6E2B300CD000C41B37 /* FirebaseAnalytics */; };
+		EDBE1C732B300CD000C41B37 /* FirebaseAnalyticsSwift in Frameworks */ = {isa = PBXBuildFile; productRef = EDBE1C722B300CD000C41B37 /* FirebaseAnalyticsSwift */; };
+		EDBE1C792B300D1900C41B37 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = EDBE1C782B300D1900C41B37 /* FirebaseAuth */; };
+		EDBE1C8E2B302F3D00C41B37 /* CreateUserPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDBE1C882B302F3D00C41B37 /* CreateUserPresenter.swift */; };
+		EDBE1C8F2B302F3D00C41B37 /* CreateUserWorker.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDBE1C892B302F3D00C41B37 /* CreateUserWorker.swift */; };
+		EDBE1C902B302F3D00C41B37 /* CreateUserRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDBE1C8A2B302F3D00C41B37 /* CreateUserRouter.swift */; };
+		EDBE1C912B302F3D00C41B37 /* CreateUserModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDBE1C8B2B302F3D00C41B37 /* CreateUserModels.swift */; };
+		EDBE1C922B302F3D00C41B37 /* CreateUserViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDBE1C8C2B302F3D00C41B37 /* CreateUserViewController.swift */; };
+		EDBE1C932B302F3D00C41B37 /* CreateUserInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDBE1C8D2B302F3D00C41B37 /* CreateUserInteractor.swift */; };
+		EDC5DF552B2BE1A60089BCA3 /* EditPhotoPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDC5DF4F2B2BE1A60089BCA3 /* EditPhotoPresenter.swift */; };
+		EDC5DF562B2BE1A60089BCA3 /* EditPhotoWorker.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDC5DF502B2BE1A60089BCA3 /* EditPhotoWorker.swift */; };
+		EDC5DF572B2BE1A60089BCA3 /* EditPhotoRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDC5DF512B2BE1A60089BCA3 /* EditPhotoRouter.swift */; };
+		EDC5DF582B2BE1A60089BCA3 /* EditPhotoModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDC5DF522B2BE1A60089BCA3 /* EditPhotoModels.swift */; };
+		EDC5DF592B2BE1A60089BCA3 /* EditPhotoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDC5DF532B2BE1A60089BCA3 /* EditPhotoViewController.swift */; };
+		EDC5DF5A2B2BE1A60089BCA3 /* EditPhotoInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDC5DF542B2BE1A60089BCA3 /* EditPhotoInteractor.swift */; };
 		EDE29D282B1F120F00C73406 /* SliderPropertyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDE29D272B1F120F00C73406 /* SliderPropertyView.swift */; };
 		EDE29D2A2B1F652500C73406 /* ColorPickerPropertyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDE29D292B1F652500C73406 /* ColorPickerPropertyView.swift */; };
 		EDE29D2C2B1F668F00C73406 /* PropertyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDE29D2B2B1F668F00C73406 /* PropertyView.swift */; };
@@ -39,7 +60,21 @@
 		EDEC73B12B18244A00595A95 /* ListFiltersRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDEC73B02B18244A00595A95 /* ListFiltersRouter.swift */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		ED97386B2B29593F007030CC /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
+		C241E0E42B2DDC2500234A36 /* EditPhotoFilterCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditPhotoFilterCell.swift; sourceTree = "<group>"; };
 		C24464482B1B1E3400F0B029 /* ListFilterCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListFilterCell.swift; sourceTree = "<group>"; };
 		C244644C2B1B4E7100F0B029 /* CreateFilterInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateFilterInteractor.swift; sourceTree = "<group>"; };
 		C24464502B1B4EA100F0B029 /* CreateFilterViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateFilterViewController.swift; sourceTree = "<group>"; };
@@ -56,6 +91,22 @@
 		ED442E692B195B5700A030C6 /* FiltersWorker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FiltersWorker.swift; sourceTree = "<group>"; };
 		ED442E6B2B19628900A030C6 /* FilterMemStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterMemStore.swift; sourceTree = "<group>"; };
 		EDB191422B2AA92F00DD1BA9 /* CVPixelBuffer+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CVPixelBuffer+Extension.swift"; sourceTree = "<group>"; };
+		EDBE1C5F2B2FC4E500C41B37 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		EDBE1C642B2FEA0900C41B37 /* UserAuthenticationWorker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserAuthenticationWorker.swift; sourceTree = "<group>"; };
+		EDBE1C662B30099300C41B37 /* User.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
+		EDBE1C682B300B8400C41B37 /* FirebaseAuthentication.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseAuthentication.swift; sourceTree = "<group>"; };
+		EDBE1C882B302F3D00C41B37 /* CreateUserPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateUserPresenter.swift; sourceTree = "<group>"; };
+		EDBE1C892B302F3D00C41B37 /* CreateUserWorker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateUserWorker.swift; sourceTree = "<group>"; };
+		EDBE1C8A2B302F3D00C41B37 /* CreateUserRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateUserRouter.swift; sourceTree = "<group>"; };
+		EDBE1C8B2B302F3D00C41B37 /* CreateUserModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateUserModels.swift; sourceTree = "<group>"; };
+		EDBE1C8C2B302F3D00C41B37 /* CreateUserViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateUserViewController.swift; sourceTree = "<group>"; };
+		EDBE1C8D2B302F3D00C41B37 /* CreateUserInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateUserInteractor.swift; sourceTree = "<group>"; };
+		EDC5DF4F2B2BE1A60089BCA3 /* EditPhotoPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditPhotoPresenter.swift; sourceTree = "<group>"; };
+		EDC5DF502B2BE1A60089BCA3 /* EditPhotoWorker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditPhotoWorker.swift; sourceTree = "<group>"; };
+		EDC5DF512B2BE1A60089BCA3 /* EditPhotoRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditPhotoRouter.swift; sourceTree = "<group>"; };
+		EDC5DF522B2BE1A60089BCA3 /* EditPhotoModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditPhotoModels.swift; sourceTree = "<group>"; };
+		EDC5DF532B2BE1A60089BCA3 /* EditPhotoViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditPhotoViewController.swift; sourceTree = "<group>"; };
+		EDC5DF542B2BE1A60089BCA3 /* EditPhotoInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditPhotoInteractor.swift; sourceTree = "<group>"; };
 		EDE29D272B1F120F00C73406 /* SliderPropertyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SliderPropertyView.swift; sourceTree = "<group>"; };
 		EDE29D292B1F652500C73406 /* ColorPickerPropertyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorPickerPropertyView.swift; sourceTree = "<group>"; };
 		EDE29D2B2B1F668F00C73406 /* PropertyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PropertyView.swift; sourceTree = "<group>"; };
@@ -79,6 +130,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				EDBE1C792B300D1900C41B37 /* FirebaseAuth in Frameworks */,
+				EDB191212B2971E400DD1BA9 /* RxSwift in Frameworks */,
+				EDBE1C732B300CD000C41B37 /* FirebaseAnalyticsSwift in Frameworks */,
+				EDBE1C6F2B300CD000C41B37 /* FirebaseAnalytics in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -88,8 +143,10 @@
 		C2F1C7FE2B078F37002F732D = {
 			isa = PBXGroup;
 			children = (
+				EDBE1C5F2B2FC4E500C41B37 /* GoogleService-Info.plist */,
 				C2F1C8092B078F37002F732D /* CameraFilterApp */,
 				C2F1C8082B078F37002F732D /* Products */,
+				ED97385B2B29593F007030CC /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -121,6 +178,7 @@
 			isa = PBXGroup;
 			children = (
 				ED442E692B195B5700A030C6 /* FiltersWorker.swift */,
+				EDBE1C642B2FEA0900C41B37 /* UserAuthenticationWorker.swift */,
 			);
 			path = Workers;
 			sourceTree = "<group>";
@@ -129,8 +187,43 @@
 			isa = PBXGroup;
 			children = (
 				ED442E6B2B19628900A030C6 /* FilterMemStore.swift */,
+				EDBE1C682B300B8400C41B37 /* FirebaseAuthentication.swift */,
 			);
 			path = Services;
+			sourceTree = "<group>";
+		};
+		ED97385B2B29593F007030CC /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		EDBE1C872B302EEE00C41B37 /* CreateUser */ = {
+			isa = PBXGroup;
+			children = (
+				EDBE1C8C2B302F3D00C41B37 /* CreateUserViewController.swift */,
+				EDBE1C8D2B302F3D00C41B37 /* CreateUserInteractor.swift */,
+				EDBE1C882B302F3D00C41B37 /* CreateUserPresenter.swift */,
+				EDBE1C8B2B302F3D00C41B37 /* CreateUserModels.swift */,
+				EDBE1C892B302F3D00C41B37 /* CreateUserWorker.swift */,
+				EDBE1C8A2B302F3D00C41B37 /* CreateUserRouter.swift */,
+			);
+			path = CreateUser;
+			sourceTree = "<group>";
+		};
+		EDC5DF4E2B2BE1850089BCA3 /* EditPhoto */ = {
+			isa = PBXGroup;
+			children = (
+				EDC5DF532B2BE1A60089BCA3 /* EditPhotoViewController.swift */,
+				EDC5DF542B2BE1A60089BCA3 /* EditPhotoInteractor.swift */,
+				EDC5DF4F2B2BE1A60089BCA3 /* EditPhotoPresenter.swift */,
+				EDC5DF522B2BE1A60089BCA3 /* EditPhotoModels.swift */,
+				EDC5DF502B2BE1A60089BCA3 /* EditPhotoWorker.swift */,
+				EDC5DF512B2BE1A60089BCA3 /* EditPhotoRouter.swift */,
+				C241E0E42B2DDC2500234A36 /* EditPhotoFilterCell.swift */,
+			);
+			path = EditPhoto;
 			sourceTree = "<group>";
 		};
 		EDE29D2E2B1F6D3D00C73406 /* PropertyViews */ = {
@@ -146,6 +239,8 @@
 		EDEC736A2B145D1400595A95 /* Scenes */ = {
 			isa = PBXGroup;
 			children = (
+				EDBE1C872B302EEE00C41B37 /* CreateUser */,
+				EDC5DF4E2B2BE1850089BCA3 /* EditPhoto */,
 				EDEC739B2B181E0700595A95 /* ListFilters */,
 				EDEC73952B17305200595A95 /* CreateFilter */,
 				EDEC736B2B145D1A00595A95 /* CameraPreview */,
@@ -180,6 +275,7 @@
 			isa = PBXGroup;
 			children = (
 				EDEC73812B14636B00595A95 /* CameraFilter.swift */,
+				EDBE1C662B30099300C41B37 /* User.swift */,
 			);
 			path = Filters;
 			sourceTree = "<group>";
@@ -221,12 +317,19 @@
 				C2F1C8032B078F37002F732D /* Sources */,
 				C2F1C8042B078F37002F732D /* Frameworks */,
 				C2F1C8052B078F37002F732D /* Resources */,
+				ED97386B2B29593F007030CC /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 			);
 			name = CameraFilterApp;
+			packageProductDependencies = (
+				EDB191202B2971E400DD1BA9 /* RxSwift */,
+				EDBE1C6E2B300CD000C41B37 /* FirebaseAnalytics */,
+				EDBE1C722B300CD000C41B37 /* FirebaseAnalyticsSwift */,
+				EDBE1C782B300D1900C41B37 /* FirebaseAuth */,
+			);
 			productName = CameraFilterApp;
 			productReference = C2F1C8072B078F37002F732D /* CameraFilterApp.app */;
 			productType = "com.apple.product-type.application";
@@ -255,6 +358,10 @@
 				Base,
 			);
 			mainGroup = C2F1C7FE2B078F37002F732D;
+			packageReferences = (
+				ED97384A2B295889007030CC /* XCRemoteSwiftPackageReference "RxSwift" */,
+				EDBE1C612B2FC59800C41B37 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+			);
 			productRefGroup = C2F1C8082B078F37002F732D /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -271,6 +378,7 @@
 			files = (
 				C2F1C8172B078F38002F732D /* LaunchScreen.storyboard in Resources */,
 				C2F1C8142B078F38002F732D /* Assets.xcassets in Resources */,
+				EDBE1C602B2FC4E500C41B37 /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -288,25 +396,41 @@
 				C24464532B1B4EAC00F0B029 /* CreateFilterPresenter.swift in Sources */,
 				EDEC73AB2B18242D00595A95 /* ListFiltersPresenter.swift in Sources */,
 				EDEC737F2B145DA400595A95 /* CameraPreviewInteractor.swift in Sources */,
+				EDBE1C8E2B302F3D00C41B37 /* CreateUserPresenter.swift in Sources */,
+				EDC5DF592B2BE1A60089BCA3 /* EditPhotoViewController.swift in Sources */,
+				EDC5DF552B2BE1A60089BCA3 /* EditPhotoPresenter.swift in Sources */,
 				C284660E2B15EC7C006D4E40 /* FilterCell.swift in Sources */,
 				C24464552B1B4EBC00F0B029 /* CreateFilterWorker.swift in Sources */,
 				C2F1C80B2B078F37002F732D /* AppDelegate.swift in Sources */,
 				EDE29D2A2B1F652500C73406 /* ColorPickerPropertyView.swift in Sources */,
 				EDEC737E2B145DA400595A95 /* CameraPreviewViewController.swift in Sources */,
 				EDEC73AD2B18243C00595A95 /* ListFiltersViewController.swift in Sources */,
+				EDBE1C8F2B302F3D00C41B37 /* CreateUserWorker.swift in Sources */,
+				EDBE1C922B302F3D00C41B37 /* CreateUserViewController.swift in Sources */,
 				ED442E6C2B19628900A030C6 /* FilterMemStore.swift in Sources */,
+				EDBE1C912B302F3D00C41B37 /* CreateUserModels.swift in Sources */,
+				C241E0E52B2DDC2500234A36 /* EditPhotoFilterCell.swift in Sources */,
 				C24464492B1B1E3400F0B029 /* ListFilterCell.swift in Sources */,
 				C244644D2B1B4E7100F0B029 /* CreateFilterInteractor.swift in Sources */,
+				EDBE1C902B302F3D00C41B37 /* CreateUserRouter.swift in Sources */,
 				EDEC737C2B145DA400595A95 /* CameraPreviewRouter.swift in Sources */,
 				EDB191432B2AA92F00DD1BA9 /* CVPixelBuffer+Extension.swift in Sources */,
 				EDE29D282B1F120F00C73406 /* SliderPropertyView.swift in Sources */,
 				EDEC739D2B181E1300595A95 /* ListFiltersModels.swift in Sources */,
+				EDC5DF582B2BE1A60089BCA3 /* EditPhotoModels.swift in Sources */,
 				EDEC73822B14636B00595A95 /* CameraFilter.swift in Sources */,
+				EDC5DF572B2BE1A60089BCA3 /* EditPhotoRouter.swift in Sources */,
+				EDBE1C932B302F3D00C41B37 /* CreateUserInteractor.swift in Sources */,
 				EDEC737A2B145DA400595A95 /* CameraPreviewPresenter.swift in Sources */,
+				EDBE1C692B300B8400C41B37 /* FirebaseAuthentication.swift in Sources */,
 				C2F1C80D2B078F37002F732D /* SceneDelegate.swift in Sources */,
 				C24464572B1B4EC200F0B029 /* CreateFilterRouter.swift in Sources */,
 				EDEC73972B17329E00595A95 /* CreateFilterModels.swift in Sources */,
 				EDEC73A92B1823DE00595A95 /* ListFiltersInteractor.swift in Sources */,
+				EDBE1C652B2FEA0900C41B37 /* UserAuthenticationWorker.swift in Sources */,
+				EDC5DF5A2B2BE1A60089BCA3 /* EditPhotoInteractor.swift in Sources */,
+				EDBE1C672B30099300C41B37 /* User.swift in Sources */,
+				EDC5DF562B2BE1A60089BCA3 /* EditPhotoWorker.swift in Sources */,
 				EDEC737D2B145DA400595A95 /* CameraPreviewModels.swift in Sources */,
 				EDEC737B2B145DA400595A95 /* CameraPreviewWorker.swift in Sources */,
 			);
@@ -537,6 +661,48 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		ED97384A2B295889007030CC /* XCRemoteSwiftPackageReference "RxSwift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/ReactiveX/RxSwift";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 6.6.0;
+			};
+		};
+		EDBE1C612B2FC59800C41B37 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 10.19.1;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		EDB191202B2971E400DD1BA9 /* RxSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = ED97384A2B295889007030CC /* XCRemoteSwiftPackageReference "RxSwift" */;
+			productName = RxSwift;
+		};
+		EDBE1C6E2B300CD000C41B37 /* FirebaseAnalytics */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = EDBE1C612B2FC59800C41B37 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAnalytics;
+		};
+		EDBE1C722B300CD000C41B37 /* FirebaseAnalyticsSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = EDBE1C612B2FC59800C41B37 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAnalyticsSwift;
+		};
+		EDBE1C782B300D1900C41B37 /* FirebaseAuth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = EDBE1C612B2FC59800C41B37 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAuth;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = C2F1C7FF2B078F37002F732D /* Project object */;
 }
