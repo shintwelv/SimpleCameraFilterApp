@@ -32,10 +32,4 @@ enum ListFilters
             var filterInfos: [FilterInfo]
         }
     }
-    
-    enum SelectFilter {
-        struct Request {
-            var filterId: UUID?
-        }
-    }
 }

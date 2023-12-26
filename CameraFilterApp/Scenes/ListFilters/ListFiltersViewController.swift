@@ -104,8 +104,6 @@ class ListFiltersViewController: UIViewController, ListFiltersDisplayLogic
         
         self.filterCollectionView.delegate = self
         
-        self.filterAddButton.addTarget(self, action: #selector(filterAddButtonTapped), for: .touchUpInside)
-        
         self.filterCollectionView.register(ListFilterCell.self, forCellWithReuseIdentifier: "listFilterCell")
     }
     
@@ -147,16 +145,6 @@ class ListFiltersViewController: UIViewController, ListFiltersDisplayLogic
             self.filterCollectionView.trailingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.trailingAnchor),
             self.filterCollectionView.bottomAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.bottomAnchor)
         ])
-    }
-    
-    @objc private func filterAddButtonTapped(_ button: UIButton) {
-        let request = ListFilters.SelectFilter.Request(filterId: nil)
-        interactor?.selectFilter(request: request)
-        
-        let selector = NSSelectorFromString("routeToCreateFilterWithSegue:")
-        if let router = router, router.responds(to: selector) {
-            router.perform(selector, with: nil)
-        }
     }
     
     // MARK: Fetched filters

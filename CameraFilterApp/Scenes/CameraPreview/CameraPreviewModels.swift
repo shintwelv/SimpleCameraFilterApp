@@ -17,22 +17,12 @@ enum CameraPreview
 {
     // MARK: Use cases
     
-    struct FilterInfo {
-        var filterId: UUID
-        var filterName: String
-    }
-    
     enum StartSession {
         struct Request {
         }
         struct Response {
         }
         struct ViewModel {
-        }
-    }
-    
-    enum PauseSession {
-        struct Request {
         }
     }
     
@@ -43,13 +33,13 @@ enum CameraPreview
             var filters: [CameraFilter]
         }
         struct ViewModel {
-            var filterInfos: [FilterInfo]
+            var filterNames: [String]
         }
     }
     
     enum ApplyFilter {
         struct Request {
-            var filterId: UUID
+            var filterName: String
         }
         struct Response {
             
@@ -69,12 +59,6 @@ enum CameraPreview
         struct ViewModel {
             var frameImage: CIImage
             var commandBuffer: MTLCommandBuffer
-        }
-    }
-    
-    enum SelectPhoto {
-        struct Request {
-            var photo: UIImage
         }
     }
 }

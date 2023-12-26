@@ -30,14 +30,7 @@ class CameraPreviewPresenter: CameraPreviewPresentationLogic
         var filterNames:[String] = filters.map { $0.displayName }
         filterNames.insert("원본", at: 0)
         
-        var filterInfos = filters.map {
-            return CameraPreview.FilterInfo(filterId: $0.filterId, filterName: $0.displayName)
-        }
-        filterInfos.insert(
-            CameraPreview.FilterInfo(filterId: UUID(), filterName: "원본"),
-            at:0)
-        
-        let viewModel = CameraPreview.FetchFilters.ViewModel(filterInfos: filterInfos)
+        let viewModel = CameraPreview.FetchFilters.ViewModel(filterNames: filterNames)
         viewController?.displayFilterNames(viewModel: viewModel)
     }
     

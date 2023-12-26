@@ -9,51 +9,47 @@ import UIKit
 
 @objc protocol ListFiltersRoutingLogic
 {
-    func routeToCreateFilter(segue: UIStoryboardSegue?)
+  //func routeToSomewhere(segue: UIStoryboardSegue?)
 }
 
 protocol ListFiltersDataPassing
 {
-    var dataStore: ListFiltersDataStore? { get }
+  var dataStore: ListFiltersDataStore? { get }
 }
 
 class ListFiltersRouter: NSObject, ListFiltersRoutingLogic, ListFiltersDataPassing
 {
-    weak var viewController: ListFiltersViewController?
-    var dataStore: ListFiltersDataStore?
-    
-    // MARK: Routing
-    
-    func routeToCreateFilter(segue: UIStoryboardSegue?) {
-        guard let dataStore = self.dataStore,
-              let viewController = self.viewController else { return }
-        
-        if let segue = segue {
-            guard let dstVC = segue.destination as? CreateFilterViewController,
-                  var dstDS = dstVC.router?.dataStore else { return }
-            
-            passDataToCreateFilter(source: dataStore, destination: &dstDS)
-            navigateToCreateFilter(source: viewController, destination: dstVC)
-        } else {
-            let dstVC = CreateFilterViewController()
-            
-            guard var dstDS = dstVC.router?.dataStore else { return }
-            
-            passDataToCreateFilter(source: dataStore, destination: &dstDS)
-            navigateToCreateFilter(source: viewController, destination: dstVC)
-        }
-    }
-    
-    // MARK: Navigation
-    
-    func navigateToCreateFilter(source: ListFiltersViewController, destination: CreateFilterViewController) {
-        destination.modalPresentationStyle = .fullScreen
-        source.show(destination, sender: nil)
-    }
-    
-    // MARK: Passing data
-    
-    func passDataToCreateFilter(source: ListFiltersDataStore, destination: inout CreateFilterDataStore) {
-        destination.filterId = source.selectedFilterId
-    }
+  weak var viewController: ListFiltersViewController?
+  var dataStore: ListFiltersDataStore?
+  
+  // MARK: Routing
+  
+  //func routeToSomewhere(segue: UIStoryboardSegue?)
+  //{
+  //  if let segue = segue {
+  //    let destinationVC = segue.destination as! SomewhereViewController
+  //    var destinationDS = destinationVC.router!.dataStore!
+  //    passDataToSomewhere(source: dataStore!, destination: &destinationDS)
+  //  } else {
+  //    let storyboard = UIStoryboard(name: "Main", bundle: nil)
+  //    let destinationVC = storyboard.instantiateViewController(withIdentifier: "SomewhereViewController") as! SomewhereViewController
+  //    var destinationDS = destinationVC.router!.dataStore!
+  //    passDataToSomewhere(source: dataStore!, destination: &destinationDS)
+  //    navigateToSomewhere(source: viewController!, destination: destinationVC)
+  //  }
+  //}
+
+  // MARK: Navigation
+  
+  //func navigateToSomewhere(source: ListFiltersViewController, destination: SomewhereViewController)
+  //{
+  //  source.show(destination, sender: nil)
+  //}
+  
+  // MARK: Passing data
+  
+  //func passDataToSomewhere(source: ListFiltersDataStore, destination: inout SomewhereDataStore)
+  //{
+  //  destination.name = source.name
+  //}
 }
