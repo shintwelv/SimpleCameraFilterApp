@@ -19,6 +19,7 @@ protocol CameraPreviewBusinessLogic
     func startSession(_ request: CameraPreview.StartSession.Request)
     func applyFilter(_ request: CameraPreview.ApplyFilter.Request)
     func fetchFilters(_ request: CameraPreview.FetchFilters.Request)
+    func takePhoto(_ request: CameraPreview.TakePhoto.Request)
     var metalDevice: MTLDevice? { get }
 }
 
@@ -31,10 +32,13 @@ class CameraPreviewInteractor: NSObject, CameraPreviewBusinessLogic, CameraPrevi
 {
     var presenter: CameraPreviewPresentationLogic?
     var worker: CameraPreviewWorker = CameraPreviewWorker()
+    var filtersWorker: FiltersWorker = FiltersWorker(filtersStore: FilterMemStore())
     
     
     private let cameraQueue = DispatchQueue(label: "cameraQueue")
     private let videoQueue = DispatchQueue(label: "videoQueue")
+    private let imageProcessQueue = DispatchQueue(label: "imageProcessQueue")
+    private let takePhotoQueue = DispatchQueue(label: "takePhotoQueue")
     
     private let session = AVCaptureSession()
     
@@ -47,6 +51,8 @@ class CameraPreviewInteractor: NSObject, CameraPreviewBusinessLogic, CameraPrevi
     
     private var appliedFilter: CIFilter?
     
+    private var takingPhoto: Bool = false
+    
     func startSession(_ request: CameraPreview.StartSession.Request) {
         self.configureCaptureSession()
         cameraQueue.async {
@@ -54,18 +60,25 @@ class CameraPreviewInteractor: NSObject, CameraPreviewBusinessLogic, CameraPrevi
         }
     }
     
+    func takePhoto(_ request: CameraPreview.TakePhoto.Request) {
+        takingPhoto = true
+    }
+    
     func applyFilter(_ request: CameraPreview.ApplyFilter.Request) {
-        let filterName = request.filterName
+        let filterId = request.filterId
         
-        let filter = worker.getFilter(by: filterName)
-        
-        self.appliedFilter = filter?.ciFilter ?? nil
+        filtersWorker.fetchFilter(filterId: filterId) { [weak self] filter in
+            guard let self = self else { return }
+            self.appliedFilter = filter?.ciFilter ?? nil
+        }
     }
     
     func fetchFilters(_ request: CameraPreview.FetchFilters.Request) {
-        let filters: [CameraFilter] = worker.allFilters
-        let response = CameraPreview.FetchFilters.Response(filters: filters)
-        presenter?.presentAllFilters(response: response)
+        filtersWorker.fetchFilters { [weak self] filters in
+            guard let self = self else { return }
+            let response = CameraPreview.FetchFilters.Response(filters: filters)
+            self.presenter?.presentAllFilters(response: response)
+        }
     }
     
     private func configureCaptureSession() {
@@ -96,18 +109,36 @@ extension CameraPreviewInteractor: AVCaptureVideoDataOutputSampleBufferDelegate 
             return
         }
         
-        let ciImage = CIImage(cvImageBuffer: cvBuffer)
+        let copyBuffer = cvBuffer.copy()
+        
+        let ciImage = CIImage(cvImageBuffer: copyBuffer)
         if let _ = self.appliedFilter {
-            guard let filteredImage = applyFilter(inputImage: ciImage) else {
-                return
+            guard let filteredImage = applyFilter(inputImage: ciImage) else { return }
+            
+            if self.takingPhoto {
+                takePhotoQueue.async {
+                    self.takingPhoto = false
+                    
+                    guard let uiImage = self.convert(filteredImage) else { return }
+                    UIImageWriteToSavedPhotosAlbum(uiImage, self, #selector(self.imageSaved(_:didFinishSavingWithError:contextInfo:)), nil)
+                }
             }
             
             let response = CameraPreview.DrawFrameImage.Response(frameImage: filteredImage, commandBuffer: commandBuffer)
             
             presenter?.presentFrameImage(response: response)
         } else {
+            if self.takingPhoto {
+                takePhotoQueue.async {
+                    self.takingPhoto = false
+                    
+                    guard let uiImage = self.convert(ciImage) else { return }
+                    UIImageWriteToSavedPhotosAlbum(uiImage, self, #selector(self.imageSaved(_:didFinishSavingWithError:contextInfo:)), nil)
+                }
+            }
+            
             let response = CameraPreview.DrawFrameImage.Response(frameImage: ciImage, commandBuffer: commandBuffer)
-
+            
             presenter?.presentFrameImage(response: response)
         }
     }
@@ -119,5 +150,21 @@ extension CameraPreviewInteractor: AVCaptureVideoDataOutputSampleBufferDelegate 
         filteredImage = self.appliedFilter?.outputImage
         
         return filteredImage
+    }
+    
+    @objc private func imageSaved(_ image: UIImage, didFinishSavingWithError error: NSError?, contextInfo: UnsafeRawPointer) {
+        if let error = error {
+            print("Saving Photo Error: \(error.localizedDescription)")
+        } else {
+            let response = CameraPreview.TakePhoto.Response()
+            self.presenter?.presentTakePhotoCompletion(response: response)
+        }
+    }
+    
+    private func convert(_ ciImage:CIImage) -> UIImage? {
+        let context:CIContext = CIContext(options: nil)
+        guard let cgImage:CGImage = context.createCGImage(ciImage, from: ciImage.extent) else { return nil }
+        let image:UIImage = UIImage(cgImage: cgImage)
+        return image
     }
 }

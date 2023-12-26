@@ -17,6 +17,7 @@ protocol CameraPreviewDisplayLogic: AnyObject
 {
     func displayFilterNames(viewModel: CameraPreview.FetchFilters.ViewModel)
     func displayFrameImage(viewModel: CameraPreview.DrawFrameImage.ViewModel)
+    func displayTakePhotoCopmletion(viewModel: CameraPreview.TakePhoto.ViewModel)
 }
 
 class CameraPreviewViewController: UIViewController, CameraPreviewDisplayLogic
@@ -121,7 +122,7 @@ class CameraPreviewViewController: UIViewController, CameraPreviewDisplayLogic
         return collectionView
     }()
     
-    private var filterNames:[String] = []
+    private var filterInfos:[CameraPreview.FilterInfo] = []
     
     private var ciContext: CIContext?
     private var currentCIImage: CIImage?
@@ -135,8 +136,6 @@ class CameraPreviewViewController: UIViewController, CameraPreviewDisplayLogic
         configureUI()
         configureAutoLayout()
         configureMTKView()
-        
-        fetchFilterNames()
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -235,6 +234,10 @@ class CameraPreviewViewController: UIViewController, CameraPreviewDisplayLogic
     }
 
     @objc private func filterToggleButtonTapped(_ button: UIButton) {
+        if self.filterCollectionView.isHidden {
+            fetchFilterNames()
+        }
+        
         self.filterCollectionView.isHidden.toggle()
         self.filterEditButton.isHidden.toggle()
         self.galleryButton.isHidden.toggle()
@@ -242,6 +245,8 @@ class CameraPreviewViewController: UIViewController, CameraPreviewDisplayLogic
     }
     
     @objc private func filterEditButtonTapped(_ button: UIButton) {
+        self.filterToggleButtonTapped(self.filterToggleButton)
+        
         let selector = NSSelectorFromString("routeToListFiltersWithSegue:")
         if let router = router, router.responds(to: selector) {
             router.perform(selector, with: nil)
@@ -249,7 +254,15 @@ class CameraPreviewViewController: UIViewController, CameraPreviewDisplayLogic
     }
     
     @objc private func shotButtonTapped(_ button: UIButton) {
-        print(#function)
+        UIView.animate(withDuration: 0.1, delay: 0.0) {
+            self.previewMTKView.alpha = 0.5
+        }
+        UIView.animate(withDuration: 0.1, delay: 0.1) {
+            self.previewMTKView.alpha = 1.0
+        }
+        self.shotButton.isEnabled = false
+        let request = CameraPreview.TakePhoto.Request()
+        self.interactor?.takePhoto(request)
     }
     
     @objc private func galleryButtonTapped(_ button: UIButton) {
@@ -263,7 +276,7 @@ class CameraPreviewViewController: UIViewController, CameraPreviewDisplayLogic
     }
     
     func displayFilterNames(viewModel: CameraPreview.FetchFilters.ViewModel) {
-        self.filterNames = viewModel.filterNames
+        self.filterInfos = viewModel.filterInfos
         self.filterCollectionView.reloadData()
     }
     
@@ -272,6 +285,12 @@ class CameraPreviewViewController: UIViewController, CameraPreviewDisplayLogic
         self.currentBuffer = viewModel.commandBuffer
         
         self.previewMTKView.draw()
+    }
+    
+    func displayTakePhotoCopmletion(viewModel: CameraPreview.TakePhoto.ViewModel) {
+        DispatchQueue.main.async {
+            self.shotButton.isEnabled = true
+        }
     }
 }
 
@@ -305,19 +324,21 @@ extension CameraPreviewViewController: UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "filterCell", for: indexPath) as? FilterCell else { return UICollectionViewCell() }
         
-        cell.configure(name: filterNames[indexPath.row])
+        let filterInfo = filterInfos[indexPath.row]
+        
+        cell.configure(name: filterInfo.filterName)
         return cell
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return self.filterNames.count
+        return self.filterInfos.count
     }
 }
 
 extension CameraPreviewViewController: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        let filterName = filterNames[indexPath.item]
-        let request = CameraPreview.ApplyFilter.Request(filterName: filterName)
+        let filterId = filterInfos[indexPath.item].filterId
+        let request = CameraPreview.ApplyFilter.Request(filterId: filterId)
         interactor?.applyFilter(request)
     }
 }

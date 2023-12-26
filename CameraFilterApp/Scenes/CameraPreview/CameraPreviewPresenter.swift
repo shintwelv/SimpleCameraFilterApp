@@ -16,6 +16,7 @@ protocol CameraPreviewPresentationLogic
 {
     func presentAllFilters(response: CameraPreview.FetchFilters.Response)
     func presentFrameImage(response: CameraPreview.DrawFrameImage.Response)
+    func presentTakePhotoCompletion(response: CameraPreview.TakePhoto.Response)
 }
 
 class CameraPreviewPresenter: CameraPreviewPresentationLogic
@@ -30,7 +31,14 @@ class CameraPreviewPresenter: CameraPreviewPresentationLogic
         var filterNames:[String] = filters.map { $0.displayName }
         filterNames.insert("원본", at: 0)
         
-        let viewModel = CameraPreview.FetchFilters.ViewModel(filterNames: filterNames)
+        var filterInfos = filters.map {
+            return CameraPreview.FilterInfo(filterId: $0.filterId, filterName: $0.displayName)
+        }
+        filterInfos.insert(
+            CameraPreview.FilterInfo(filterId: UUID(), filterName: "원본"),
+            at:0)
+        
+        let viewModel = CameraPreview.FetchFilters.ViewModel(filterInfos: filterInfos)
         viewController?.displayFilterNames(viewModel: viewModel)
     }
     
@@ -40,5 +48,10 @@ class CameraPreviewPresenter: CameraPreviewPresentationLogic
         
         let viewModel = CameraPreview.DrawFrameImage.ViewModel(frameImage: frameImage, commandBuffer: commandBuffer)
         viewController?.displayFrameImage(viewModel: viewModel)
+    }
+    
+    func presentTakePhotoCompletion(response: CameraPreview.TakePhoto.Response) {
+        let viewModel = CameraPreview.TakePhoto.ViewModel()
+        self.viewController?.displayTakePhotoCopmletion(viewModel: viewModel)
     }
 }
