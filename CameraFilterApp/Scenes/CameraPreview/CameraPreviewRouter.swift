@@ -31,13 +31,15 @@ class CameraPreviewRouter: NSObject, CameraPreviewRoutingLogic, CameraPreviewDat
     // MARK: Routing
     func routeToListFilters(segue: UIStoryboardSegue?) {
         if let segue = segue {
-            let dstVC = segue.destination as! ListFiltersViewController
-            var dstDS = dstVC.router!.dataStore!
+            guard let dstVC = segue.destination as? ListFiltersViewController,
+                    var dstDS = dstVC.router?.dataStore else { return }
+            
             passDataToListFilters(source: dataStore!, destination: &dstDS)
             navigateToListFilters(source: viewController!, destination: dstVC)
         } else {
             let dstVC = ListFiltersViewController()
-            var dstDS = dstVC.router!.dataStore!
+            guard var dstDS = dstVC.router?.dataStore else { return }
+            
             passDataToListFilters(source: dataStore!, destination: &dstDS)
             navigateToListFilters(source: viewController!, destination: dstVC)
         }
