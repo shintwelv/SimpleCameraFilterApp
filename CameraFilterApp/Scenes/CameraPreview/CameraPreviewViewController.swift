@@ -12,7 +12,6 @@
 
 import UIKit
 import MetalKit
-import PhotosUI
 
 protocol CameraPreviewDisplayLogic: AnyObject
 {
@@ -139,17 +138,8 @@ class CameraPreviewViewController: UIViewController, CameraPreviewDisplayLogic
     }
     
     override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-        
         let request = CameraPreview.StartSession.Request()
         interactor?.startSession(request)
-    }
-    
-    override func viewDidDisappear(_ animated: Bool) {
-        super.viewDidDisappear(animated)
-        
-        let request = CameraPreview.PauseSession.Request()
-        interactor?.pauseSession(request)
     }
     
     private func configureUI() {
@@ -267,14 +257,7 @@ class CameraPreviewViewController: UIViewController, CameraPreviewDisplayLogic
     }
     
     @objc private func galleryButtonTapped(_ button: UIButton) {
-        var configuration = PHPickerConfiguration()
-        configuration.selectionLimit = 1
-        configuration.filter = .images
-        
-        let picker = PHPickerViewController(configuration: configuration)
-        picker.delegate = self
-        
-        self.present(picker, animated: true)
+        print(#function)
     }
     
     // MARK: Do something
@@ -342,33 +325,5 @@ extension CameraPreviewViewController: UICollectionViewDelegate {
         let filterId = filterInfos[indexPath.item].filterId
         let request = CameraPreview.ApplyFilter.Request(filterId: filterId)
         interactor?.applyFilter(request)
-    }
-}
-
-extension CameraPreviewViewController: PHPickerViewControllerDelegate {
-    func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
-        picker.dismiss(animated: true)
-        
-        let itemProvider = results.first?.itemProvider
-        
-        if let itemProvider = itemProvider, 
-            itemProvider.canLoadObject(ofClass: UIImage.self) {
-            itemProvider.loadObject(ofClass: UIImage.self) { [weak self] image, error in
-                guard let self = self,
-                    let image = image as? UIImage else { return }
-                
-                DispatchQueue.main.async {
-                    let request = CameraPreview.SelectPhoto.Request(photo: image)
-                    self.interactor?.selectPhoto(request)
-                    
-                    let selector = NSSelectorFromString("routeToEditPhotoWithSegue:")
-                    if let router = self.router, router.responds(to: selector) {
-                        router.perform(selector, with: nil)
-                    }
-                }
-            }
-        } else {
-            print("cannot load image")
-        }
     }
 }
