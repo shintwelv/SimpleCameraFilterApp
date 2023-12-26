@@ -20,6 +20,7 @@
 		C2F1C8172B078F38002F732D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = C2F1C8152B078F38002F732D /* LaunchScreen.storyboard */; };
 		ED442E6A2B195B5700A030C6 /* FiltersWorker.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED442E692B195B5700A030C6 /* FiltersWorker.swift */; };
 		ED442E6C2B19628900A030C6 /* FilterMemStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED442E6B2B19628900A030C6 /* FilterMemStore.swift */; };
+		EDB191432B2AA92F00DD1BA9 /* CVPixelBuffer+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDB191422B2AA92F00DD1BA9 /* CVPixelBuffer+Extension.swift */; };
 		EDE29D282B1F120F00C73406 /* SliderPropertyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDE29D272B1F120F00C73406 /* SliderPropertyView.swift */; };
 		EDE29D2A2B1F652500C73406 /* ColorPickerPropertyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDE29D292B1F652500C73406 /* ColorPickerPropertyView.swift */; };
 		EDE29D2C2B1F668F00C73406 /* PropertyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDE29D2B2B1F668F00C73406 /* PropertyView.swift */; };
@@ -54,6 +55,7 @@
 		C2F1C8182B078F38002F732D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		ED442E692B195B5700A030C6 /* FiltersWorker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FiltersWorker.swift; sourceTree = "<group>"; };
 		ED442E6B2B19628900A030C6 /* FilterMemStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterMemStore.swift; sourceTree = "<group>"; };
+		EDB191422B2AA92F00DD1BA9 /* CVPixelBuffer+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CVPixelBuffer+Extension.swift"; sourceTree = "<group>"; };
 		EDE29D272B1F120F00C73406 /* SliderPropertyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SliderPropertyView.swift; sourceTree = "<group>"; };
 		EDE29D292B1F652500C73406 /* ColorPickerPropertyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorPickerPropertyView.swift; sourceTree = "<group>"; };
 		EDE29D2B2B1F668F00C73406 /* PropertyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PropertyView.swift; sourceTree = "<group>"; };
@@ -161,6 +163,7 @@
 				EDEC73752B145DA400595A95 /* CameraPreviewWorker.swift */,
 				EDEC73762B145DA400595A95 /* CameraPreviewRouter.swift */,
 				C284660D2B15EC7C006D4E40 /* FilterCell.swift */,
+				EDB191422B2AA92F00DD1BA9 /* CVPixelBuffer+Extension.swift */,
 			);
 			path = CameraPreview;
 			sourceTree = "<group>";
@@ -295,6 +298,7 @@
 				C24464492B1B1E3400F0B029 /* ListFilterCell.swift in Sources */,
 				C244644D2B1B4E7100F0B029 /* CreateFilterInteractor.swift in Sources */,
 				EDEC737C2B145DA400595A95 /* CameraPreviewRouter.swift in Sources */,
+				EDB191432B2AA92F00DD1BA9 /* CVPixelBuffer+Extension.swift in Sources */,
 				EDE29D282B1F120F00C73406 /* SliderPropertyView.swift in Sources */,
 				EDEC739D2B181E1300595A95 /* ListFiltersModels.swift in Sources */,
 				EDEC73822B14636B00595A95 /* CameraFilter.swift in Sources */,
