@@ -17,6 +17,8 @@ import RxSwift
 
 protocol CameraPreviewBusinessLogic
 {
+    func isSignedIn(_ request: CameraPreview.LoginStatus.Request)
+    func signOut(_ request: CameraPreview.SignOut.Request)
     func startSession(_ request: CameraPreview.StartSession.Request)
     func applyFilter(_ request: CameraPreview.ApplyFilter.Request)
     func fetchFilters(_ request: CameraPreview.FetchFilters.Request)
@@ -33,7 +35,7 @@ class CameraPreviewInteractor: NSObject, CameraPreviewBusinessLogic, CameraPrevi
     var presenter: CameraPreviewPresentationLogic?
     var worker: CameraPreviewWorker = CameraPreviewWorker()
     var filtersWorker: FiltersWorker = FiltersWorker(filtersStore: FilterMemStore())
-    
+    var authenticateProvider = UserAuthenticationWorker(provider: FirebaseAuthentication())
     
     private let cameraQueue = DispatchQueue(label: "cameraQueue")
     private let videoQueue = DispatchQueue(label: "videoQueue")
@@ -105,6 +107,40 @@ class CameraPreviewInteractor: NSObject, CameraPreviewBusinessLogic, CameraPrevi
                 self.presenter?.presentAllFilters(response: response)
             }
         ).disposed(by: self.bag)
+    }
+    
+    func isSignedIn(_ request: CameraPreview.LoginStatus.Request) {
+        authenticateProvider.loggedInUser { [weak self] authResult in
+            guard let self = self else { return }
+            
+            switch authResult {
+            case .Success(let user):
+                let userResult = CameraPreview.UserResult.Success(result: user)
+                let response = CameraPreview.LoginStatus.Response(signedInUser: userResult)
+                self.presenter?.presentLoginStatus(response: response)
+            case .Failure(let error):
+                let userResult = CameraPreview.UserResult<User?>.Failure(error: .cannotCheckLogin("\(error)"))
+                let response = CameraPreview.LoginStatus.Response(signedInUser: userResult)
+                self.presenter?.presentLoginStatus(response: response)
+            }
+        }
+    }
+    
+    func signOut(_ request: CameraPreview.SignOut.Request) {
+        authenticateProvider.logOut { [weak self] authResult in
+            guard let self = self else { return }
+            
+            switch authResult {
+            case .Success(let user):
+                let userResult = CameraPreview.UserResult<User>.Success(result: user)
+                let response = CameraPreview.SignOut.Response(signedOutUser: userResult)
+                self.presenter?.presentSignedOutUser(response: response)
+            case .Failure(let error):
+                let userResult = CameraPreview.UserResult<User>.Failure(error: .cannotSignOut("\(error)"))
+                let response = CameraPreview.SignOut.Response(signedOutUser: userResult)
+                self.presenter?.presentSignedOutUser(response: response)
+            }
+        }
     }
     
     func applyFilter(_ request: CameraPreview.ApplyFilter.Request) {

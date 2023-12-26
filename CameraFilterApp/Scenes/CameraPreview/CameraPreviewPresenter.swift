@@ -14,6 +14,8 @@ import UIKit
 
 protocol CameraPreviewPresentationLogic
 {
+    func presentLoginStatus(response: CameraPreview.LoginStatus.Response)
+    func presentSignedOutUser(response: CameraPreview.SignOut.Response)
     func presentAllFilters(response: CameraPreview.FetchFilters.Response)
     func presentFrameImage(response: CameraPreview.DrawFrameImage.Response)
 }
@@ -23,6 +25,37 @@ class CameraPreviewPresenter: CameraPreviewPresentationLogic
     weak var viewController: CameraPreviewDisplayLogic?
     
     // MARK: Do something
+    
+    func presentLoginStatus(response: CameraPreview.LoginStatus.Response) {
+        let signedInUser = response.signedInUser
+        
+        switch signedInUser {
+        case .Success(let user):
+            if let user = user {
+                let viewModel = CameraPreview.LoginStatus.ViewModel(signedInUserEmail: user.email)
+                self.viewController?.displayLoginStatus(viewModel: viewModel)
+            } else {
+                let viewModel = CameraPreview.LoginStatus.ViewModel(signedInUserEmail: nil)
+                self.viewController?.displayLoginStatus(viewModel: viewModel)
+            }
+        case .Failure(_):
+            let viewModel = CameraPreview.LoginStatus.ViewModel(signedInUserEmail: nil)
+            self.viewController?.displayLoginStatus(viewModel: viewModel)
+        }
+    }
+    
+    func presentSignedOutUser(response: CameraPreview.SignOut.Response) {
+        let signedOutUser = response.signedOutUser
+        
+        switch signedOutUser {
+        case .Success(let user):
+            let viewModel = CameraPreview.SignOut.ViewModel(signedOutUserEmail: user.email)
+            self.viewController?.displaySignedOutUser(viewModel: viewModel)
+        case .Failure(_):
+            let viewModel = CameraPreview.SignOut.ViewModel(signedOutUserEmail: nil)
+            self.viewController?.displaySignedOutUser(viewModel: viewModel)
+        }
+    }
     
     func presentAllFilters(response: CameraPreview.FetchFilters.Response) {
         let filters = response.filters
