@@ -68,16 +68,56 @@ class CameraPreviewViewController: UIViewController, CameraPreviewDisplayLogic
     
     private var previewMTKView: MTKView = MTKView()
     
+    private var bottomContentView: UIView = {
+        let view = UIView()
+        view.backgroundColor = .white
+        return view
+    }()
+    
+    private var galleryButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setImage(UIImage(systemName: "photo"), for: .normal)
+        button.backgroundColor = .systemGray6
+        button.layer.cornerRadius = 30
+        return button
+    }()
+    
+    private var shotButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.layer.borderColor = UIColor.systemPurple.cgColor
+        button.layer.borderWidth = 5
+        button.layer.cornerRadius = 40
+        return button
+    }()
+    
+    private var filterToggleButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setImage(UIImage(systemName: "camera.filters"), for: .normal)
+        button.backgroundColor = .systemGray6
+        button.layer.cornerRadius = 30
+        return button
+    }()
+    
+    private var filterEditButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setTitle("편집", for: .normal)
+        button.tintColor = .systemPurple
+        button.titleLabel?.font = .systemFont(ofSize: 18)
+        button.isHidden = true
+        return button
+    }()
+    
     private var filterCollectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .horizontal
-        layout.itemSize = CGSize(width: 80, height: 120)
+        layout.itemSize = CGSize(width: 80, height: 80)
         
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.isScrollEnabled = true
         collectionView.contentInset = UIEdgeInsets(top: 0, left: 15, bottom: 0, right: 15)
         collectionView.showsVerticalScrollIndicator = false
         collectionView.showsHorizontalScrollIndicator = false
+        collectionView.isHidden = true
         return collectionView
     }()
     
@@ -107,8 +147,23 @@ class CameraPreviewViewController: UIViewController, CameraPreviewDisplayLogic
     private func configureUI() {
         self.view.backgroundColor = .white
         
-        self.view.addSubview(self.previewMTKView)
-        self.view.addSubview(self.filterCollectionView)
+        [
+            self.previewMTKView,
+            self.bottomContentView
+        ].forEach { self.view.addSubview($0) }
+        
+        [
+            self.filterToggleButton,
+            self.filterEditButton,
+            self.filterCollectionView,
+            self.galleryButton,
+            self.shotButton
+        ].forEach { self.bottomContentView.addSubview($0) }
+        
+        self.filterToggleButton.addTarget(self, action: #selector(filterToggleButtonTapped), for: .touchUpInside)
+        self.filterEditButton.addTarget(self, action: #selector(filterEditButtonTapped), for: .touchUpInside)
+        self.shotButton.addTarget(self, action: #selector(shotButtonTapped), for: .touchUpInside)
+        self.galleryButton.addTarget(self, action: #selector(galleryButtonTapped), for: .touchUpInside)
 
         self.filterCollectionView.delegate = self
         self.filterCollectionView.dataSource = self
@@ -117,8 +172,15 @@ class CameraPreviewViewController: UIViewController, CameraPreviewDisplayLogic
     }
     
     private func configureAutoLayout() {
-        self.previewMTKView.translatesAutoresizingMaskIntoConstraints = false
-        self.filterCollectionView.translatesAutoresizingMaskIntoConstraints = false
+        [
+            self.previewMTKView,
+            self.bottomContentView,
+            self.filterToggleButton,
+            self.filterEditButton,
+            self.filterCollectionView,
+            self.galleryButton,
+            self.shotButton,
+        ].forEach { $0.translatesAutoresizingMaskIntoConstraints = false }
         
         NSLayoutConstraint.activate([
             self.previewMTKView.topAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.topAnchor, constant: 50),
@@ -126,25 +188,72 @@ class CameraPreviewViewController: UIViewController, CameraPreviewDisplayLogic
             self.previewMTKView.trailingAnchor.constraint(equalTo: self.view.trailingAnchor),
             self.previewMTKView.heightAnchor.constraint(equalTo: self.previewMTKView.widthAnchor, multiplier: 4/3),
             
-            self.filterCollectionView.topAnchor.constraint(equalTo: self.previewMTKView.bottomAnchor, constant: 15),
-            self.filterCollectionView.leadingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.leadingAnchor, constant: 15),
-            self.filterCollectionView.trailingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.trailingAnchor, constant: -15),
-            self.filterCollectionView.heightAnchor.constraint(equalToConstant: 120),
+            self.bottomContentView.topAnchor.constraint(equalTo: self.previewMTKView.bottomAnchor),
+            self.bottomContentView.leadingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.leadingAnchor),
+            self.bottomContentView.trailingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.trailingAnchor),
+            self.bottomContentView.bottomAnchor.constraint(equalTo: self.view.bottomAnchor),
+            
+            self.galleryButton.centerYAnchor.constraint(equalTo: self.bottomContentView.centerYAnchor),
+            self.galleryButton.widthAnchor.constraint(equalToConstant: 60),
+            self.galleryButton.heightAnchor.constraint(equalTo: self.galleryButton.widthAnchor),
+            self.galleryButton.leadingAnchor.constraint(equalTo: self.bottomContentView.leadingAnchor, constant: 15),
+            
+            self.shotButton.centerYAnchor.constraint(equalTo: self.bottomContentView.centerYAnchor),
+            self.shotButton.widthAnchor.constraint(equalToConstant: 80),
+            self.shotButton.heightAnchor.constraint(equalTo: self.shotButton.widthAnchor),
+            self.shotButton.centerXAnchor.constraint(equalTo: self.bottomContentView.centerXAnchor),
+            
+            self.filterToggleButton.centerYAnchor.constraint(equalTo: self.bottomContentView.centerYAnchor),
+            self.filterToggleButton.widthAnchor.constraint(equalToConstant: 60),
+            self.filterToggleButton.heightAnchor.constraint(equalTo: self.filterToggleButton.widthAnchor),
+            self.filterToggleButton.trailingAnchor.constraint(equalTo: self.bottomContentView.trailingAnchor, constant: -15),
+            
+            self.filterEditButton.widthAnchor.constraint(equalToConstant: 60),
+            self.filterEditButton.heightAnchor.constraint(equalToConstant: 30),
+            self.filterEditButton.bottomAnchor.constraint(equalTo: self.filterToggleButton.topAnchor, constant: -10),
+            self.filterEditButton.trailingAnchor.constraint(equalTo: self.filterToggleButton.trailingAnchor),
+            
+            self.filterCollectionView.centerYAnchor.constraint(equalTo: self.bottomContentView.centerYAnchor),
+            self.filterCollectionView.leadingAnchor.constraint(equalTo: self.bottomContentView.leadingAnchor, constant: 15),
+            self.filterCollectionView.trailingAnchor.constraint(equalTo: self.filterToggleButton.leadingAnchor, constant: -15),
+            self.filterCollectionView.heightAnchor.constraint(equalToConstant: 80),
         ])
     }
     
     func configureMTKView() {
         guard let metalDevice = interactor?.metalDevice else { return }
         self.ciContext = CIContext(mtlDevice: metalDevice)
-
+        
         self.previewMTKView.device = metalDevice
-
+        
         self.previewMTKView.isPaused = true
         self.previewMTKView.enableSetNeedsDisplay = false
         
         self.previewMTKView.delegate = self
         
         self.previewMTKView.framebufferOnly = false
+    }
+
+    @objc private func filterToggleButtonTapped(_ button: UIButton) {
+        self.filterCollectionView.isHidden.toggle()
+        self.filterEditButton.isHidden.toggle()
+        self.galleryButton.isHidden.toggle()
+        self.shotButton.isHidden.toggle()
+    }
+    
+    @objc private func filterEditButtonTapped(_ button: UIButton) {
+        let selector = NSSelectorFromString("routeToListFiltersWithSegue:")
+        if let router = router, router.responds(to: selector) {
+            router.perform(selector, with: nil)
+        }
+    }
+    
+    @objc private func shotButtonTapped(_ button: UIButton) {
+        print(#function)
+    }
+    
+    @objc private func galleryButtonTapped(_ button: UIButton) {
+        print(#function)
     }
     
     // MARK: Do something
