@@ -22,6 +22,7 @@
 		ED12A33B2B3A9337003C1012 /* FirebaseDatabase in Frameworks */ = {isa = PBXBuildFile; productRef = ED12A33A2B3A9337003C1012 /* FirebaseDatabase */; };
 		ED442E6A2B195B5700A030C6 /* FiltersWorker.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED442E692B195B5700A030C6 /* FiltersWorker.swift */; };
 		ED442E6C2B19628900A030C6 /* FilterMemStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED442E6B2B19628900A030C6 /* FilterMemStore.swift */; };
+		ED7064FD2B3CEC7B00E725A7 /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = ED7064FC2B3CEC7B00E725A7 /* Alamofire */; };
 		EDB191212B2971E400DD1BA9 /* RxSwift in Frameworks */ = {isa = PBXBuildFile; productRef = EDB191202B2971E400DD1BA9 /* RxSwift */; };
 		EDB191432B2AA92F00DD1BA9 /* CVPixelBuffer+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDB191422B2AA92F00DD1BA9 /* CVPixelBuffer+Extension.swift */; };
 		EDBE1C602B2FC4E500C41B37 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = EDBE1C5F2B2FC4E500C41B37 /* GoogleService-Info.plist */; };
@@ -134,6 +135,7 @@
 				ED12A33B2B3A9337003C1012 /* FirebaseDatabase in Frameworks */,
 				EDBE1C792B300D1900C41B37 /* FirebaseAuth in Frameworks */,
 				EDB191212B2971E400DD1BA9 /* RxSwift in Frameworks */,
+				ED7064FD2B3CEC7B00E725A7 /* Alamofire in Frameworks */,
 				EDBE1C732B300CD000C41B37 /* FirebaseAnalyticsSwift in Frameworks */,
 				EDBE1C6F2B300CD000C41B37 /* FirebaseAnalytics in Frameworks */,
 			);
@@ -332,6 +334,7 @@
 				EDBE1C722B300CD000C41B37 /* FirebaseAnalyticsSwift */,
 				EDBE1C782B300D1900C41B37 /* FirebaseAuth */,
 				ED12A33A2B3A9337003C1012 /* FirebaseDatabase */,
+				ED7064FC2B3CEC7B00E725A7 /* Alamofire */,
 			);
 			productName = CameraFilterApp;
 			productReference = C2F1C8072B078F37002F732D /* CameraFilterApp.app */;
@@ -364,6 +367,7 @@
 			packageReferences = (
 				ED97384A2B295889007030CC /* XCRemoteSwiftPackageReference "RxSwift" */,
 				EDBE1C612B2FC59800C41B37 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+				ED7064FB2B3CEC7B00E725A7 /* XCRemoteSwiftPackageReference "Alamofire" */,
 			);
 			productRefGroup = C2F1C8082B078F37002F732D /* Products */;
 			projectDirPath = "";
@@ -666,6 +670,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		ED7064FB2B3CEC7B00E725A7 /* XCRemoteSwiftPackageReference "Alamofire" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Alamofire/Alamofire";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.8.1;
+			};
+		};
 		ED97384A2B295889007030CC /* XCRemoteSwiftPackageReference "RxSwift" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/ReactiveX/RxSwift";
@@ -689,6 +701,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = EDBE1C612B2FC59800C41B37 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseDatabase;
+		};
+		ED7064FC2B3CEC7B00E725A7 /* Alamofire */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = ED7064FB2B3CEC7B00E725A7 /* XCRemoteSwiftPackageReference "Alamofire" */;
+			productName = Alamofire;
 		};
 		EDB191202B2971E400DD1BA9 /* RxSwift */ = {
 			isa = XCSwiftPackageProductDependency;
