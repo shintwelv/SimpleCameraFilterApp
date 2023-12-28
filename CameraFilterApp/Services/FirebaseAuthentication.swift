@@ -29,7 +29,7 @@ class FirebaseAuthentication: NSObject, UserAuthenticationProtocol {
     
     private var currentNonce: String?
     private var appleLoginCompletionHandler: UserLogInCompletionHandler?
-    private var appleLoginPresentingController: UIViewController?
+    private weak var appleLoginPresentingController: UIViewController?
     
     private func resetAppleLoginInfo() {
         currentNonce = nil
