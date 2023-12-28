@@ -8,7 +8,7 @@
 import Foundation
 import CoreImage
 
-class FilterMemStore: FiltersStoreProtocol {
+class FilterMemStore: LocalFiltersStoreProtocol {
     
     static var filters: [CameraFilter] = {
         let filters: [CameraFilter?] = [
@@ -23,44 +23,6 @@ class FilterMemStore: FiltersStoreProtocol {
         
         return filters.compactMap {$0}
     }()
-    
-    func fetchFilters(completionHandler: @escaping ([CameraFilter], FiltersStoreError?) -> Void) {
-        completionHandler(type(of: self).filters, nil)
-    }
-    
-    func fetchFilter(filterId: UUID, completionHandler: @escaping (CameraFilter?, FiltersStoreError?) -> Void) {
-        if let index = indexOfFilterWithID(id: filterId) {
-            let filter = type(of: self).filters[index]
-            completionHandler(filter, nil)
-        } else {
-            completionHandler(nil, FiltersStoreError.cannotFetch("해당 필터를 가져올 수 없습니다 id = \(filterId.uuidString)"))
-        }
-    }
-    
-    func createFilter(filterToCreate: CameraFilter, completionHandler: @escaping (CameraFilter?, FiltersStoreError?) -> Void) {
-        let filter = filterToCreate
-        type(of: self).filters.append(filter)
-        completionHandler(filter, nil)
-    }
-    
-    func updateFilter(filterToUpdate: CameraFilter, completionHandler: @escaping (CameraFilter?, FiltersStoreError?) -> Void) {
-        if let index = indexOfFilterWithID(id: filterToUpdate.filterId) {
-            type(of: self).filters[index] = filterToUpdate
-            let filter = type(of: self).filters[index]
-            completionHandler(filter, nil)
-        } else {
-            completionHandler(nil, FiltersStoreError.cannotUpdate("해당 필터를 수정할 수 없습니다 id = \(filterToUpdate.filterId.uuidString)"))
-        }
-    }
-    
-    func deleteFilter(filterId: UUID, completionHandler: @escaping (CameraFilter?, FiltersStoreError?) -> Void) {
-        if let index = indexOfFilterWithID(id: filterId) {
-            let filter = type(of: self).filters.remove(at: index)
-            completionHandler(filter, nil)
-        } else {
-            completionHandler(nil, FiltersStoreError.cannotDelete("해당 필터를 삭제할 수 없습니다 id = \(filterId.uuidString)"))
-        }
-    }
     
     func fetchFilters(completionHandler: @escaping FiltersStoreFetchFiltersCompletionHandler) {
         completionHandler(FiltersStoreResult.Success(result: type(of: self).filters))
@@ -97,44 +59,6 @@ class FilterMemStore: FiltersStoreProtocol {
             completionHandler(FiltersStoreResult.Success(result: filter))
         } else {
             completionHandler(FiltersStoreResult.Failure(error: FiltersStoreError.cannotDelete("해당 필터를 삭제할 수 없습니다 id = \(filterId.uuidString)")))
-        }
-    }
-    
-    func fetchFilters(completionHandler: @escaping (() throws -> [CameraFilter]) -> Void) {
-        completionHandler { return type(of: self).filters }
-    }
-    
-    func fetchFilter(filterId: UUID, completionHandler: @escaping (() throws -> CameraFilter?) -> Void) {
-        if let index = indexOfFilterWithID(id: filterId) {
-            let filter = type(of: self).filters[index]
-            completionHandler { return filter }
-        } else {
-            completionHandler { throw FiltersStoreError.cannotFetch("해당 필터를 가져올 수 없습니다 id = \(filterId.uuidString)") }
-        }
-    }
-    
-    func createFilter(filterToCreate: CameraFilter, completionHandler: @escaping (() throws -> CameraFilter?) -> Void) {
-        let filter = filterToCreate
-        type(of: self).filters.append(filter)
-        completionHandler { return filter }
-    }
-    
-    func updateFilter(filterToUpdate: CameraFilter, completionHandler: @escaping (() throws -> CameraFilter?) -> Void) {
-        if let index = indexOfFilterWithID(id: filterToUpdate.filterId) {
-            type(of: self).filters[index] = filterToUpdate
-            let filter = type(of: self).filters[index]
-            completionHandler { return filter }
-        } else {
-            completionHandler { throw FiltersStoreError.cannotUpdate("해당 필터를 수정할 수 없습니다 id = \(filterToUpdate.filterId.uuidString)") }
-        }
-    }
-    
-    func deleteFilter(filterId: UUID, completionHandler: @escaping (() throws -> CameraFilter?) -> Void) {
-        if let index = indexOfFilterWithID(id: filterId) {
-            let filter = type(of: self).filters.remove(at: index)
-            completionHandler { return filter }
-        } else {
-            completionHandler { throw FiltersStoreError.cannotDelete("해당 필터를 삭제할 수 없습니다 id = \(filterId.uuidString)") }
         }
     }
     
