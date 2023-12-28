@@ -14,7 +14,7 @@ class FirebaseAuthentication: UserAuthenticationProtocol {
         let currentUser = Auth.auth().currentUser
         
         if let currentUser = currentUser {
-            let user = User(email: currentUser.email ?? "")
+            let user = User(userId: currentUser.uid, email: currentUser.email ?? "")
             let result = UserAuthenticationResult.Success(result: user as User?)
             completionHandler(result)
         } else {
@@ -36,7 +36,7 @@ class FirebaseAuthentication: UserAuthenticationProtocol {
                 return
             }
             
-            let loggedUser = User(email: authResult.user.email ?? "")
+            let loggedUser = User(userId: authResult.user.uid, email: authResult.user.email ?? "")
             let result = UserAuthenticationResult.Success(result: loggedUser)
             completionHandler(result)
         }
@@ -51,7 +51,7 @@ class FirebaseAuthentication: UserAuthenticationProtocol {
             return
         }
 
-        let user = User(email: FIRUser.email ?? "")
+        let user = User(userId: FIRUser.uid, email: FIRUser.email ?? "")
         do {
             try Auth.auth().signOut()
             let result = UserAuthenticationResult.Success(result: user)
@@ -75,7 +75,7 @@ class FirebaseAuthentication: UserAuthenticationProtocol {
                 return
             }
             
-            let loggedInUser = User(email: authResult.user.email ?? "")
+            let loggedInUser = User(userId: authResult.user.uid, email: authResult.user.email ?? "")
             let result = UserAuthenticationResult.Success(result: loggedInUser)
             completionHandler(result)
         }
