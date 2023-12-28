@@ -283,7 +283,7 @@ extension FirebaseAuthentication: ASAuthorizationControllerPresentationContextPr
     func presentationAnchor(for controller: ASAuthorizationController) -> ASPresentationAnchor {
         guard let appleLoginPresentingController = appleLoginPresentingController,
             let window = appleLoginPresentingController.view.window else {
-            return ASPresentationAnchor()
+            return UIApplication.shared.windows.last(where: \.isKeyWindow) ?? ASPresentationAnchor()
         }
         
         return window
