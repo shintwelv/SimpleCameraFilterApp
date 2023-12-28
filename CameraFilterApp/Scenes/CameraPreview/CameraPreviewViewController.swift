@@ -107,9 +107,9 @@ class CameraPreviewViewController: UIViewController, CameraPreviewDisplayLogic
         return button
     }()
     
-    private var logOutButton: UIButton = {
+    private var userInfoButton: UIButton = {
         let button = UIButton(type: .system)
-        button.setTitle("로그아웃", for: .normal)
+        button.setTitle("세부정보", for: .normal)
         button.tintColor = .systemPurple
         button.isHidden = true
         return button
@@ -219,7 +219,7 @@ class CameraPreviewViewController: UIViewController, CameraPreviewDisplayLogic
         [
             self.welcomeMessageLabel,
             self.logInButton,
-            self.logOutButton
+            self.userInfoButton
         ].forEach { self.userInfoView.addSubview($0) }
         
         [
@@ -236,7 +236,7 @@ class CameraPreviewViewController: UIViewController, CameraPreviewDisplayLogic
         
         self.userAccountButton.addTarget(self, action: #selector(userAccountButtonTapped), for: .touchUpInside)
         self.logInButton.addTarget(self, action: #selector(logInButtonTapped), for: .touchUpInside)
-        self.logOutButton.addTarget(self, action: #selector(logOutButtonTapped), for: .touchUpInside)
+        self.userInfoButton.addTarget(self, action: #selector(userInfoButtonTapped), for: .touchUpInside)
         self.filterToggleButton.addTarget(self, action: #selector(filterToggleButtonTapped), for: .touchUpInside)
         self.filterEditButton.addTarget(self, action: #selector(filterEditButtonTapped), for: .touchUpInside)
         self.shotButton.addTarget(self, action: #selector(shotButtonTapped), for: .touchUpInside)
@@ -254,7 +254,7 @@ class CameraPreviewViewController: UIViewController, CameraPreviewDisplayLogic
             self.userInfoView,
             self.welcomeMessageLabel,
             self.logInButton,
-            self.logOutButton,
+            self.userInfoButton,
             self.previewMTKView,
             self.bottomContentView,
             self.userAccountButton,
@@ -290,10 +290,10 @@ class CameraPreviewViewController: UIViewController, CameraPreviewDisplayLogic
             self.logInButton.widthAnchor.constraint(equalToConstant: 60),
             self.logInButton.heightAnchor.constraint(equalToConstant: 20),
             
-            self.logOutButton.bottomAnchor.constraint(equalTo: self.userInfoView.bottomAnchor, constant: -15),
-            self.logOutButton.trailingAnchor.constraint(equalTo: self.userInfoView.trailingAnchor, constant: -15),
-            self.logOutButton.widthAnchor.constraint(equalToConstant: 60),
-            self.logOutButton.heightAnchor.constraint(equalToConstant: 20),
+            self.userInfoButton.bottomAnchor.constraint(equalTo: self.userInfoView.bottomAnchor, constant: -15),
+            self.userInfoButton.trailingAnchor.constraint(equalTo: self.userInfoView.trailingAnchor, constant: -15),
+            self.userInfoButton.widthAnchor.constraint(equalToConstant: 60),
+            self.userInfoButton.heightAnchor.constraint(equalToConstant: 20),
             
             self.previewMTKView.topAnchor.constraint(equalTo: self.topContentView.bottomAnchor),
             self.previewMTKView.leadingAnchor.constraint(equalTo: self.view.leadingAnchor),
@@ -360,9 +360,10 @@ class CameraPreviewViewController: UIViewController, CameraPreviewDisplayLogic
         }
     }
     
-    @objc private func logOutButtonTapped(_ button: UIButton) {
-        let request = CameraPreview.SignOut.Request()
-        interactor?.signOut(request)
+    @objc private func userInfoButtonTapped(_ button: UIButton) {
+        self.userInfoView.alpha = 0.0
+        
+        self.router?.routeToCreateUser(segue: nil)
     }
 
     @objc private func filterToggleButtonTapped(_ button: UIButton) {
@@ -425,11 +426,11 @@ class CameraPreviewViewController: UIViewController, CameraPreviewDisplayLogic
         if let _ = signedInUserEmail {
             self.welcomeMessageLabel.text = "회원님 환영합니다"
             self.logInButton.isHidden = true
-            self.logOutButton.isHidden = false
+            self.userInfoButton.isHidden = false
         } else {
             self.welcomeMessageLabel.text = "로그인 해주세요"
             self.logInButton.isHidden = false
-            self.logOutButton.isHidden = true
+            self.userInfoButton.isHidden = true
         }
     }
     
@@ -439,7 +440,7 @@ class CameraPreviewViewController: UIViewController, CameraPreviewDisplayLogic
         if let _ = signedOutUserEmail {
             self.welcomeMessageLabel.text = "로그인 해주세요"
             self.logInButton.isHidden = false
-            self.logOutButton.isHidden = true
+            self.userInfoButton.isHidden = true
         } else {
             let alertController = UIAlertController(title: "에러", message: "로그아웃에 실패했습니다", preferredStyle: .alert)
             

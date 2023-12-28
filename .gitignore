@@ -89,3 +89,5 @@ fastlane/test_output
 
 iOSInjectionProject/
 GoogleService-Info.plist
+CameraFilterApp/Info.plist
+AuthKey_22X3884TBF.p8

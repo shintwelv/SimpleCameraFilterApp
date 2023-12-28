@@ -10,9 +10,12 @@ import UIKit
 protocol CreateUserPresentationLogic
 {
     func presentLoginStatus(response: CreateUser.LoginStatus.Response)
+    func presentUserSignInWithApple(response: CreateUser.AppleSignIn.Response)
+    func presentUserSignInWithGoogle(response: CreateUser.GoogleSignIn.Response)
     func presentSignedInUser(response: CreateUser.SignIn.Response)
     func presentSignedOutUser(response: CreateUser.SignOut.Response)
     func presentSignedUpUser(response: CreateUser.SignUp.Response)
+    func presentDeletedUser(response: CreateUser.Delete.Response)
 }
 
 class CreateUserPresenter: CreateUserPresentationLogic
@@ -35,6 +38,32 @@ class CreateUserPresenter: CreateUserPresentationLogic
         case .Failure(_):
             let viewModel = CreateUser.LoginStatus.ViewModel(signedInUserEmail: nil)
             self.viewController?.displayLoginStatus(viewModel: viewModel)
+        }
+    }
+    
+    func presentUserSignInWithApple(response: CreateUser.AppleSignIn.Response) {
+        let signedInUser = response.signedInUser
+        
+        switch signedInUser {
+        case .Success(let user):
+            let viewModel = CreateUser.AppleSignIn.ViewModel(signedInUserEmail: user.email)
+            self.viewController?.displayUserSignedInWithApple(viewModel: viewModel)
+        case .Failure(_):
+            let viewModel = CreateUser.AppleSignIn.ViewModel(signedInUserEmail: nil)
+            self.viewController?.displayUserSignedInWithApple(viewModel: viewModel)
+        }
+    }
+    
+    func presentUserSignInWithGoogle(response: CreateUser.GoogleSignIn.Response) {
+        let signedInUser = response.signedInUser
+        
+        switch signedInUser {
+        case .Success(let user):
+            let viewModel = CreateUser.GoogleSignIn.ViewModel(signedInUserEmail: user.email)
+            self.viewController?.displayUserSignedInWithGoogle(viewModel: viewModel)
+        case .Failure(_):
+            let viewModel = CreateUser.GoogleSignIn.ViewModel(signedInUserEmail: nil)
+            self.viewController?.displayUserSignedInWithGoogle(viewModel: viewModel)
         }
     }
     
@@ -74,6 +103,19 @@ class CreateUserPresenter: CreateUserPresentationLogic
         case .Failure(_):
             let viewModel = CreateUser.SignUp.ViewModel(createdUserEmail: nil)
             self.viewController?.displaySignedUpUser(viewModel: viewModel)
+        }
+    }
+    
+    func presentDeletedUser(response: CreateUser.Delete.Response) {
+        let deletedUser = response.deletedUser
+        
+        switch deletedUser {
+        case .Success(let user):
+            let viewModel = CreateUser.Delete.ViewModel(deletedUserEmail: user.email)
+            self.viewController?.displayDeletedUser(viewModel: viewModel)
+        case .Failure(_):
+            let viewModel = CreateUser.Delete.ViewModel(deletedUserEmail: nil)
+            self.viewController?.displayDeletedUser(viewModel: viewModel)
         }
     }
 }
