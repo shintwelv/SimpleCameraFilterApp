@@ -179,6 +179,10 @@ extension ListFiltersViewController: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let snapshot = dataSource.snapshot()
         let selectedFilterInfo = snapshot.itemIdentifiers[indexPath.row]
-        print(selectedFilterInfo.filterId)
+        
+        let request = ListFilters.SelectFilter.Request(filterId: selectedFilterInfo.filterId)
+        self.interactor?.selectFilter(request: request)
+        
+        self.router?.routeToCreateFilter(segue: nil)
     }
 }
