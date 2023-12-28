@@ -270,18 +270,10 @@
 		EDEC73802B14636400595A95 /* Models */ = {
 			isa = PBXGroup;
 			children = (
-				EDEC73872B14650D00595A95 /* Filters */,
+				EDBE1C662B30099300C41B37 /* User.swift */,
+				EDEC73812B14636B00595A95 /* CameraFilter.swift */,
 			);
 			path = Models;
-			sourceTree = "<group>";
-		};
-		EDEC73872B14650D00595A95 /* Filters */ = {
-			isa = PBXGroup;
-			children = (
-				EDEC73812B14636B00595A95 /* CameraFilter.swift */,
-				EDBE1C662B30099300C41B37 /* User.swift */,
-			);
-			path = Filters;
 			sourceTree = "<group>";
 		};
 		EDEC73952B17305200595A95 /* CreateFilter */ = {
