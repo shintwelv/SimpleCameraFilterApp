@@ -21,6 +21,7 @@
 		C2F1C8172B078F38002F732D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = C2F1C8152B078F38002F732D /* LaunchScreen.storyboard */; };
 		ED442E6A2B195B5700A030C6 /* FiltersWorker.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED442E692B195B5700A030C6 /* FiltersWorker.swift */; };
 		ED442E6C2B19628900A030C6 /* FilterMemStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED442E6B2B19628900A030C6 /* FilterMemStore.swift */; };
+		EDB191432B2AA92F00DD1BA9 /* CVPixelBuffer+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDB191422B2AA92F00DD1BA9 /* CVPixelBuffer+Extension.swift */; };
 		EDB191212B2971E400DD1BA9 /* RxSwift in Frameworks */ = {isa = PBXBuildFile; productRef = EDB191202B2971E400DD1BA9 /* RxSwift */; };
 		EDBE1C602B2FC4E500C41B37 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = EDBE1C5F2B2FC4E500C41B37 /* GoogleService-Info.plist */; };
 		EDBE1C652B2FEA0900C41B37 /* UserAuthenticationWorker.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDBE1C642B2FEA0900C41B37 /* UserAuthenticationWorker.swift */; };
@@ -91,6 +92,7 @@
 		ED442E692B195B5700A030C6 /* FiltersWorker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FiltersWorker.swift; sourceTree = "<group>"; };
 		ED442E6B2B19628900A030C6 /* FilterMemStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterMemStore.swift; sourceTree = "<group>"; };
 		ED6A15AA2B33BB1700C4A42D /* CameraFilterApp.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = CameraFilterApp.entitlements; sourceTree = "<group>"; };
+		EDB191422B2AA92F00DD1BA9 /* CVPixelBuffer+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CVPixelBuffer+Extension.swift"; sourceTree = "<group>"; };
 		EDBE1C5F2B2FC4E500C41B37 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		EDBE1C642B2FEA0900C41B37 /* UserAuthenticationWorker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserAuthenticationWorker.swift; sourceTree = "<group>"; };
 		EDBE1C662B30099300C41B37 /* User.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
@@ -260,6 +262,7 @@
 				EDEC73752B145DA400595A95 /* CameraPreviewWorker.swift */,
 				EDEC73762B145DA400595A95 /* CameraPreviewRouter.swift */,
 				C284660D2B15EC7C006D4E40 /* FilterCell.swift */,
+				EDB191422B2AA92F00DD1BA9 /* CVPixelBuffer+Extension.swift */,
 			);
 			path = CameraPreview;
 			sourceTree = "<group>";
@@ -417,6 +420,7 @@
 				C244644D2B1B4E7100F0B029 /* CreateFilterInteractor.swift in Sources */,
 				EDBE1C902B302F3D00C41B37 /* CreateUserRouter.swift in Sources */,
 				EDEC737C2B145DA400595A95 /* CameraPreviewRouter.swift in Sources */,
+				EDB191432B2AA92F00DD1BA9 /* CVPixelBuffer+Extension.swift in Sources */,
 				EDE29D282B1F120F00C73406 /* SliderPropertyView.swift in Sources */,
 				EDEC739D2B181E1300595A95 /* ListFiltersModels.swift in Sources */,
 				EDC5DF582B2BE1A60089BCA3 /* EditPhotoModels.swift in Sources */,

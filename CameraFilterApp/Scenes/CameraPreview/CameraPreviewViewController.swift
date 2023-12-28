@@ -20,6 +20,7 @@ protocol CameraPreviewDisplayLogic: AnyObject
     func displaySignedOutUser(viewModel: CameraPreview.SignOut.ViewModel)
     func displayFilterNames(viewModel: CameraPreview.FetchFilters.ViewModel)
     func displayFrameImage(viewModel: CameraPreview.DrawFrameImage.ViewModel)
+    func displayTakePhotoCopmletion(viewModel: CameraPreview.TakePhoto.ViewModel)
 }
 
 class CameraPreviewViewController: UIViewController, CameraPreviewDisplayLogic
@@ -334,9 +335,8 @@ class CameraPreviewViewController: UIViewController, CameraPreviewDisplayLogic
     func configureMTKView() {
         guard let metalDevice = interactor?.metalDevice else { return }
         self.ciContext = CIContext(mtlDevice: metalDevice)
-        
         self.previewMTKView.device = metalDevice
-        
+
         self.previewMTKView.isPaused = true
         self.previewMTKView.enableSetNeedsDisplay = false
         
@@ -387,7 +387,15 @@ class CameraPreviewViewController: UIViewController, CameraPreviewDisplayLogic
     }
     
     @objc private func shotButtonTapped(_ button: UIButton) {
-        print(#function)
+        UIView.animate(withDuration: 0.1, delay: 0.0) {
+            self.previewMTKView.alpha = 0.5
+        }
+        UIView.animate(withDuration: 0.1, delay: 0.1) {
+            self.previewMTKView.alpha = 1.0
+        }
+        self.shotButton.isEnabled = false
+        let request = CameraPreview.TakePhoto.Request()
+        self.interactor?.takePhoto(request)
     }
     
     @objc private func galleryButtonTapped(_ button: UIButton) {
@@ -453,6 +461,12 @@ class CameraPreviewViewController: UIViewController, CameraPreviewDisplayLogic
         self.currentBuffer = viewModel.commandBuffer
         
         self.previewMTKView.draw()
+    }
+    
+    func displayTakePhotoCopmletion(viewModel: CameraPreview.TakePhoto.ViewModel) {
+        DispatchQueue.main.async {
+            self.shotButton.isEnabled = true
+        }
     }
 }
 

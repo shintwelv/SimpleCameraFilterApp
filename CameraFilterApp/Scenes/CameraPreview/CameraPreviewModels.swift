@@ -69,6 +69,15 @@ enum CameraPreview
         var filterName: String
     }
     
+    enum TakePhoto {
+        struct Request {
+        }
+        struct Response {
+        }
+        struct ViewModel {
+        }
+    }
+    
     enum StartSession {
         struct Request {
         }
