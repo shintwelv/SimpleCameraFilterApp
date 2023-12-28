@@ -115,6 +115,14 @@ func ==(lhs: FiltersWorker.OperationError, rhs: FiltersWorker.OperationError) ->
     }
 }
 
+protocol RemoteFiltersStoreProtocol {
+    func fetchFilters(user:User, completionHandler: @escaping FiltersStoreFetchFiltersCompletionHandler)
+    func fetchFilter(user:User, filterId: UUID, completionHandler: @escaping FiltersStoreFetchFilterCompletionHandler)
+    func createFilter(user:User, filterToCreate: CameraFilter, completionHandler: @escaping FiltersStoreCreateFilterCompletionHandler)
+    func updateFilter(user:User, filterToUpdate: CameraFilter, completionHandler: @escaping FiltersStoreUpdateFilterCompletionHandler)
+    func deleteFilter(user:User, filterId: UUID, completionHandler: @escaping FiltersStoreDeleteFilterCompletionHandler)
+}
+
 protocol FiltersStoreProtocol {
     
     // MARK: - CRUD operations - Optional error
