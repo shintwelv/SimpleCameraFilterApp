@@ -153,10 +153,7 @@ class ListFiltersViewController: UIViewController, ListFiltersDisplayLogic
         let request = ListFilters.SelectFilter.Request(filterId: nil)
         interactor?.selectFilter(request: request)
         
-        let selector = NSSelectorFromString("routeToCreateFilterWithSegue:")
-        if let router = router, router.responds(to: selector) {
-            router.perform(selector, with: nil)
-        }
+        self.router?.routeToCreateFilter(segue: nil)
     }
     
     // MARK: Fetched filters

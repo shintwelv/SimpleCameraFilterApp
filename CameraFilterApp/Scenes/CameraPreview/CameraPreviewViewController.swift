@@ -353,16 +353,11 @@ class CameraPreviewViewController: UIViewController, CameraPreviewDisplayLogic
     
     @objc private func logInButtonTapped(_ button: UIButton) {
         self.userInfoView.alpha = 0.0
-        
-        let selector = NSSelectorFromString("routeToCreateUserWithSegue:")
-        if let router = self.router, router.responds(to: selector) {
-            router.perform(selector, with: nil)
-        }
+        self.router?.routeToCreateUser(segue: nil)
     }
     
     @objc private func userInfoButtonTapped(_ button: UIButton) {
         self.userInfoView.alpha = 0.0
-        
         self.router?.routeToCreateUser(segue: nil)
     }
 
@@ -379,11 +374,7 @@ class CameraPreviewViewController: UIViewController, CameraPreviewDisplayLogic
     
     @objc private func filterEditButtonTapped(_ button: UIButton) {
         self.filterToggleButtonTapped(self.filterToggleButton)
-        
-        let selector = NSSelectorFromString("routeToListFiltersWithSegue:")
-        if let router = router, router.responds(to: selector) {
-            router.perform(selector, with: nil)
-        }
+        self.router?.routeToListFilters(segue: nil)
     }
     
     @objc private func shotButtonTapped(_ button: UIButton) {
@@ -535,10 +526,7 @@ extension CameraPreviewViewController: PHPickerViewControllerDelegate {
                     let request = CameraPreview.SelectPhoto.Request(photo: image)
                     self.interactor?.selectPhoto(request)
                     
-                    let selector = NSSelectorFromString("routeToEditPhotoWithSegue:")
-                    if let router = self.router, router.responds(to: selector) {
-                        router.perform(selector, with: nil)
-                    }
+                    self.router?.routeToEditPhoto(segue: nil)
                 }
             }
         } else {
