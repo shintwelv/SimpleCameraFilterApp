@@ -10,9 +10,12 @@ import UIKit
 protocol CreateUserBusinessLogic
 {
     func isSignedIn(request: CreateUser.LoginStatus.Request)
+    func appleSignIn(request: CreateUser.AppleSignIn.Request)
+    func googleSignIn(request: CreateUser.GoogleSignIn.Request)
     func signIn(request: CreateUser.SignIn.Request)
     func signOut(request: CreateUser.SignOut.Request)
     func signUp(request: CreateUser.SignUp.Request)
+    func deleteUser(request: CreateUser.Delete.Request)
 }
 
 protocol CreateUserDataStore
@@ -41,6 +44,44 @@ class CreateUserInteractor: CreateUserBusinessLogic, CreateUserDataStore
                 let userResult = CreateUser.UserResult<User?>.Failure(error: .cannotCheckLogin("\(error)"))
                 let response = CreateUser.LoginStatus.Response(signedInUser: userResult)
                 self.presenter?.presentLoginStatus(response: response)
+            }
+        }
+    }
+    
+    func appleSignIn(request: CreateUser.AppleSignIn.Request) {
+        guard let presentingViewController = request.presentingViewController else { return }
+        
+        authenticateProvider.appleLogin(presentingViewController: presentingViewController) { [weak self] authResult in
+            guard let self = self else { return }
+            
+            switch authResult {
+            case .Success(let user):
+                let userResult = CreateUser.UserResult<User>.Success(result: user)
+                let response = CreateUser.AppleSignIn.Response(signedInUser: userResult)
+                self.presenter?.presentUserSignInWithApple(response: response)
+            case .Failure(let error):
+                let userResult = CreateUser.UserResult<User>.Failure(error:.cannotSignIn("\(error)"))
+                let response = CreateUser.AppleSignIn.Response(signedInUser: userResult)
+                self.presenter?.presentUserSignInWithApple(response: response)
+            }
+        }
+    }
+    
+    func googleSignIn(request: CreateUser.GoogleSignIn.Request) {
+        guard let presentingViewController = request.presentingViewController else { return }
+        
+        authenticateProvider.googleLogin(presentingViewController: presentingViewController) { [weak self] authResult in
+            guard let self = self else { return }
+            
+            switch authResult {
+            case .Success(let user):
+                let userResult = CreateUser.UserResult<User>.Success(result: user)
+                let response = CreateUser.GoogleSignIn.Response(signedInUser: userResult)
+                self.presenter?.presentUserSignInWithGoogle(response: response)
+            case .Failure(let error):
+                let userResult = CreateUser.UserResult<User>.Failure(error:.cannotSignIn("\(error)"))
+                let response = CreateUser.GoogleSignIn.Response(signedInUser: userResult)
+                self.presenter?.presentUserSignInWithGoogle(response: response)
             }
         }
     }
@@ -104,6 +145,23 @@ class CreateUserInteractor: CreateUserBusinessLogic, CreateUserDataStore
                 let userResult = CreateUser.UserResult<User>.Failure(error: .cannotSignUp("\(error)"))
                 let response = CreateUser.SignUp.Response(createdUser: userResult)
                 self.presenter?.presentSignedUpUser(response: response)
+            }
+        }
+    }
+    
+    func deleteUser(request: CreateUser.Delete.Request) {
+        authenticateProvider.deleteUser { [weak self] authResult in
+            guard let self = self else { return }
+            
+            switch authResult {
+            case .Success(let deletedUser):
+                let userResult = CreateUser.UserResult<User>.Success(result: deletedUser)
+                let response = CreateUser.Delete.Response(deletedUser: userResult)
+                self.presenter?.presentDeletedUser(response: response)
+            case.Failure(let error):
+                let userResult = CreateUser.UserResult<User>.Failure(error: .cannotDelete("\(error)"))
+                let response = CreateUser.Delete.Response(deletedUser: userResult)
+                self.presenter?.presentDeletedUser(response: response)
             }
         }
     }
