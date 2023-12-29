@@ -76,7 +76,8 @@ class FiltersWorker {
                 guard let self = self else { return }
                 switch result {
                 case .Success(let result):
-                    self.filters.onNext(OperationResult.Success(operation: .fetch, result: result))
+                    let sorted = result.sorted { $0.filterId.uuidString < $1.filterId.uuidString }
+                    self.filters.onNext(OperationResult.Success(operation: .fetch, result: sorted))
                 case .Failure(let error):
                     print(error)
                     self.filters.onNext(OperationResult.Failure(error: OperationError.cannotFetch(error.localizedDescription)))
