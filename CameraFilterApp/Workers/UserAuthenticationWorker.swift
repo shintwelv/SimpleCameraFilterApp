@@ -11,8 +11,7 @@ import UIKit
 
 class UserAuthenticationWorker {
     
-    static let endPoint: String =
-    FirebaseDB.Endpoint.url.rawValue + FirebaseDB.Name.users.rawValue
+    static let endPoint: String = FirebaseDB.Endpoint.url.rawValue + "/" + FirebaseDB.Name.users.rawValue
     
     var authenticationProvider: UserAuthenticationProtocol
     

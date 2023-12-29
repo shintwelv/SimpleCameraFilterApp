@@ -11,8 +11,7 @@ import Alamofire
 
 class FilterFirebaseStore: RemoteFiltersStoreProtocol {
     
-    static let endPoint: String =
-    FirebaseDB.Endpoint.url.rawValue + FirebaseDB.Name.filters.rawValue
+    static let endPoint: String = FirebaseDB.Endpoint.url.rawValue + "/" + FirebaseDB.Name.filters.rawValue
     
     func fetchFilters(user: User, completionHandler: @escaping FiltersStoreFetchFiltersCompletionHandler) {
         let userId = user.userId
