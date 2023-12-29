@@ -95,7 +95,7 @@ class FirebaseAuthentication: NSObject, UserAuthenticationProtocol {
                     return
                 }
                 
-                let loggedUser = User(email: authResult.user.email ?? "")
+                let loggedUser = User(userId: authResult.user.uid, email: authResult.user.email ?? "")
                 let result = UserAuthenticationResult.Success(result: loggedUser)
                 completionHandler(result)
             })
@@ -179,7 +179,7 @@ class FirebaseAuthentication: NSObject, UserAuthenticationProtocol {
                 completionHandler(result)
             }
             
-            let deletedUser = User(email: currentUser.email ?? "")
+            let deletedUser = User(userId: currentUser.uid, email: currentUser.email ?? "")
             let result = UserAuthenticationResult.Success(result: deletedUser)
             completionHandler(result)
         })
@@ -263,7 +263,7 @@ extension FirebaseAuthentication: ASAuthorizationControllerDelegate {
                 return
             }
             
-            let loggedInUser = User(email: authResult.user.email ?? "")
+            let loggedInUser = User(userId: authResult.user.uid, email: authResult.user.email ?? "")
             let result = UserAuthenticationResult.Success(result: loggedInUser)
             appleLoginCompletionHandler(result)
         }
