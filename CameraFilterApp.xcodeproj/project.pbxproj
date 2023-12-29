@@ -16,7 +16,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		C2F1C8072B078F37002F732D /* CameraFilterApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CameraFilterApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		C2F1C8072B078F37002F732D /* 필터네이터.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "필터네이터.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		C2F1C80A2B078F37002F732D /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		C2F1C80C2B078F37002F732D /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
 		C2F1C80E2B078F37002F732D /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -48,7 +48,7 @@
 		C2F1C8082B078F37002F732D /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				C2F1C8072B078F37002F732D /* CameraFilterApp.app */,
+				C2F1C8072B078F37002F732D /* 필터네이터.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -84,7 +84,7 @@
 			);
 			name = CameraFilterApp;
 			productName = CameraFilterApp;
-			productReference = C2F1C8072B078F37002F732D /* CameraFilterApp.app */;
+			productReference = C2F1C8072B078F37002F732D /* 필터네이터.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
