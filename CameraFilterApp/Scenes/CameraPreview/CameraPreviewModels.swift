@@ -67,6 +67,7 @@ enum CameraPreview
     struct FilterInfo {
         var filterId: UUID
         var filterName: String
+        var filterAppliedImage: UIImage
     }
     
     enum TakePhoto {
