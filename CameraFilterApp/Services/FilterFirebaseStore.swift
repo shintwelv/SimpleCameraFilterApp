@@ -128,26 +128,27 @@ class FilterFirebaseStore: RemoteFiltersStoreProtocol {
     
     func deleteFilter(user: User, filterId: UUID, completionHandler: @escaping FiltersStoreDeleteFilterCompletionHandler) {
         
-        AF.request("\(FilterFirebaseStore.endPoint)/\(filterId).\(FirebaseDB.FileExt.json)", method: .delete)
-            .responseDecodable(of:FilterData.self) { [weak self] response in
-                
-                guard let self = self else { return }
-                
-                guard let responseValue = response.value else {
-                    let result = FiltersStoreResult<CameraFilter>.Failure(error: .cannotDelete("서버로부터 데이터를 받아올 수 없습니다"))
-                    completionHandler(result)
-                    return
-                }
-                
-                do {
-                    let cameraFilter: CameraFilter = try self.createCameraFilter(filterId: responseValue.keys.first, filterData: responseValue)
-                    let result = FiltersStoreResult<CameraFilter>.Success(result: cameraFilter)
-                    completionHandler(result)
-                } catch {
-                    let result = FiltersStoreResult<CameraFilter>.Failure(error: .cannotDelete("\(error)"))
-                    completionHandler(result)
-                }
+        self.fetchFilter(user: user, filterId: filterId) { result in
+            switch result {
+            case .Success(let filterToDelete):
+                AF.request("\(FilterFirebaseStore.endPoint)/\(filterId).\(FirebaseDB.FileExt.json)", method: .delete)
+                    .responseDecodable(of:FilterData.self) { response in
+                        
+                        guard let statusCode = response.response?.statusCode, (200..<300).contains(statusCode) else {
+                            let result = FiltersStoreResult<CameraFilter>.Failure(error: .cannotDelete("서버로부터 데이터를 받아올 수 없습니다"))
+                            completionHandler(result)
+                            return
+                        }
+                        
+                        let result = FiltersStoreResult<CameraFilter>.Success(result: filterToDelete)
+                        completionHandler(result)
+                    }
+            case .Failure(let error):
+                let result = FiltersStoreResult<CameraFilter>.Failure(error: .cannotDelete("\(error)"))
+                completionHandler(result)
             }
+        }
+        
     }
     
     typealias FilterData = [String: [String : String]]
