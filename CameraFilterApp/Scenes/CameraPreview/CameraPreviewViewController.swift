@@ -190,6 +190,7 @@ class CameraPreviewViewController: UIViewController, CameraPreviewDisplayLogic
         super.viewWillAppear(animated)
         
         checkLoginStatus()
+        fetchFilterNames()
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -367,10 +368,6 @@ class CameraPreviewViewController: UIViewController, CameraPreviewDisplayLogic
     }
 
     @objc private func filterToggleButtonTapped(_ button: UIButton) {
-        if self.filterCollectionView.isHidden {
-            fetchFilterNames()
-        }
-        
         self.filterCollectionView.isHidden.toggle()
         self.filterEditButton.isHidden.toggle()
         self.galleryButton.isHidden.toggle()
