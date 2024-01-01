@@ -58,18 +58,23 @@ class CameraPreviewPresenter: CameraPreviewPresentationLogic
         }
     }
     
+    private let baseImage: UIImage = UIImage(named: "lena_color")!
+    
     func presentAllFilters(response: CameraPreview.FetchFilters.Response) {
         let filters = response.filters
         
-        var filterNames:[String] = filters.map { $0.displayName }
-        filterNames.insert("원본", at: 0)
+        var filterInfos:[CameraPreview.FilterInfo] = []
+        filterInfos.append(CameraPreview.FilterInfo(filterId: UUID(), filterName: "원본", filterAppliedImage: self.baseImage))
         
-        var filterInfos = filters.map {
-            return CameraPreview.FilterInfo(filterId: $0.filterId, filterName: $0.displayName)
-        }
-        filterInfos.insert(
-            CameraPreview.FilterInfo(filterId: UUID(), filterName: "원본"),
-            at:0)
+        filters.map { filter in
+            let filterId = filter.filterId
+            let filterName = filter.displayName
+            
+            filter.ciFilter.setValue(CIImage(image: self.baseImage), forKey: kCIInputImageKey)
+            let filterAppliedImage = UIImage(ciImage: filter.ciFilter.outputImage!)
+            
+            return CameraPreview.FilterInfo(filterId: filterId, filterName: filterName, filterAppliedImage: filterAppliedImage)
+        }.forEach { filterInfos.append($0) }
         
         let viewModel = CameraPreview.FetchFilters.ViewModel(filterInfos: filterInfos)
         viewController?.displayFilterNames(viewModel: viewModel)

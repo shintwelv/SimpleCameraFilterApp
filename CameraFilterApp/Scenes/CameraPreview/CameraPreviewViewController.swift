@@ -159,7 +159,7 @@ class CameraPreviewViewController: UIViewController, CameraPreviewDisplayLogic
     private var filterCollectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .horizontal
-        layout.itemSize = CGSize(width: 80, height: 80)
+        layout.itemSize = FilterCell.cellSize
         
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.isScrollEnabled = true
@@ -328,7 +328,7 @@ class CameraPreviewViewController: UIViewController, CameraPreviewDisplayLogic
             self.filterCollectionView.centerYAnchor.constraint(equalTo: self.bottomContentView.centerYAnchor),
             self.filterCollectionView.leadingAnchor.constraint(equalTo: self.bottomContentView.leadingAnchor, constant: 15),
             self.filterCollectionView.trailingAnchor.constraint(equalTo: self.filterToggleButton.leadingAnchor, constant: -15),
-            self.filterCollectionView.heightAnchor.constraint(equalToConstant: 80),
+            self.filterCollectionView.heightAnchor.constraint(equalToConstant: FilterCell.cellSize.height),
         ])
     }
     
@@ -493,7 +493,7 @@ extension CameraPreviewViewController: UICollectionViewDataSource {
         
         let filterInfo = filterInfos[indexPath.row]
         
-        cell.configure(name: filterInfo.filterName)
+        cell.configure(name: filterInfo.filterName, filterAppliedImage: filterInfo.filterAppliedImage)
         return cell
     }
     
