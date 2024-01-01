@@ -517,10 +517,7 @@ class CreateFilterViewController: UIViewController, CreateFilterDisplayLogic
 
     func displayEditedFilter(viewModel: CreateFilter.EditFilter.ViewModel) {
         if let _ = viewModel.filterInfo {
-            let selector = NSSelectorFromString("routeToListFiltersWithSegue:")
-            if let router = router, router.responds(to: selector) {
-                router.perform(selector, with: nil)
-            }
+            self.router?.routeToListFilters(segue: nil)
         } else {
             let alertController = UIAlertController(title: "에러", message: "필터를 수정할 수 없습니다", preferredStyle: .alert)
             
@@ -548,10 +545,7 @@ class CreateFilterViewController: UIViewController, CreateFilterDisplayLogic
     
     // MARK: - Private methods
     private func routeToListFilters() {
-        let selector = NSSelectorFromString("routeToListFiltersWithSegue:")
-        if let router = router, router.responds(to: selector) {
-            router.perform(selector, with: nil)
-        }
+        self.router?.routeToListFilters(segue: nil)
     }
     
     @objc private func closeButtonTapped(_ button: UIButton) {
