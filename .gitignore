@@ -92,4 +92,4 @@ GoogleService-Info.plist
 FirebaseConstants.swift
 sampleData.json
 CameraFilterApp/Info.plist
-AuthKey_22X3884TBF.p8
+*.p8
