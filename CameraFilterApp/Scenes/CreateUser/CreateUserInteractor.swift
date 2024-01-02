@@ -27,6 +27,7 @@ class CreateUserInteractor: CreateUserBusinessLogic, CreateUserDataStore
     var presenter: CreateUserPresentationLogic?
     var worker: CreateUserWorker?
     var authenticateProvider = UserAuthenticationWorker(provider: FirebaseAuthentication())
+    var filtersWorker = FiltersWorker(remoteStore: FilterFirebaseStore(), localStore: FilterMemStore())
     
     // MARK: CreateUserBusinessLogic
     func isSignedIn(request: CreateUser.LoginStatus.Request) {
@@ -133,6 +134,11 @@ class CreateUserInteractor: CreateUserBusinessLogic, CreateUserDataStore
             switch authResult {
             case .Success(let createUser):
                 let userResult = CreateUser.UserResult<User>.Success(result: createUser)
+                
+                for filter in FiltersWorker.initialFilters {
+                    self.filtersWorker.createFilter(user: createUser, filterToCreate: filter)
+                }
+                
                 let response = CreateUser.SignUp.Response(createdUser: userResult)
                 self.presenter?.presentSignedUpUser(response: response)
             case .Failure(let error):

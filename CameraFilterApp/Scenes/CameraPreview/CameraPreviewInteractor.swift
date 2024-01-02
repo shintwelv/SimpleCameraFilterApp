@@ -37,7 +37,7 @@ class CameraPreviewInteractor: NSObject, CameraPreviewBusinessLogic, CameraPrevi
 {
     var presenter: CameraPreviewPresentationLogic?
     var worker: CameraPreviewWorker = CameraPreviewWorker()
-    var filtersWorker: FiltersWorker = FiltersWorker(filtersStore: FilterMemStore())
+    var filtersWorker: FiltersWorker = FiltersWorker(remoteStore: FilterFirebaseStore(), localStore: FilterMemStore())
     var authenticateProvider = UserAuthenticationWorker(provider: FirebaseAuthentication())
     
     private let cameraQueue = DispatchQueue(label: "cameraQueue")
@@ -164,11 +164,32 @@ class CameraPreviewInteractor: NSObject, CameraPreviewBusinessLogic, CameraPrevi
     
     func applyFilter(_ request: CameraPreview.ApplyFilter.Request) {
         let filterId = request.filterId
-        self.filtersWorker.fetchFilter(filterId: filterId)
+        
+        authenticateProvider.loggedInUser { [weak self] result in
+            guard let self = self else { return }
+            
+            switch result {
+            case .Success(let user):
+                self.filtersWorker.fetchFilter(user:user, filterId: filterId)
+            case .Failure(let error):
+                print(error)
+                self.filtersWorker.fetchFilter(user:nil, filterId: filterId)
+            }
+        }
     }
     
     func fetchFilters(_ request: CameraPreview.FetchFilters.Request) {
-        self.filtersWorker.fetchFilters()
+        authenticateProvider.loggedInUser { [weak self] result in
+            guard let self = self else { return }
+            
+            switch result {
+            case .Success(let user):
+                self.filtersWorker.fetchFilters(user: user)
+            case .Failure(let error):
+                print(error)
+                self.filtersWorker.fetchFilters(user: nil)
+            }
+        }
     }
     
     func selectPhoto(_ request: CameraPreview.SelectPhoto.Request) {

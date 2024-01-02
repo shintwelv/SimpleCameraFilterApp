@@ -27,7 +27,8 @@ protocol CreateFilterDataStore
 class CreateFilterInteractor: CreateFilterBusinessLogic, CreateFilterDataStore
 {
     var presenter: CreateFilterPresentationLogic?
-    var filtersWorker: FiltersWorker = FiltersWorker(filtersStore: FilterMemStore())
+    var filtersWorker: FiltersWorker = FiltersWorker(remoteStore: FilterFirebaseStore(), localStore: FilterMemStore())
+    var authenticationWorker: UserAuthenticationWorker = UserAuthenticationWorker(provider: FirebaseAuthentication())
     
     var filterId: UUID?
     
@@ -138,7 +139,18 @@ class CreateFilterInteractor: CreateFilterBusinessLogic, CreateFilterDataStore
     // MARK: CRUD operations
     func fetchFilter(request: CreateFilter.FetchFilter.Request) {
         if let filterId = self.filterId {
-            filtersWorker.fetchFilter(filterId: filterId)
+            authenticationWorker.loggedInUser { [weak self] result in
+                guard let self = self else { return }
+                
+                switch result {
+                case .Success(let user):
+                    self.filtersWorker.fetchFilter(user:user, filterId: filterId)
+                case .Failure(let error):
+                    print(error)
+                    let response = CreateFilter.FetchFilter.Response(filter: nil)
+                    self.presenter?.presentFetchedFilter(response: response)
+                }
+            }
         } else {
             let response = CreateFilter.FetchFilter.Response(filter: nil)
             self.presenter?.presentFetchedFilter(response: response)
@@ -218,7 +230,18 @@ class CreateFilterInteractor: CreateFilterBusinessLogic, CreateFilterDataStore
                                                  inputLevels: inputLevels)
         
         if let filterToCreate = filterToCreate {
-            filtersWorker.createFilter(filterToCreate: filterToCreate)
+            authenticationWorker.loggedInUser { [weak self] result in
+                guard let self = self else { return }
+                
+                switch result {
+                case .Success(let user):
+                    self.filtersWorker.createFilter(user:user, filterToCreate: filterToCreate)
+                case .Failure(let error):
+                    print(error)
+                    let response = CreateFilter.EditFilter.Response(filter: nil)
+                    self.presenter?.presentEditedFilter(response: response)
+                }
+            }
         } else {
             let response = CreateFilter.EditFilter.Response(filter: nil)
             self.presenter?.presentEditedFilter(response: response)
@@ -244,7 +267,18 @@ class CreateFilterInteractor: CreateFilterBusinessLogic, CreateFilterDataStore
                                           inputLevels: inputLevels)
         
         if let filterToUpdate = filterToUpdate {
-            self.filtersWorker.updateFilter(filterToUpdate: filterToUpdate)
+            authenticationWorker.loggedInUser { [weak self] result in
+                guard let self = self else { return }
+                
+                switch result {
+                case .Success(let user):
+                    self.filtersWorker.updateFilter(user:user, filterToUpdate: filterToUpdate)
+                case .Failure(let error):
+                    print(error)
+                    let response = CreateFilter.EditFilter.Response(filter: nil)
+                    self.presenter?.presentEditedFilter(response: response)
+                }
+            }
         } else {
             let response = CreateFilter.EditFilter.Response(filter: nil)
             self.presenter?.presentEditedFilter(response: response)
@@ -253,7 +287,18 @@ class CreateFilterInteractor: CreateFilterBusinessLogic, CreateFilterDataStore
     
     func deleteFilter(request: CreateFilter.DeleteFilter.Request) {
         if let filterId = self.filterId {
-            self.filtersWorker.deleteFilter(filterId: filterId)
+            authenticationWorker.loggedInUser { [weak self] result in
+                guard let self = self else { return }
+                
+                switch result {
+                case .Success(let user):
+                    self.filtersWorker.deleteFilter(user:user, filterId: filterId)
+                case .Failure(let error):
+                    print(error)
+                    let response = CreateFilter.DeleteFilter.Response(filter: nil)
+                    self.presenter?.presentDeletedFilter(response: response)
+                }
+            }
         } else {
             let response = CreateFilter.DeleteFilter.Response(filter: nil)
             self.presenter?.presentDeletedFilter(response: response)

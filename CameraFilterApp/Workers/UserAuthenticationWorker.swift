@@ -5,9 +5,13 @@
 //  Created by siheo on 12/18/23.
 //
 
+import Foundation
+import Alamofire
 import UIKit
 
 class UserAuthenticationWorker {
+    
+    static let endPoint: String = FirebaseDB.Endpoint.url.rawValue + "/" + FirebaseDB.Name.users.rawValue
     
     var authenticationProvider: UserAuthenticationProtocol
     
@@ -36,7 +40,23 @@ class UserAuthenticationWorker {
     }
     
     func signUp(email: String, password: String, completionHandler: @escaping UserSignUpCompletionHandler) {
-        authenticationProvider.signUp(email: email, password: password, completionHandler: completionHandler)
+        authenticationProvider.signUp(email: email, password: password) { result in
+            switch result {
+            case .Success(let user):
+                var parameter:[String: [String:String]] = [:]
+                parameter[user.userId] = ["email" : user.email]
+                
+                let headers: HTTPHeaders = [
+                    .contentType(FirebaseDB.ContentType.applicationJson.rawValue)
+                ]
+                
+                let _ = AF.request("\(UserAuthenticationWorker.endPoint).\(FirebaseDB.FileExt.json)", method: .patch, parameters: parameter, encoder: JSONParameterEncoder.default, headers: headers).response
+            case .Failure(_):
+                break
+            }
+            
+            completionHandler(result)
+        }
     }
     
     func deleteUser(completionHandler: @escaping UserDeleteCompletionHandler) {

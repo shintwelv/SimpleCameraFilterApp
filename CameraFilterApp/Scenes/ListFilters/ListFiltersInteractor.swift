@@ -22,7 +22,8 @@ protocol ListFiltersDataStore
 class ListFiltersInteractor: ListFiltersBusinessLogic, ListFiltersDataStore
 {
     var presenter: ListFiltersPresentationLogic?
-    var filtersWorker: FiltersWorker = FiltersWorker(filtersStore: FilterMemStore())
+    var filtersWorker: FiltersWorker = FiltersWorker(remoteStore: FilterFirebaseStore(), localStore: FilterMemStore())
+    var authenticationWorker: UserAuthenticationWorker = UserAuthenticationWorker(provider: FirebaseAuthentication())
     
     var selectedFilterId: UUID?
     
@@ -50,7 +51,17 @@ class ListFiltersInteractor: ListFiltersBusinessLogic, ListFiltersDataStore
     
     // MARK: Fetch filters
     func fetchFilters(request: ListFilters.FetchFilters.Request) {
-        self.filtersWorker.fetchFilters()
+        authenticationWorker.loggedInUser { [weak self] result in
+            guard let self = self else { return }
+            
+            switch result {
+            case .Success(let user):
+                self.filtersWorker.fetchFilters(user: user)
+            case .Failure(let error):
+                print(error)
+                self.filtersWorker.fetchFilters(user: nil)
+            }
+        }
     }
     
     // MARK: - Select filter
