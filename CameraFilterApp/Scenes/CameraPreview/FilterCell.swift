@@ -9,8 +9,6 @@ import UIKit
 
 class FilterCell: UICollectionViewCell {
     
-    static let cellSize: CGSize = CGSize(width: 80, height: 100)
-    
     private var sampleImageView: UIImageView!
     private var nameLabel: UILabel!
 
@@ -56,14 +54,15 @@ class FilterCell: UICollectionViewCell {
         ].forEach { $0.translatesAutoresizingMaskIntoConstraints = false }
         
         NSLayoutConstraint.activate([
+            self.sampleImageView.centerXAnchor.constraint(equalTo: self.contentView.centerXAnchor),
             self.sampleImageView.topAnchor.constraint(equalTo: self.contentView.topAnchor),
-            self.sampleImageView.leadingAnchor.constraint(equalTo: self.contentView.leadingAnchor),
-            self.sampleImageView.widthAnchor.constraint(equalTo: self.contentView.widthAnchor),
-            self.sampleImageView.heightAnchor.constraint(equalTo: self.sampleImageView.widthAnchor),
+            self.sampleImageView.bottomAnchor.constraint(equalTo: self.contentView.bottomAnchor, constant: -20),
+            self.sampleImageView.widthAnchor.constraint(equalTo: self.sampleImageView.heightAnchor),
             
-            self.nameLabel.widthAnchor.constraint(equalTo: self.contentView.widthAnchor),
+            self.nameLabel.widthAnchor.constraint(equalTo: self.sampleImageView.widthAnchor),
             self.nameLabel.topAnchor.constraint(equalTo: self.sampleImageView.bottomAnchor, constant: 5),
-            self.nameLabel.centerXAnchor.constraint(equalTo: self.contentView.centerXAnchor),
+            self.nameLabel.bottomAnchor.constraint(equalTo: self.contentView.bottomAnchor),
+            self.nameLabel.centerXAnchor.constraint(equalTo: self.sampleImageView.centerXAnchor),
         ])
     }
     
