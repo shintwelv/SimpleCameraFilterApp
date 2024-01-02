@@ -127,7 +127,6 @@ class CameraPreviewViewController: UIViewController, CameraPreviewDisplayLogic
         let button = UIButton(type: .system)
         button.setImage(UIImage(systemName: "photo"), for: .normal)
         button.backgroundColor = .systemGray6
-        button.layer.cornerRadius = 30
         return button
     }()
     
@@ -135,7 +134,6 @@ class CameraPreviewViewController: UIViewController, CameraPreviewDisplayLogic
         let button = UIButton(type: .system)
         button.layer.borderColor = UIColor.systemPurple.cgColor
         button.layer.borderWidth = 5
-        button.layer.cornerRadius = 40
         return button
     }()
     
@@ -143,13 +141,13 @@ class CameraPreviewViewController: UIViewController, CameraPreviewDisplayLogic
         let button = UIButton(type: .system)
         button.setImage(UIImage(systemName: "camera.filters"), for: .normal)
         button.backgroundColor = .systemGray6
-        button.layer.cornerRadius = 30
         return button
     }()
     
     private var filterEditButton: UIButton = {
         let button = UIButton(type: .system)
         button.setTitle("편집", for: .normal)
+        button.titleLabel?.adjustsFontSizeToFitWidth = true
         button.tintColor = .systemPurple
         button.titleLabel?.font = .systemFont(ofSize: 18)
         button.isHidden = true
@@ -159,7 +157,6 @@ class CameraPreviewViewController: UIViewController, CameraPreviewDisplayLogic
     private var filterCollectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .horizontal
-        layout.itemSize = FilterCell.cellSize
         
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.isScrollEnabled = true
@@ -207,6 +204,10 @@ class CameraPreviewViewController: UIViewController, CameraPreviewDisplayLogic
         interactor?.pauseSession(request)
     }
     
+    override func viewWillLayoutSubviews() {
+        configureCornerRadius()
+    }
+    
     private func configureUI() {
         self.view.backgroundColor = .white
         
@@ -247,6 +248,17 @@ class CameraPreviewViewController: UIViewController, CameraPreviewDisplayLogic
         self.filterCollectionView.dataSource = self
         
         self.filterCollectionView.register(FilterCell.self, forCellWithReuseIdentifier: "filterCell")
+    }
+    
+    private func configureCornerRadius() {
+        [
+            self.galleryButton,
+            self.filterToggleButton,
+            self.shotButton
+        ].forEach {
+            let frame = $0.frame
+            $0.layer.cornerRadius = frame.width / 2
+        }
     }
     
     private func configureAutoLayout() {
@@ -307,30 +319,45 @@ class CameraPreviewViewController: UIViewController, CameraPreviewDisplayLogic
             self.bottomContentView.bottomAnchor.constraint(equalTo: self.view.bottomAnchor),
             
             self.galleryButton.centerYAnchor.constraint(equalTo: self.bottomContentView.centerYAnchor),
-            self.galleryButton.widthAnchor.constraint(equalToConstant: 60),
+            self.galleryButton.heightAnchor.constraint(lessThanOrEqualToConstant: 60),
             self.galleryButton.heightAnchor.constraint(equalTo: self.galleryButton.widthAnchor),
             self.galleryButton.leadingAnchor.constraint(equalTo: self.bottomContentView.leadingAnchor, constant: 15),
             
             self.shotButton.centerYAnchor.constraint(equalTo: self.bottomContentView.centerYAnchor),
-            self.shotButton.widthAnchor.constraint(equalToConstant: 80),
-            self.shotButton.heightAnchor.constraint(equalTo: self.shotButton.widthAnchor),
+            self.shotButton.heightAnchor.constraint(lessThanOrEqualToConstant: 100),
+            self.shotButton.widthAnchor.constraint(equalTo: self.shotButton.heightAnchor),
             self.shotButton.centerXAnchor.constraint(equalTo: self.bottomContentView.centerXAnchor),
             
             self.filterToggleButton.centerYAnchor.constraint(equalTo: self.bottomContentView.centerYAnchor),
-            self.filterToggleButton.widthAnchor.constraint(equalToConstant: 60),
-            self.filterToggleButton.heightAnchor.constraint(equalTo: self.filterToggleButton.widthAnchor),
+            self.filterToggleButton.heightAnchor.constraint(lessThanOrEqualToConstant: 60),
+            self.filterToggleButton.widthAnchor.constraint(equalTo: self.filterToggleButton.heightAnchor),
             self.filterToggleButton.trailingAnchor.constraint(equalTo: self.bottomContentView.trailingAnchor, constant: -15),
             
-            self.filterEditButton.widthAnchor.constraint(equalToConstant: 60),
-            self.filterEditButton.heightAnchor.constraint(equalToConstant: 30),
-            self.filterEditButton.bottomAnchor.constraint(equalTo: self.filterToggleButton.topAnchor, constant: -10),
-            self.filterEditButton.trailingAnchor.constraint(equalTo: self.filterToggleButton.trailingAnchor),
+            self.filterEditButton.widthAnchor.constraint(equalTo: self.filterToggleButton.widthAnchor),
+            self.filterEditButton.centerXAnchor.constraint(equalTo: self.filterToggleButton.centerXAnchor),
+            self.filterEditButton.topAnchor.constraint(equalTo: self.bottomContentView.topAnchor),
+            self.filterEditButton.bottomAnchor.constraint(equalTo: self.filterToggleButton.topAnchor, constant: -5),
             
             self.filterCollectionView.centerYAnchor.constraint(equalTo: self.bottomContentView.centerYAnchor),
-            self.filterCollectionView.leadingAnchor.constraint(equalTo: self.bottomContentView.leadingAnchor, constant: 15),
-            self.filterCollectionView.trailingAnchor.constraint(equalTo: self.filterToggleButton.leadingAnchor, constant: -15),
-            self.filterCollectionView.heightAnchor.constraint(equalToConstant: FilterCell.cellSize.height),
+            self.filterCollectionView.heightAnchor.constraint(lessThanOrEqualToConstant: 120),
+            self.filterCollectionView.leadingAnchor.constraint(equalTo: self.bottomContentView.leadingAnchor, constant: 5),
+            self.filterCollectionView.trailingAnchor.constraint(equalTo: self.filterToggleButton.leadingAnchor, constant: -5),
         ])
+        
+        [
+            (15, self.shotButton),
+            (5, self.filterCollectionView),
+            (30, self.galleryButton),
+            (30, self.filterToggleButton),
+        ].map { (padding, view) in
+            [
+                view.topAnchor.constraint(equalTo: self.bottomContentView.topAnchor, constant: padding),
+                view.bottomAnchor.constraint(equalTo: self.bottomContentView.bottomAnchor, constant: -padding),
+            ]
+        }.flatMap{$0}.forEach {
+            $0.priority = .defaultHigh
+            $0.isActive = true
+        }
     }
     
     func configureMTKView() {
@@ -496,6 +523,18 @@ extension CameraPreviewViewController: UICollectionViewDataSource {
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return self.filterInfos.count
+    }
+}
+
+extension CameraPreviewViewController: UICollectionViewDelegateFlowLayout {
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        
+        let collectionViewFrame = collectionView.frame
+
+        let cellHeight = collectionViewFrame.height - 15
+        let cellWidth = cellHeight - 20
+
+        return CGSize(width: cellWidth, height: cellHeight)
     }
 }
 
