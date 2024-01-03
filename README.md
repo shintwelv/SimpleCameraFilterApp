@@ -13,10 +13,16 @@
 - RxSwift
 - Alamofire
 
+# App Structure
+
+VIP pattern
+![AppStructure](https://github.com/shintwelv/SimpleCameraFilterApp/assets/74942977/54b47d99-591f-464b-b145-b29d6e909c88)
+
 # DB
 
 Firebase Realtime Database를 REST api로 사용합니다
-
+# 서버 구조
+Firebase Realtime Database를 사용하였으며 구조는 아래와 같습니다
 ## Structure
 
 <details>
