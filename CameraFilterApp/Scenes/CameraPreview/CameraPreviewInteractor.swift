@@ -38,7 +38,7 @@ class CameraPreviewInteractor: NSObject, CameraPreviewBusinessLogic, CameraPrevi
     var presenter: CameraPreviewPresentationLogic?
     var worker: CameraPreviewWorker = CameraPreviewWorker()
     var filtersWorker: FiltersWorker = FiltersWorker(remoteStore: FilterFirebaseStore(), localStore: FilterMemStore())
-    var authenticateProvider = UserAuthenticationWorker(provider: FirebaseAuthentication())
+    var userWorker: UserWorker = UserWorker(store: UserFirebaseStore(), authentication: FirebaseAuthentication())
     
     private let cameraQueue = DispatchQueue(label: "cameraQueue")
     private let videoQueue = DispatchQueue(label: "videoQueue")
@@ -129,7 +129,7 @@ class CameraPreviewInteractor: NSObject, CameraPreviewBusinessLogic, CameraPrevi
     }
     
     func isSignedIn(_ request: CameraPreview.LoginStatus.Request) {
-        authenticateProvider.loggedInUser { [weak self] authResult in
+        userWorker.fetchCurrentlyLoggedInUser { [weak self] authResult in
             guard let self = self else { return }
             
             switch authResult {
@@ -146,7 +146,7 @@ class CameraPreviewInteractor: NSObject, CameraPreviewBusinessLogic, CameraPrevi
     }
     
     func signOut(_ request: CameraPreview.SignOut.Request) {
-        authenticateProvider.logOut { [weak self] authResult in
+        userWorker.logOut { [weak self] authResult in
             guard let self = self else { return }
             
             switch authResult {
@@ -165,7 +165,7 @@ class CameraPreviewInteractor: NSObject, CameraPreviewBusinessLogic, CameraPrevi
     func applyFilter(_ request: CameraPreview.ApplyFilter.Request) {
         let filterId = request.filterId
         
-        authenticateProvider.loggedInUser { [weak self] result in
+        userWorker.fetchCurrentlyLoggedInUser { [weak self] result in
             guard let self = self else { return }
             
             switch result {
@@ -179,7 +179,7 @@ class CameraPreviewInteractor: NSObject, CameraPreviewBusinessLogic, CameraPrevi
     }
     
     func fetchFilters(_ request: CameraPreview.FetchFilters.Request) {
-        authenticateProvider.loggedInUser { [weak self] result in
+        userWorker.fetchCurrentlyLoggedInUser { [weak self] result in
             guard let self = self else { return }
             
             switch result {
