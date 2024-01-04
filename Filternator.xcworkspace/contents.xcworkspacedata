@@ -2,6 +2,9 @@
 <Workspace
    version = "1.0">
    <FileRef
+      location = "group:NetworkManager/NetworkManager.xcodeproj">
+   </FileRef>
+   <FileRef
       location = "group:CameraFilterApp.xcodeproj">
    </FileRef>
 </Workspace>
