@@ -27,7 +27,7 @@ class EditPhotoInteractor: EditPhotoBusinessLogic, EditPhotoDataStore
     var worker = EditPhotoWorker()
     
     private var filtersWorker: FiltersWorker = FiltersWorker(remoteStore: FilterFirebaseStore(), localStore: FilterMemStore())
-    private var authenticationWorker: UserAuthenticationWorker = UserAuthenticationWorker(provider: FirebaseAuthentication())
+    private var userWorker: UserWorker = UserWorker(store: UserFirebaseStore(), authentication: FirebaseAuthentication())
     
     var photo: UIImage?
     
@@ -113,7 +113,7 @@ class EditPhotoInteractor: EditPhotoBusinessLogic, EditPhotoDataStore
     }
     
     func fetchFilters(request: EditPhoto.FetchFilters.Request) {
-        authenticationWorker.loggedInUser { [weak self] result in
+        userWorker.fetchCurrentlyLoggedInUser { [weak self] result in
             guard let self = self else { return }
             
             switch result {
@@ -128,7 +128,7 @@ class EditPhotoInteractor: EditPhotoBusinessLogic, EditPhotoDataStore
     
     func applyFilter(request: EditPhoto.ApplyFilter.Request) {
         let filterId = request.filterId
-        authenticationWorker.loggedInUser { [weak self] result in
+        userWorker.fetchCurrentlyLoggedInUser { [weak self] result in
             guard let self = self else { return }
             
             switch result {

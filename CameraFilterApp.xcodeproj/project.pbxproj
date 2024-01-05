@@ -20,15 +20,17 @@
 		C2F1C80D2B078F37002F732D /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2F1C80C2B078F37002F732D /* SceneDelegate.swift */; };
 		C2F1C8142B078F38002F732D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C2F1C8132B078F38002F732D /* Assets.xcassets */; };
 		C2F1C8172B078F38002F732D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = C2F1C8152B078F38002F732D /* LaunchScreen.storyboard */; };
+		ED012EBC2B44CF88002E0405 /* UserWorker.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED012EBB2B44CF88002E0405 /* UserWorker.swift */; };
+		ED012EBE2B44E814002E0405 /* UserFirebaseStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED012EBD2B44E814002E0405 /* UserFirebaseStore.swift */; };
 		ED12A33B2B3A9337003C1012 /* FirebaseDatabase in Frameworks */ = {isa = PBXBuildFile; productRef = ED12A33A2B3A9337003C1012 /* FirebaseDatabase */; };
 		ED12A33D2B3A9473003C1012 /* FilterFirebaseStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED12A33C2B3A9473003C1012 /* FilterFirebaseStore.swift */; };
+		ED2638C32B462E6200C102C0 /* libNetworkManager.a in Frameworks */ = {isa = PBXBuildFile; fileRef = ED2638C22B462E6200C102C0 /* libNetworkManager.a */; };
 		ED442E6A2B195B5700A030C6 /* FiltersWorker.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED442E692B195B5700A030C6 /* FiltersWorker.swift */; };
 		ED442E6C2B19628900A030C6 /* FilterMemStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED442E6B2B19628900A030C6 /* FilterMemStore.swift */; };
 		ED7064FD2B3CEC7B00E725A7 /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = ED7064FC2B3CEC7B00E725A7 /* Alamofire */; };
 		EDB191212B2971E400DD1BA9 /* RxSwift in Frameworks */ = {isa = PBXBuildFile; productRef = EDB191202B2971E400DD1BA9 /* RxSwift */; };
 		EDB191432B2AA92F00DD1BA9 /* CVPixelBuffer+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDB191422B2AA92F00DD1BA9 /* CVPixelBuffer+Extension.swift */; };
 		EDBE1C602B2FC4E500C41B37 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = EDBE1C5F2B2FC4E500C41B37 /* GoogleService-Info.plist */; };
-		EDBE1C652B2FEA0900C41B37 /* UserAuthenticationWorker.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDBE1C642B2FEA0900C41B37 /* UserAuthenticationWorker.swift */; };
 		EDBE1C672B30099300C41B37 /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDBE1C662B30099300C41B37 /* User.swift */; };
 		EDBE1C692B300B8400C41B37 /* FirebaseAuthentication.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDBE1C682B300B8400C41B37 /* FirebaseAuthentication.swift */; };
 		EDBE1C6F2B300CD000C41B37 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = EDBE1C6E2B300CD000C41B37 /* FirebaseAnalytics */; };
@@ -94,13 +96,15 @@
 		C2F1C8132B078F38002F732D /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		C2F1C8162B078F38002F732D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		C2F1C8182B078F38002F732D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		ED012EBB2B44CF88002E0405 /* UserWorker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserWorker.swift; sourceTree = "<group>"; };
+		ED012EBD2B44E814002E0405 /* UserFirebaseStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserFirebaseStore.swift; sourceTree = "<group>"; };
 		ED12A33C2B3A9473003C1012 /* FilterFirebaseStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterFirebaseStore.swift; sourceTree = "<group>"; };
+		ED2638C22B462E6200C102C0 /* libNetworkManager.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libNetworkManager.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		ED442E692B195B5700A030C6 /* FiltersWorker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FiltersWorker.swift; sourceTree = "<group>"; };
 		ED442E6B2B19628900A030C6 /* FilterMemStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterMemStore.swift; sourceTree = "<group>"; };
 		ED6A15AA2B33BB1700C4A42D /* CameraFilterApp.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = CameraFilterApp.entitlements; sourceTree = "<group>"; };
 		EDB191422B2AA92F00DD1BA9 /* CVPixelBuffer+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CVPixelBuffer+Extension.swift"; sourceTree = "<group>"; };
 		EDBE1C5F2B2FC4E500C41B37 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
-		EDBE1C642B2FEA0900C41B37 /* UserAuthenticationWorker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserAuthenticationWorker.swift; sourceTree = "<group>"; };
 		EDBE1C662B30099300C41B37 /* User.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
 		EDBE1C682B300B8400C41B37 /* FirebaseAuthentication.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseAuthentication.swift; sourceTree = "<group>"; };
 		EDBE1C882B302F3D00C41B37 /* CreateUserPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateUserPresenter.swift; sourceTree = "<group>"; };
@@ -144,6 +148,7 @@
 				EDB191212B2971E400DD1BA9 /* RxSwift in Frameworks */,
 				ED7064FD2B3CEC7B00E725A7 /* Alamofire in Frameworks */,
 				EDBE1C732B300CD000C41B37 /* FirebaseAnalyticsSwift in Frameworks */,
+				ED2638C32B462E6200C102C0 /* libNetworkManager.a in Frameworks */,
 				EDBE1C6F2B300CD000C41B37 /* FirebaseAnalytics in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -199,7 +204,7 @@
 			isa = PBXGroup;
 			children = (
 				ED442E692B195B5700A030C6 /* FiltersWorker.swift */,
-				EDBE1C642B2FEA0900C41B37 /* UserAuthenticationWorker.swift */,
+				ED012EBB2B44CF88002E0405 /* UserWorker.swift */,
 			);
 			path = Workers;
 			sourceTree = "<group>";
@@ -210,6 +215,7 @@
 				ED442E6B2B19628900A030C6 /* FilterMemStore.swift */,
 				EDBE1C682B300B8400C41B37 /* FirebaseAuthentication.swift */,
 				ED12A33C2B3A9473003C1012 /* FilterFirebaseStore.swift */,
+				ED012EBD2B44E814002E0405 /* UserFirebaseStore.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -217,6 +223,7 @@
 		ED97385B2B29593F007030CC /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				ED2638C22B462E6200C102C0 /* libNetworkManager.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -430,6 +437,7 @@
 				ED12A33D2B3A9473003C1012 /* FilterFirebaseStore.swift in Sources */,
 				EDBE1C912B302F3D00C41B37 /* CreateUserModels.swift in Sources */,
 				C241E0E52B2DDC2500234A36 /* EditPhotoFilterCell.swift in Sources */,
+				ED012EBC2B44CF88002E0405 /* UserWorker.swift in Sources */,
 				C24464492B1B1E3400F0B029 /* ListFilterCell.swift in Sources */,
 				C244644D2B1B4E7100F0B029 /* CreateFilterInteractor.swift in Sources */,
 				EDBE1C902B302F3D00C41B37 /* CreateUserRouter.swift in Sources */,
@@ -448,12 +456,12 @@
 				C24464572B1B4EC200F0B029 /* CreateFilterRouter.swift in Sources */,
 				EDEC73972B17329E00595A95 /* CreateFilterModels.swift in Sources */,
 				EDEC73A92B1823DE00595A95 /* ListFiltersInteractor.swift in Sources */,
-				EDBE1C652B2FEA0900C41B37 /* UserAuthenticationWorker.swift in Sources */,
 				EDC5DF5A2B2BE1A60089BCA3 /* EditPhotoInteractor.swift in Sources */,
 				EDBE1C672B30099300C41B37 /* User.swift in Sources */,
 				EDC5DF562B2BE1A60089BCA3 /* EditPhotoWorker.swift in Sources */,
 				EDEC737D2B145DA400595A95 /* CameraPreviewModels.swift in Sources */,
 				EDEC737B2B145DA400595A95 /* CameraPreviewWorker.swift in Sources */,
+				ED012EBE2B44E814002E0405 /* UserFirebaseStore.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -600,12 +608,13 @@
 				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = "";
-				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = C2GQEYW6B8;
+				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = 77P94MC849;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = CameraFilterApp/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "필터네이터";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.photography";
-				INFOPLIST_KEY_NSCameraUsageDescription = "use camera";
+				INFOPLIST_KEY_NSCameraUsageDescription = "사진 촬영을 위해 카메라를 사용합니다";
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "촬영 및 편집한 이미지를 갤러리에 저장합니다";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
@@ -619,7 +628,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.elvin.Filternator;
 				PRODUCT_NAME = Filternator;
 				PROVISIONING_PROFILE_SPECIFIER = "";
-				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = IZDeveloper;
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = Filternator_develop;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
@@ -639,12 +648,13 @@
 				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = "";
-				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = C2GQEYW6B8;
+				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = 77P94MC849;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = CameraFilterApp/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "필터네이터";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.photography";
-				INFOPLIST_KEY_NSCameraUsageDescription = "use camera";
+				INFOPLIST_KEY_NSCameraUsageDescription = "사진 촬영을 위해 카메라를 사용합니다";
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "촬영 및 편집한 이미지를 갤러리에 저장합니다";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
@@ -658,7 +668,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.elvin.Filternator;
 				PRODUCT_NAME = Filternator;
 				PROVISIONING_PROFILE_SPECIFIER = "";
-				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = IZDeveloper;
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = Filternator_develop;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
