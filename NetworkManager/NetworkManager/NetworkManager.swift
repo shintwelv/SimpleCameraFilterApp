@@ -9,55 +9,116 @@ import Foundation
 
 public class NetworkManager {
     
-    public static var shared = NetworkManager(provider: AlamofireNetwork())
+    public static var shared = NetworkManager(requestProvider: AlamofireNetwork.shared, responseProvider: AlamofireNetwork.shared)
     
-    private var networkProvider: NetworkProtocol!
+    private var requestProvider: NetworkRequestProtocol
+    private var responseProvider: NetworkResponseProtocol
     
-    internal init(provider: NetworkProtocol) {
-        self.networkProvider = provider
+    internal init(requestProvider: NetworkRequestProtocol, responseProvider: NetworkResponseProtocol) {
+        self.requestProvider = requestProvider
+        self.responseProvider = responseProvider
     }
     
-    public func getMethod<T, U>(_ url: String, headers: [String : String]? = nil, parameter: [String : U] = [String : String](), encoding: ParamterEncoding = .url, responseDataType: T.Type, completionHandler: @escaping (HTTPResponse<T>) -> Void) where T: Decodable, U: Encodable {
-        networkProvider.getMethod(url, headers: headers, parameter: parameter, encoding: encoding, responseDataType: responseDataType, completionHandler: completionHandler)
+    public func getMethod(_ url: String, headers: [String : String]? = nil, parameters: Encodable? = nil, encoding: ParameterEncoding = .url) -> NetworkResponse? {
+        let request: URLRequest? = {
+            if let parameters = parameters {
+                return requestProvider.get(url: url, headers: headers, parameters: parameters, encoding: encoding)
+            } else {
+                return requestProvider.get(url: url, headers: headers)
+            }
+        }()
+        
+        guard let request = request else { return nil }
+        
+        return NetworkResponse(request: request, provider: responseProvider)
     }
     
-    public func patchMethod<T, U>(_ url: String, headers: [String : String]? = nil, parameter: [String : U] = [String : String](), encoding: ParamterEncoding = .url, responseDataType: T.Type, completionHandler: @escaping (HTTPResponse<T>) -> Void) where T: Decodable, U: Encodable {
-        networkProvider.patchMethod(url, headers: headers, parameter: parameter, encoding: encoding, responseDataType: responseDataType, completionHandler: completionHandler)
+    public func patchMethod(_ url: String, headers: [String : String]? = nil, parameters: Encodable? = nil, encoding: ParameterEncoding = .url) -> NetworkResponse?{
+        let request: URLRequest? = {
+            if let parameters = parameters {
+                return requestProvider.patch(url: url, headers: headers, parameters: parameters, encoding: encoding)
+            } else {
+                return requestProvider.patch(url: url, headers: headers)
+            }
+        }()
+        
+        guard let request = request else { return nil }
+        
+        return NetworkResponse(request: request, provider: responseProvider)
     }
     
-    public func postMethod<T, U>(_ url: String, headers: [String : String]? = nil, parameter: [String : U] = [String : String](), encoding: ParamterEncoding = .url, responseDataType: T.Type, completionHandler: @escaping (HTTPResponse<T>) -> Void) where T: Decodable, U: Encodable {
-        networkProvider.postMethod(url, headers: headers, parameter: parameter, encoding: encoding, responseDataType: responseDataType, completionHandler: completionHandler)
+    public func postMethod(_ url: String, headers: [String : String]? = nil, parameters: Encodable? = nil, encoding: ParameterEncoding = .url) -> NetworkResponse? {
+        let request: URLRequest? = {
+            if let parameters = parameters {
+                return requestProvider.post(url: url, headers: headers, parameters: parameters, encoding: encoding)
+            } else {
+                return requestProvider.post(url: url, headers: headers)
+            }
+        }()
+        
+        guard let request = request else { return nil }
+        
+        return NetworkResponse(request: request, provider: responseProvider)
     }
     
-    public func deleteMethod<T, U>(_ url: String, headers: [String : String]? = nil, parameter: [String : U] = [String : String](), encoding: ParamterEncoding = .url, responseDataType: T.Type, completionHandler: @escaping (HTTPResponse<T>) -> Void) where T: Decodable, U: Encodable {
-        networkProvider.deleteMethod(url, headers: headers, parameter: parameter, encoding: encoding, responseDataType: responseDataType, completionHandler: completionHandler)
+    public func deleteMethod(_ url: String, headers: [String : String]? = nil, parameters: Encodable? = nil, encoding: ParameterEncoding = .url) -> NetworkResponse? {
+        let request: URLRequest? = {
+            if let parameters = parameters {
+                return requestProvider.delete(url: url, headers: headers, parameters: parameters, encoding: encoding)
+            } else {
+                return requestProvider.delete(url: url, headers: headers)
+            }
+        }()
+        
+        guard let request = request else { return nil }
+        
+        return NetworkResponse(request: request, provider: responseProvider)
     }
 }
 
-public enum ParamterEncoding {
+public enum ParameterEncoding {
     case url
     case json
 }
 
 public enum HTTPResponse<U> {
-    public enum ResponseError: LocalizedError {
-        case requestFailed(String)
-        
-        public var errorDescription: String? {
-            switch self {
-            case .requestFailed(let string):
-                return string
-            }
-        }
-    }
-    
     case Success(data: U)
-    case Fail(error: ResponseError)
+    case Fail(error: Error)
 }
 
-internal protocol NetworkProtocol {
-    func getMethod<T, U>(_ url: String, headers: [String : String]?, parameter: [String : U]?, encoding: ParamterEncoding, responseDataType: T.Type, completionHandler: @escaping (HTTPResponse<T>) -> Void) where T: Decodable, U: Encodable
-    func patchMethod<T, U>(_ url: String, headers: [String : String]?, parameter: [String : U]?, encoding: ParamterEncoding, responseDataType: T.Type, completionHandler: @escaping (HTTPResponse<T>) -> Void) where T: Decodable, U: Encodable
-    func postMethod<T, U>(_ url: String, headers: [String : String]?, parameter: [String : U]?, encoding: ParamterEncoding, responseDataType: T.Type, completionHandler: @escaping (HTTPResponse<T>) -> Void) where T: Decodable, U: Encodable
-    func deleteMethod<T, U>(_ url: String, headers: [String : String]?, parameter: [String : U]?, encoding: ParamterEncoding, responseDataType: T.Type, completionHandler: @escaping (HTTPResponse<T>) -> Void) where T: Decodable, U: Encodable
+internal protocol NetworkRequestProtocol {
+    func get(url: String, headers: [String : String]?) -> URLRequest?
+    func patch(url: String, headers: [String : String]?) -> URLRequest?
+    func post(url: String, headers: [String : String]?) -> URLRequest?
+    func delete(url: String, headers: [String : String]?) -> URLRequest?
+    
+    func get<T>(url: String, headers: [String : String]? , parameters: T, encoding: ParameterEncoding) -> URLRequest? where T: Encodable
+    func patch<T>(url: String, headers: [String : String]? , parameters: T, encoding: ParameterEncoding) -> URLRequest? where T: Encodable
+    func post<T>(url: String, headers: [String : String]? , parameters: T, encoding: ParameterEncoding) -> URLRequest? where T: Encodable
+    func delete<T>(url: String, headers: [String : String]? , parameters: T, encoding: ParameterEncoding) -> URLRequest? where T: Encodable
+}
+
+internal protocol NetworkResponseProtocol {
+    func response(_ request: URLRequest, completionHandler: NetworkResponseHandler<Data?>?)
+    func decodableResponse<T>(_ request: URLRequest, of type: T.Type, completionHandler: NetworkResponseHandler<T>?) where T: Decodable
+}
+
+public typealias NetworkResponseHandler<T> = (HTTPResponse<T>) -> Void
+
+public struct NetworkResponse {
+    private let request: URLRequest
+    private let responseProvider: NetworkResponseProtocol
+    
+    internal init(request: URLRequest, provider: NetworkResponseProtocol) {
+        self.request = request
+        self.responseProvider = provider
+    }
+    
+    public func response(completionHandler: NetworkResponseHandler<Data?>?) {
+        responseProvider.response(self.request, completionHandler: completionHandler)
+    }
+    
+    public func decodableResponse<T>(of type: T.Type, completionHandler: NetworkResponseHandler<T>?) where T: Decodable {
+        responseProvider.decodableResponse(self.request, of: type, completionHandler: completionHandler)
+    }
 }
