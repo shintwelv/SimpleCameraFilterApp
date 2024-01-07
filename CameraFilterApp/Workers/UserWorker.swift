@@ -1,37 +1,38 @@
 //
-//  UserAuthenticationWorker.swift
+//  UserWorker.swift
 //  CameraFilterApp
 //
-//  Created by siheo on 12/18/23.
+//  Created by siheo on 1/3/24.
 //
 
 import Foundation
 import Alamofire
 import UIKit
 
-class UserAuthenticationWorker {
+class UserWorker {
     
-    static let endPoint: String = FirebaseDB.Endpoint.url.rawValue + "/" + FirebaseDB.Name.users.rawValue
-    
+    var storeProvider: UserStoreProtocol
     var authenticationProvider: UserAuthenticationProtocol
     
-    init(provider: UserAuthenticationProtocol) {
-        self.authenticationProvider = provider
+    init(store: UserStoreProtocol, authentication: UserAuthenticationProtocol) {
+        self.storeProvider = store
+        self.authenticationProvider = authentication
     }
     
-    func loggedInUser(completionHandler: @escaping LoggedInUserCompletionHandler) {
+    // MARK: - Authenticate
+    func fetchCurrentlyLoggedInUser(completionHandler: @escaping LoggedInUserCompletionHandler) {
         authenticationProvider.loggedInUser(completionHandler: completionHandler)
     }
     
-    func appleLogin(presentingViewController vc: UIViewController, completionHandler: @escaping UserLogInCompletionHandler) {
+    func authenticateThroughApple(presentingViewController vc: UIViewController, completionHandler: @escaping UserLogInCompletionHandler) {
         authenticationProvider.appleLogin(presentingViewController: vc, completionHandler: completionHandler)
     }
     
-    func googleLogin(presentingViewController vc: UIViewController, completionHandler: @escaping UserLogInCompletionHandler) {
+    func authenticateThroughGoogle(presentingViewController vc: UIViewController, completionHandler: @escaping UserLogInCompletionHandler) {
         authenticationProvider.googleLogin(presentingViewController: vc, completionHandler: completionHandler)
     }
     
-    func login(email: String, password: String, completionHandler: @escaping UserLogInCompletionHandler) {
+    func logIn(email: String, password: String, completionHandler: @escaping UserLogInCompletionHandler) {
         authenticationProvider.logIn(email: email, password: password, completionHandler: completionHandler)
     }
     
@@ -40,27 +41,61 @@ class UserAuthenticationWorker {
     }
     
     func signUp(email: String, password: String, completionHandler: @escaping UserSignUpCompletionHandler) {
-        authenticationProvider.signUp(email: email, password: password) { result in
-            switch result {
-            case .Success(let user):
-                var parameter:[String: [String:String]] = [:]
-                parameter[user.userId] = ["email" : user.email]
-                
-                let headers: HTTPHeaders = [
-                    .contentType(FirebaseDB.ContentType.applicationJson.rawValue)
-                ]
-                
-                let _ = AF.request("\(UserAuthenticationWorker.endPoint).\(FirebaseDB.FileExt.json)", method: .patch, parameters: parameter, encoder: JSONParameterEncoder.default, headers: headers).response
-            case .Failure(_):
-                break
-            }
-            
-            completionHandler(result)
-        }
+        authenticationProvider.signUp(email: email, password: password, completionHandler: completionHandler)
     }
     
-    func deleteUser(completionHandler: @escaping UserDeleteCompletionHandler) {
+    func removeAuthentication(completionHandler: @escaping UserDeleteCompletionHandler) {
         authenticationProvider.delete(completionHandler: completionHandler)
+    }
+    
+    // MARK: - DB Interaction
+    func findInDB(_ user: User, completionHandler: @escaping UserStoreFetchUserCompletionHandler) {
+        storeProvider.fetchUserInStore(userToFetch: user, completionHandler: completionHandler)
+    }
+    
+    func saveInDB(_ user: User, completionHandler: @escaping UserStoreCreateUserCompletionHandler) {
+        storeProvider.createUserInStore(userToCreate: user, completionHandler: completionHandler)
+    }
+    
+    func deleteFromDB(_ user: User, completionHandler: @escaping UserStoreDeleteUserCompletionHandler) {
+        storeProvider.deleteUserInStore(userToDelete: user, completionHandler: completionHandler)
+    }
+}
+
+protocol UserStoreProtocol {
+    func fetchUserInStore(userToFetch:User, completionHandler: @escaping UserStoreFetchUserCompletionHandler)
+    func createUserInStore(userToCreate: User, completionHandler: @escaping UserStoreCreateUserCompletionHandler)
+    func deleteUserInStore(userToDelete: User, completionHandler: @escaping UserStoreDeleteUserCompletionHandler)
+}
+
+typealias UserStoreFetchUserCompletionHandler = (UserStoreResult<User?>) -> Void
+typealias UserStoreDeleteUserCompletionHandler = (UserStoreResult<User>) -> Void
+typealias UserStoreCreateUserCompletionHandler = (UserStoreResult<User>) -> Void
+
+enum UserStoreResult<U> {
+    case Success(result: U)
+    case Failure(error: UserStoreError)
+}
+
+enum UserStoreError: Equatable, LocalizedError {
+    case cannotFetch(String)
+    case cannotDelete(String)
+    case cannotCreate(String)
+    
+    var errorDescription: String? {
+        switch self {
+        case .cannotFetch(let string), .cannotDelete(let string), .cannotCreate(let string):
+            return string
+        }
+    }
+}
+
+func ==(lhs: UserStoreError, rhs: UserStoreError) -> Bool {
+    switch (lhs, rhs) {
+    case (.cannotFetch(let a), .cannotFetch(let b)) where a == b: return true
+    case (.cannotDelete(let a), .cannotDelete(let b)) where a == b: return true
+    case (.cannotCreate(let a), .cannotCreate(let b)) where a == b: return true
+    default: return false
     }
 }
 
