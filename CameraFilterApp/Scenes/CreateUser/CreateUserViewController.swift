@@ -459,7 +459,9 @@ class CreateUserViewController: UIViewController, CreateUserDisplayLogic
     
     private func showIndicatorView() {
         self.indicatorView.isHidden = true
-        self.indicatorView.startAnimating()
+        if self.indicatorView.isAnimating == false{
+            self.indicatorView.startAnimating()
+        }
     }
     
     @objc private func googleLoginButtonTapped(_ button: GIDSignInButton) {
@@ -508,7 +510,9 @@ class CreateUserViewController: UIViewController, CreateUserDisplayLogic
     
     private func hideIndicatorView() {
         self.indicatorView.isHidden = false
-        self.indicatorView.stopAnimating()
+        if self.indicatorView.isAnimating {
+            self.indicatorView.stopAnimating()
+        }
     }
     
     func displayUserSignedInWithApple(viewModel: CreateUser.AppleSignIn.ViewModel) {
