@@ -28,7 +28,7 @@ class CreateFilterInteractor: CreateFilterBusinessLogic, CreateFilterDataStore
 {
     var presenter: CreateFilterPresentationLogic?
     var filtersWorker: FiltersWorker = FiltersWorker(remoteStore: FilterFirebaseStore(), localStore: FilterMemStore())
-    var authenticationWorker: UserAuthenticationWorker = UserAuthenticationWorker(provider: FirebaseAuthentication())
+    var userWorker: UserWorker = UserWorker(store: UserFirebaseStore(), authentication: FirebaseAuthentication())
     
     var filterId: UUID?
     
@@ -139,7 +139,7 @@ class CreateFilterInteractor: CreateFilterBusinessLogic, CreateFilterDataStore
     // MARK: CRUD operations
     func fetchFilter(request: CreateFilter.FetchFilter.Request) {
         if let filterId = self.filterId {
-            authenticationWorker.loggedInUser { [weak self] result in
+            userWorker.fetchCurrentlyLoggedInUser { [weak self] result in
                 guard let self = self else { return }
                 
                 switch result {
@@ -230,7 +230,7 @@ class CreateFilterInteractor: CreateFilterBusinessLogic, CreateFilterDataStore
                                                  inputLevels: inputLevels)
         
         if let filterToCreate = filterToCreate {
-            authenticationWorker.loggedInUser { [weak self] result in
+            userWorker.fetchCurrentlyLoggedInUser { [weak self] result in
                 guard let self = self else { return }
                 
                 switch result {
@@ -267,7 +267,7 @@ class CreateFilterInteractor: CreateFilterBusinessLogic, CreateFilterDataStore
                                           inputLevels: inputLevels)
         
         if let filterToUpdate = filterToUpdate {
-            authenticationWorker.loggedInUser { [weak self] result in
+            userWorker.fetchCurrentlyLoggedInUser { [weak self] result in
                 guard let self = self else { return }
                 
                 switch result {
@@ -287,7 +287,7 @@ class CreateFilterInteractor: CreateFilterBusinessLogic, CreateFilterDataStore
     
     func deleteFilter(request: CreateFilter.DeleteFilter.Request) {
         if let filterId = self.filterId {
-            authenticationWorker.loggedInUser { [weak self] result in
+            userWorker.fetchCurrentlyLoggedInUser { [weak self] result in
                 guard let self = self else { return }
                 
                 switch result {

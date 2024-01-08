@@ -23,7 +23,7 @@ class ListFiltersInteractor: ListFiltersBusinessLogic, ListFiltersDataStore
 {
     var presenter: ListFiltersPresentationLogic?
     var filtersWorker: FiltersWorker = FiltersWorker(remoteStore: FilterFirebaseStore(), localStore: FilterMemStore())
-    var authenticationWorker: UserAuthenticationWorker = UserAuthenticationWorker(provider: FirebaseAuthentication())
+    var userWorker: UserWorker = UserWorker(store: UserFirebaseStore(), authentication: FirebaseAuthentication())
     
     var selectedFilterId: UUID?
     
@@ -51,7 +51,7 @@ class ListFiltersInteractor: ListFiltersBusinessLogic, ListFiltersDataStore
     
     // MARK: Fetch filters
     func fetchFilters(request: ListFilters.FetchFilters.Request) {
-        authenticationWorker.loggedInUser { [weak self] result in
+        userWorker.fetchCurrentlyLoggedInUser { [weak self] result in
             guard let self = self else { return }
             
             switch result {

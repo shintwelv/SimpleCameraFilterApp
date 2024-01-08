@@ -118,6 +118,15 @@ class EditPhotoViewController: UIViewController, EditPhotoDisplayLogic
         return button
     }()
     
+    private var indicatorView: UIActivityIndicatorView = {
+        let view = UIActivityIndicatorView()
+        view.backgroundColor = UIColor(red: 10/255, green: 10/255, blue: 10/255, alpha: 0.5)
+        view.style = .large
+        view.color = .white
+        view.isHidden = true
+        return view
+    }()
+    
     // MARK: View lifecycle
     
     override func viewDidLoad()
@@ -142,6 +151,7 @@ class EditPhotoViewController: UIViewController, EditPhotoDisplayLogic
             self.filterCollectionView,
             self.filterButton,
             self.buttonStackView,
+            self.indicatorView,
         ].forEach { self.view.addSubview($0) }
         
         [
@@ -184,6 +194,7 @@ class EditPhotoViewController: UIViewController, EditPhotoDisplayLogic
             self.buttonStackView,
             self.cancelButton,
             self.saveButton,
+            self.indicatorView,
         ].forEach { $0.translatesAutoresizingMaskIntoConstraints = false }
         
         NSLayoutConstraint.activate([
@@ -206,11 +217,32 @@ class EditPhotoViewController: UIViewController, EditPhotoDisplayLogic
             self.buttonStackView.leadingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.leadingAnchor, constant: 15),
             self.buttonStackView.trailingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.trailingAnchor, constant: -15),
             self.buttonStackView.heightAnchor.constraint(equalToConstant: 60),
+            
+            self.indicatorView.topAnchor.constraint(equalTo: self.view.topAnchor),
+            self.indicatorView.leadingAnchor.constraint(equalTo: self.view.leadingAnchor),
+            self.indicatorView.trailingAnchor.constraint(equalTo: self.view.trailingAnchor),
+            self.indicatorView.bottomAnchor.constraint(equalTo: self.view.bottomAnchor),
         ])
+    }
+    
+    private func showIndicatorView() {
+        self.indicatorView.isHidden = false
+        if self.indicatorView.isAnimating == false {
+            self.indicatorView.startAnimating()
+        }
+    }
+    
+    private func hideIndicatorView() {
+        self.indicatorView.isHidden = true
+        if self.indicatorView.isAnimating == true {
+            self.indicatorView.stopAnimating()
+        }
     }
     
     @objc private func saveButtonTapped(_ button: UIButton) {
         guard let filterAppliedPhoto = self.photoImageView.image else { return }
+        
+        showIndicatorView()
         
         let request = EditPhoto.SavePhoto.Request(filterAppliedPhoto: filterAppliedPhoto)
         self.interactor?.savePhoto(request: request)
@@ -276,6 +308,8 @@ class EditPhotoViewController: UIViewController, EditPhotoDisplayLogic
         alertController.addAction(okAction)
         
         self.present(alertController, animated: true)
+        
+        hideIndicatorView()
     }
 }
 
