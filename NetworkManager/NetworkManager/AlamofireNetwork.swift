@@ -45,62 +45,45 @@ internal struct AlamofireNetwork: NetworkResponseProtocol, NetworkRequestProtoco
             }
     }
     
-    func get(url: String, headers: [String : String]?) -> URLRequest? {
-        return request(url, method: .get, headers: headers)
-    }
-    
-    func patch(url: String, headers: [String : String]?) -> URLRequest? {
-        return request(url, method: .patch, headers: headers)
-    }
-    
-    func post(url: String, headers: [String : String]?) -> URLRequest? {
-        return request(url, method: .post, headers: headers)
-    }
-    
-    func delete(url: String, headers: [String : String]?) -> URLRequest? {
-        return request(url, method: .delete, headers: headers)
-    }
-    
-    func get<T>(url: String, headers: [String : String]?, parameters: T, encoding: ParameterEncoding) -> URLRequest? where T : Encodable {
-        return request(url, method: .get, headers: headers, parameter: parameters, encoding: encoding)
-    }
-    
-    func patch<T>(url: String, headers: [String : String]?, parameters: T, encoding: ParameterEncoding) -> URLRequest? where T : Encodable {
-        return request(url, method: .patch, headers: headers, parameter: parameters, encoding: encoding)
-    }
-    
-    func post<T>(url: String, headers: [String : String]?, parameters: T, encoding: ParameterEncoding) -> URLRequest? where T : Encodable {
-        return request(url, method: .post, headers: headers, parameter: parameters, encoding: encoding)
-    }
-    
-    func delete<T>(url: String, headers: [String : String]?, parameters: T, encoding: ParameterEncoding) -> URLRequest? where T : Encodable {
-        return request(url, method: .delete, headers: headers, parameter: parameters, encoding: encoding)
-    }
-    
-    private func request(_ url:String, method: HTTPMethod, headers: [String : String]?) -> URLRequest? {
-        let httpHeaders: HTTPHeaders? = {
-            guard let headers = headers else { return nil }
-            return HTTPHeaders(headers)
-        }()
+    func createURLRequest(url: String, headers: [String : String]?, method: NetworkRequestMethod) -> URLRequest? {
+        let httpHeaders: HTTPHeaders? = createHTTPHeaders(headers: headers)
+        let AFMethod: HTTPMethod = convert(from: method)
         
-        return AF.request(url, method: method, headers: httpHeaders).convertible.urlRequest
+        return AF.request(url, method: AFMethod, headers: httpHeaders).convertible.urlRequest
     }
     
-    private func request<T>(_ url: String, method: HTTPMethod, headers: [String : String]?, parameter: T?, encoding: ParameterEncoding) -> URLRequest? where T: Encodable {
-        let httpHeaders: HTTPHeaders? = {
-            guard let headers = headers else { return nil }
-            return HTTPHeaders(headers)
-        }()
+    func createURLRequest<T>(url: String, headers: [String : String]?, parameters: T, encoding: ParameterEncoding, method: NetworkRequestMethod) -> URLRequest? where T: Encodable {
+        let httpHeaders: HTTPHeaders? = createHTTPHeaders(headers: headers)
+        let AFMethod: HTTPMethod = convert(from: method)
+        let parameterEncoder: ParameterEncoder = convert(from: encoding)
         
-        let parameterEncoder: ParameterEncoder = {
-            switch encoding {
-            case .url:
-                return URLEncodedFormParameterEncoder.default
-            case .json:
-                return JSONParameterEncoder.default
-            }
-        }()
-        
-        return AF.request(url, method: method, parameters: parameter, encoder: parameterEncoder, headers: httpHeaders).convertible.urlRequest
+        return AF.request(url, method: AFMethod, parameters: parameters, encoder: parameterEncoder, headers: httpHeaders).convertible.urlRequest
+    }
+    
+    private func convert(from encoding: ParameterEncoding) -> ParameterEncoder {
+        switch encoding {
+        case .url:
+            return URLEncodedFormParameterEncoder.default
+        case .json:
+            return JSONParameterEncoder.default
+        }
+    }
+    
+    private func convert(from method: NetworkRequestMethod) -> HTTPMethod {
+        switch method {
+        case .get:
+            return .get
+        case .post:
+            return .post
+        case .patch:
+            return .patch
+        case .delete:
+            return .delete
+        }
+    }
+    
+    private func createHTTPHeaders(headers: [String : String]?) -> HTTPHeaders? {
+        guard let headers = headers else { return nil }
+        return HTTPHeaders(headers)
     }
 }
