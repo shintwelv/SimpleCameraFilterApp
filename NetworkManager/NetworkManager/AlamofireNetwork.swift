@@ -45,14 +45,14 @@ internal struct AlamofireNetwork: NetworkResponseProtocol, NetworkRequestProtoco
             }
     }
     
-    func createURLRequest(url: String, headers: [String : String]?, method: NetworkRequestMethod) -> URLRequest? {
+    func createURLRequest(url: String, headers: [HTTPRequestHeaderKey : HTTPRequestHeaderValue]?, method: NetworkRequestMethod) -> URLRequest? {
         let httpHeaders: HTTPHeaders? = createHTTPHeaders(headers: headers)
         let AFMethod: HTTPMethod = convert(from: method)
         
         return AF.request(url, method: AFMethod, headers: httpHeaders).convertible.urlRequest
     }
     
-    func createURLRequest<T>(url: String, headers: [String : String]?, parameters: T, encoding: ParameterEncoding, method: NetworkRequestMethod) -> URLRequest? where T: Encodable {
+    func createURLRequest<T>(url: String, headers: [HTTPRequestHeaderKey : HTTPRequestHeaderValue]?, parameters: T, encoding: ParameterEncoding, method: NetworkRequestMethod) -> URLRequest? where T: Encodable {
         let httpHeaders: HTTPHeaders? = createHTTPHeaders(headers: headers)
         let AFMethod: HTTPMethod = convert(from: method)
         let parameterEncoder: ParameterEncoder = convert(from: encoding)
@@ -82,8 +82,15 @@ internal struct AlamofireNetwork: NetworkResponseProtocol, NetworkRequestProtoco
         }
     }
     
-    private func createHTTPHeaders(headers: [String : String]?) -> HTTPHeaders? {
+    private func createHTTPHeaders(headers: [HTTPRequestHeaderKey : HTTPRequestHeaderValue]?) -> HTTPHeaders? {
         guard let headers = headers else { return nil }
-        return HTTPHeaders(headers)
+        
+        var AFHeaders: HTTPHeaders = [:]
+        
+        for (key, value) in headers {
+            AFHeaders.add(HTTPHeader(name: key.rawValue, value: value.rawValue))
+        }
+        
+        return AFHeaders
     }
 }

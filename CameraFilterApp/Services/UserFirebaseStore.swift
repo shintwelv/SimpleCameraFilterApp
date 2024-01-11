@@ -41,8 +41,8 @@ class UserFirebaseStore: UserStoreProtocol {
     func createUserInStore(userToCreate: User, completionHandler: @escaping UserStoreCreateUserCompletionHandler) {
         let parameter: UserData = self.createParams(user: userToCreate)
         
-        let headers: [String : String] = [
-            "Content-Type": FirebaseDB.ContentType.applicationJson.rawValue
+        let headers: [HTTPRequestHeaderKey : HTTPRequestHeaderValue] = [
+            .contentType : .applicationJson
         ]
         
         let url:String = "\(UserFirebaseStore.endPoint).\(FirebaseDB.FileExt.json)"

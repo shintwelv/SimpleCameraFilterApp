@@ -71,8 +71,8 @@ class FilterFirebaseStore: RemoteFiltersStoreProtocol {
     func createFilter(user: User, filterToCreate: CameraFilter, completionHandler: @escaping FiltersStoreCreateFilterCompletionHandler) {
         let parameter: FilterData = self.createParams(user: user, filter: filterToCreate)
         
-        let headers: [String : String] = [
-            "Content-Type": FirebaseDB.ContentType.applicationJson.rawValue
+        let headers: [HTTPRequestHeaderKey : HTTPRequestHeaderValue] = [
+            .contentType : .applicationJson
         ]
         
         let url: String = "\(FilterFirebaseStore.endPoint).\(FirebaseDB.FileExt.json)"
@@ -100,8 +100,8 @@ class FilterFirebaseStore: RemoteFiltersStoreProtocol {
     func updateFilter(user: User, filterToUpdate: CameraFilter, completionHandler: @escaping FiltersStoreUpdateFilterCompletionHandler) {
         let parameter: FilterData = self.createParams(user: user, filter: filterToUpdate)
         
-        let headers: [String : String] = [
-            "Content-Type": FirebaseDB.ContentType.applicationJson.rawValue
+        let headers: [HTTPRequestHeaderKey : HTTPRequestHeaderValue] = [
+            .contentType : .applicationJson
         ]
         
         let url: String = "\(FilterFirebaseStore.endPoint).\(FirebaseDB.FileExt.json)"
