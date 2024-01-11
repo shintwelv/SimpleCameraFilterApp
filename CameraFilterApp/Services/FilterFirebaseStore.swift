@@ -10,13 +10,46 @@ import CoreImage
 import NetworkManager
 
 class FilterFirebaseStore: RemoteFiltersStoreProtocol {
-    
-    static let endPoint: String = FirebaseDB.Endpoint.url.rawValue + "/" + FirebaseDB.Name.filters.rawValue
+
+    struct URLManager {
+        private init() {}
+        
+        static let endPoint: String = FirebaseDB.Endpoint.url.rawValue + "/" + FirebaseDB.Name.filters.rawValue
+        
+        static let filtersJson: String = endPoint + FirebaseDB.FileExt.json.rawValue
+        
+        static func fetchFiltersURL(userId: String) -> String {
+            return filtersJson + "?"
+            + orderByString(orderBy: .owner, param: userId)
+        }
+        
+        static func fetchFilterURL(filterId: UUID) -> String {
+            return filtersJson + "?"
+            + orderByString(orderBy: .key, param: filterId.uuidString)
+        }
+        
+        static func createFilterURL() -> String {
+            return filtersJson
+        }
+        
+        static func updateFilterURL() -> String {
+            return filtersJson
+        }
+        
+        static func deleteFilterURL(filterId: UUID) -> String {
+            return endPoint + "/"
+            + filterId.uuidString + FirebaseDB.FileExt.json.rawValue
+        }
+
+        static private func orderByString(orderBy: FirebaseDB.OrderBy, param: String) -> String {
+            return orderBy.description + "&"
+            + FirebaseDB.Filtering.equalTo(param: param).description
+        }
+    }
     
     func fetchFilters(user: User, completionHandler: @escaping FiltersStoreFetchFiltersCompletionHandler) {
         let userId = user.userId
-        
-        let url: String = "\(FilterFirebaseStore.endPoint).\(FirebaseDB.FileExt.json)?\(FirebaseDB.OrderBy.owner)&\(FirebaseDB.Filtering.equalTo(param: userId))"
+        let url: String = URLManager.fetchFiltersURL(userId: userId)
         
         NetworkManager.shared.getMethod(url)?.decodableResponse(of: FilterData.self, completionHandler: { [weak self] (response: HTTPResponse<FilterData>) in
             guard let self = self else { return }
@@ -46,7 +79,7 @@ class FilterFirebaseStore: RemoteFiltersStoreProtocol {
     }
     
     func fetchFilter(user: User, filterId: UUID, completionHandler: @escaping FiltersStoreFetchFilterCompletionHandler) {
-        let url: String = "\(FilterFirebaseStore.endPoint).\(FirebaseDB.FileExt.json)?\(FirebaseDB.OrderBy.key)&\(FirebaseDB.Filtering.equalTo(param: filterId.uuidString))"
+        let url: String = URLManager.fetchFilterURL(filterId: filterId)
         
         NetworkManager.shared.getMethod(url)?.decodableResponse(of: FilterData.self, completionHandler: { [weak self] (response: HTTPResponse<FilterData>) in
             guard let self = self else { return }
@@ -75,7 +108,7 @@ class FilterFirebaseStore: RemoteFiltersStoreProtocol {
             .contentType : .applicationJson
         ]
         
-        let url: String = "\(FilterFirebaseStore.endPoint).\(FirebaseDB.FileExt.json)"
+        let url: String = URLManager.createFilterURL()
         
         NetworkManager.shared.patchMethod(url, headers: headers, parameters: parameter, encoding: .json)?.decodableResponse(of: FilterData.self, completionHandler: { [weak self] (response: HTTPResponse<FilterData>) in
             guard let self = self else { return }
@@ -104,7 +137,7 @@ class FilterFirebaseStore: RemoteFiltersStoreProtocol {
             .contentType : .applicationJson
         ]
         
-        let url: String = "\(FilterFirebaseStore.endPoint).\(FirebaseDB.FileExt.json)"
+        let url: String = URLManager.updateFilterURL()
         
         NetworkManager.shared.patchMethod(url, headers: headers, parameters: parameter, encoding: .json)?.decodableResponse(of: FilterData.self, completionHandler: { [weak self] (response: HTTPResponse<FilterData>) in
             guard let self = self else { return }
@@ -131,7 +164,7 @@ class FilterFirebaseStore: RemoteFiltersStoreProtocol {
         self.fetchFilter(user: user, filterId: filterId) { result in
             switch result {
             case .Success(let filterToDelete):
-                let url:String = "\(FilterFirebaseStore.endPoint)/\(filterId).\(FirebaseDB.FileExt.json)"
+                let url:String = URLManager.deleteFilterURL(filterId: filterId)
                 
                 NetworkManager.shared.deleteMethod(url)?.response(completionHandler: { (response: HTTPResponse<Data?>) in
                     switch response {

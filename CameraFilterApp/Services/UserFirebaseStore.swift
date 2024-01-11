@@ -11,16 +11,39 @@ import Alamofire
 
 class UserFirebaseStore: UserStoreProtocol {
     
+    struct URLManager {
+        private init() {}
+        
+        static let endPoint: String = FirebaseDB.Endpoint.url.rawValue + "/" + FirebaseDB.Name.users.rawValue
+        
+        static let usersJson: String = endPoint + "." + FirebaseDB.FileExt.json.rawValue
+        
+        static func fetchUserURL(userId: String) -> String {
+            return usersJson + "?"
+            + FirebaseDB.OrderBy.key.description + "&"
+            + FirebaseDB.Filtering.equalTo(param: userId).description
+        }
+        
+        static func createUserURL() -> String {
+            return usersJson
+        }
+        
+        static func deleteUserURL(userId: String) -> String {
+            return endPoint + "/"
+            + userId + "."
+            + FirebaseDB.FileExt.json.rawValue
+        }
+    }
+    
     enum ParamKey:String {
         case email
     }
     
-    static let endPoint: String = FirebaseDB.Endpoint.url.rawValue + "/" + FirebaseDB.Name.users.rawValue
     
     typealias UserData = [String: [String : String]]
     
     func fetchUserInStore(userToFetch: User, completionHandler: @escaping UserStoreFetchUserCompletionHandler) {
-        let url: String = "\(UserFirebaseStore.endPoint).\(FirebaseDB.FileExt.json)?\(FirebaseDB.OrderBy.key)&\(FirebaseDB.Filtering.equalTo(param: userToFetch.userId))"
+        let url: String = URLManager.fetchUserURL(userId: userToFetch.userId)
         
         NetworkManager.shared.getMethod(url)?.decodableResponse(of: UserData.self, completionHandler: { [weak self] (response: HTTPResponse<UserData>) in
             
@@ -45,7 +68,7 @@ class UserFirebaseStore: UserStoreProtocol {
             .contentType : .applicationJson
         ]
         
-        let url:String = "\(UserFirebaseStore.endPoint).\(FirebaseDB.FileExt.json)"
+        let url:String = URLManager.createUserURL()
         
         NetworkManager.shared.patchMethod(url, headers: headers, parameters: parameter, encoding: .json)?.decodableResponse(of: UserData.self, completionHandler: { [weak self] (response: HTTPResponse<UserData>) in
             guard let self = self else { return }
@@ -79,7 +102,7 @@ class UserFirebaseStore: UserStoreProtocol {
                     return
                 }
                 
-                let url: String = "\(UserFirebaseStore.endPoint)/\(userToDelete.userId).\(FirebaseDB.FileExt.json)"
+                let url: String = URLManager.deleteUserURL(userId: userToDelete.userId)
                 
                 NetworkManager.shared.deleteMethod(url)?.response(completionHandler: { (response: HTTPResponse<Data?>) in
                     switch response {
