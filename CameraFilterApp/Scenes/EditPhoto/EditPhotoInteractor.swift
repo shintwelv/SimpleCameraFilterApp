@@ -113,32 +113,36 @@ class EditPhotoInteractor: EditPhotoBusinessLogic, EditPhotoDataStore
     }
     
     func fetchFilters(request: EditPhoto.FetchFilters.Request) {
-        userWorker.fetchCurrentlyLoggedInUser { [weak self] result in
-            guard let self = self else { return }
-            
-            switch result {
-            case .Success(let user):
-                self.filtersWorker.fetchFilters(user: user)
-            case .Failure(let error):
-                print(error)
-                self.filtersWorker.fetchFilters(user: nil)
-            }
-        }
+        userWorker.fetchCurrentlyLoggedInUser()
+            .subscribe(
+                onNext: { [weak self] user in
+                    guard let self = self else { return }
+                    self.filtersWorker.fetchFilters(user: user)
+                },
+                onError: { [weak self] error in
+                    guard let self = self else { return }
+                    print(error)
+                    self.filtersWorker.fetchFilters(user: nil)
+                }
+            )
+            .disposed(by: self.bag)
     }
     
     func applyFilter(request: EditPhoto.ApplyFilter.Request) {
         let filterId = request.filterId
-        userWorker.fetchCurrentlyLoggedInUser { [weak self] result in
-            guard let self = self else { return }
-            
-            switch result {
-            case .Success(let user):
-                self.filtersWorker.fetchFilter(user: user, filterId: filterId)
-            case .Failure(let error):
-                print(error)
-                filtersWorker.fetchFilter(user: nil, filterId: filterId)
-            }
-        }
+        userWorker.fetchCurrentlyLoggedInUser()
+            .subscribe(
+                onNext: { [weak self] user in
+                    guard let self = self else { return }
+                    self.filtersWorker.fetchFilter(user: user, filterId: filterId)
+                },
+                onError: { [weak self] error in
+                    guard let self = self else { return }
+                    print(error)
+                    self.filtersWorker.fetchFilter(user: nil, filterId: filterId)
+                }
+            )
+            .disposed(by: self.bag)
     }
     
     func savePhoto(request: EditPhoto.SavePhoto.Request) {

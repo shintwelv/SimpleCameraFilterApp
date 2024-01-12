@@ -51,17 +51,18 @@ class ListFiltersInteractor: ListFiltersBusinessLogic, ListFiltersDataStore
     
     // MARK: Fetch filters
     func fetchFilters(request: ListFilters.FetchFilters.Request) {
-        userWorker.fetchCurrentlyLoggedInUser { [weak self] result in
-            guard let self = self else { return }
-            
-            switch result {
-            case .Success(let user):
-                self.filtersWorker.fetchFilters(user: user)
-            case .Failure(let error):
-                print(error)
-                self.filtersWorker.fetchFilters(user: nil)
-            }
-        }
+        userWorker.fetchCurrentlyLoggedInUser()
+            .subscribe(
+                onNext: { [weak self] user in
+                    guard let self = self else { return }
+                    self.filtersWorker.fetchFilters(user: user)
+                },
+                onError: { [weak self] error in
+                    guard let self = self else { return }
+                    self.filtersWorker.fetchFilters(user: nil)
+                }
+            )
+            .disposed(by: self.bag)
     }
     
     // MARK: - Select filter

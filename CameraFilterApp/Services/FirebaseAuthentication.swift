@@ -11,178 +11,244 @@ import FirebaseCore
 import GoogleSignIn
 import AuthenticationServices
 import CryptoKit
+import RxSwift
 
 class FirebaseAuthentication: NSObject, UserAuthenticationProtocol {
+    
+    private var bag = DisposeBag()
 
-    func loggedInUser(completionHandler: @escaping (UserAuthenticationResult<User?>) -> Void) {
-        let currentUser = Auth.auth().currentUser
-        
-        if let currentUser = currentUser {
-            let user = User(userId: currentUser.uid, email: currentUser.email ?? "")
-            let result = UserAuthenticationResult.Success(result: user as User?)
-            completionHandler(result)
-        } else {
-            let result = UserAuthenticationResult.Success(result: nil as User?)
-            completionHandler(result)
+    func loggedInUser() -> Observable<User?> {
+        return Observable.create { observer in
+            let currentUser = Auth.auth().currentUser
+            
+            if let currentUser = currentUser {
+                let user = User(userId: currentUser.uid, email: currentUser.email ?? "")
+                observer.onNext(user)
+            } else {
+                observer.onNext(nil)
+            }
+            observer.onCompleted()
+            
+            return Disposables.create()
         }
     }
     
     private var currentNonce: String?
-    private var appleLoginCompletionHandler: UserLogInCompletionHandler?
+    private var appleLoginObserver: PublishSubject<User>?
     private weak var appleLoginPresentingController: UIViewController?
     
     private func resetAppleLoginInfo() {
         currentNonce = nil
-        appleLoginCompletionHandler = nil
+        if let appleLoginObserver = appleLoginObserver {
+            appleLoginObserver.dispose()
+        }
+        appleLoginObserver = nil
         appleLoginPresentingController = nil
     }
     
-    func appleLogin(presentingViewController vc: UIViewController, completionHandler: @escaping UserLogInCompletionHandler) {
-        resetAppleLoginInfo()
-        
-        guard let nonce = randomNonceString() else {
-            let result = UserAuthenticationResult<User>.Failure(error: .cannotLogIn("nonce를 생성할 수 없습니다"))
-            completionHandler(result)
-            return
+    func appleLogin(presentingViewController vc: UIViewController) -> Observable<User> {
+        return Observable.create { [weak self] observer in
+            guard let self = self else {
+                observer.onError(UserAuthenticationError.cannotLogIn("self is not referenced"))
+                return Disposables.create()
+            }
+            
+            self.resetAppleLoginInfo()
+            
+            self.appleLoginObserver = PublishSubject()
+            let subscription = self.appleLoginObserver?
+                .subscribe(
+                    onNext: { user in
+                        observer.onNext(user)
+                    },
+                    onError: { error in
+                        observer.onError(error)
+                    }
+                )
+            
+            guard let nonce = randomNonceString() else {
+                observer.onError(UserAuthenticationError.cannotLogIn("nonce를 생성할 수 없습니다"))
+                return Disposables.create()
+            }
+            
+            self.currentNonce = nonce
+            let appleIDProvider = ASAuthorizationAppleIDProvider()
+            let request = appleIDProvider.createRequest()
+            request.requestedScopes = [.email]
+            request.nonce = self.sha256(nonce)
+            
+            let authorizationController = ASAuthorizationController(authorizationRequests: [request])
+            authorizationController.delegate = self
+            authorizationController.presentationContextProvider = self
+            authorizationController.performRequests()
+            
+            
+            return Disposables.create {
+                subscription?.dispose()
+            }
         }
-        
-        self.appleLoginCompletionHandler = completionHandler
-        
-        currentNonce = nonce
-        let appleIDProvider = ASAuthorizationAppleIDProvider()
-        let request = appleIDProvider.createRequest()
-        request.requestedScopes = [.email]
-        request.nonce = sha256(nonce)
-        
-        let authorizationController = ASAuthorizationController(authorizationRequests: [request])
-        authorizationController.delegate = self
-        authorizationController.presentationContextProvider = self
-        authorizationController.performRequests()
     }
     
-    func googleLogin(presentingViewController vc: UIViewController, completionHandler: @escaping UserLogInCompletionHandler) {
-        guard let clientID = FirebaseApp.app()?.options.clientID else { return }
-        
-        let config = GIDConfiguration(clientID: clientID)
-        GIDSignIn.sharedInstance.configuration = config
-        
-        GIDSignIn.sharedInstance.signIn(withPresenting: vc) { [weak self] result, error in
-            guard let self = self else { return }
+    func googleLogin(presentingViewController vc: UIViewController) -> Observable<User> {
+        return Observable<User>.create { observer in
             
-            if let error = error {
-                let result = UserAuthenticationResult<User>.Failure(error: .cannotLogIn("\(error)"))
-                completionHandler(result)
+            guard let clientID = FirebaseApp.app()?.options.clientID else {
+                observer.onError(UserAuthenticationError.cannotLogIn("ClientID is not found"))
+                return Disposables.create()
             }
             
-            guard let user = result?.user, 
-                let idToken = user.idToken?.tokenString else {
-                let result = UserAuthenticationResult<User>.Failure(error: .cannotLogIn("User를 받아오는 데 실패했습니다"))
-                completionHandler(result)
-                return
-            }
+            let config = GIDConfiguration(clientID: clientID)
+            GIDSignIn.sharedInstance.configuration = config
             
-            let credential = GoogleAuthProvider.credential(withIDToken: idToken, accessToken: user.accessToken.tokenString)
-            
-            self.login(with: credential, handler: { authResult, error in
+            GIDSignIn.sharedInstance.signIn(withPresenting: vc) { [weak self] result, error in
+                guard let self = self else {
+                    observer.onError(UserAuthenticationError.cannotLogIn("self is not referenced"))
+                    return
+                }
+                
                 if let error = error {
-                    let result = UserAuthenticationResult<User>.Failure(error: .cannotLogIn("\(error)"))
-                    completionHandler(result)
+                    observer.onError(error)
+                    return
+                }
+                
+                guard let user = result?.user,
+                        let idToken = user.idToken?.tokenString else {
+                    observer.onError(UserAuthenticationError.cannotLogIn("User를 받아오는 데 실패했습니다"))
+                    return
+                }
+                
+                let credential = GoogleAuthProvider.credential(withIDToken: idToken, accessToken: user.accessToken.tokenString)
+                
+                self.login(with: credential)
+                    .subscribe(
+                        onNext: { authResult in
+                            guard let authResult = authResult else {
+                                observer.onError(UserAuthenticationError.cannotLogIn("로그인할 수 없습니다"))
+                                return
+                            }
+                            
+                            let loggedUser = User(userId: authResult.user.uid, email: authResult.user.email ?? "")
+                            observer.onNext(loggedUser)
+                            observer.onCompleted()
+                        },
+                        onError: { error in
+                            observer.onError(error)
+                        }
+                    )
+                    .disposed(by: self.bag)
+            }
+            
+            return Disposables.create()
+        }
+        
+    }
+    
+    private func login(with credential: AuthCredential) -> Observable<AuthDataResult?> {
+        return Observable<AuthDataResult?>.create { observer in
+            Auth.auth().signIn(with: credential) { authDataResult, error in
+                if let error = error {
+                    observer.onError(error)
+                    return
+                }
+                
+                if let authDataResult = authDataResult {
+                    observer.onNext(authDataResult)
+                }
+                
+                observer.onCompleted()
+            }
+            
+            return Disposables.create()
+        }
+    }
+
+    func logIn(email: String, password: String) -> Observable<User> {
+        return Observable<User>.create { observer in
+            Auth.auth().signIn(withEmail: email, password: password) { authResult, error in
+                if let error = error {
+                    observer.onError(error)
+                    return
                 }
                 
                 guard let authResult = authResult else {
-                    let result = UserAuthenticationResult<User>.Failure(error: .cannotLogIn("로그인할 수 없습니다"))
-                    completionHandler(result)
+                    observer.onError(UserAuthenticationError.cannotLogIn("로그인할 수 없습니다"))
                     return
                 }
                 
                 let loggedUser = User(userId: authResult.user.uid, email: authResult.user.email ?? "")
-                let result = UserAuthenticationResult.Success(result: loggedUser)
-                completionHandler(result)
-            })
+                observer.onNext(loggedUser)
+                observer.onCompleted()
+            }
+            
+            return Disposables.create()
         }
     }
     
-    private func login(with credential: AuthCredential, handler: @escaping (AuthDataResult?, Error?) -> Void) {
-        Auth.auth().signIn(with: credential, completion: handler)
-    }
-
-    func logIn(email: String, password: String, completionHandler: @escaping (UserAuthenticationResult<User>) -> Void) {
-        Auth.auth().signIn(withEmail: email, password: password) { authResult, error in
-            if let error = error {
-                let result = UserAuthenticationResult<User>.Failure(error: .cannotLogIn("\(error)"))
-                completionHandler(result)
+    func logOut() -> Observable<User> {
+        return Observable<User>.create { observer in
+            let FIRUser = Auth.auth().currentUser
+            
+            if let FIRUser = FIRUser {
+                let user = User(userId: FIRUser.uid, email: FIRUser.email ?? "")
+                do {
+                    try Auth.auth().signOut()
+                    observer.onNext(user)
+                    observer.onCompleted()
+                } catch let signOutError as NSError {
+                    observer.onError(signOutError)
+                }
+            } else {
+                observer.onError(UserAuthenticationError.cannotLogOut("로그인 상태가 아닙니다"))
             }
             
-            guard let authResult = authResult else {
-                let result = UserAuthenticationResult<User>.Failure(error: .cannotLogIn("로그인할 수 없습니다"))
-                completionHandler(result)
-                return
-            }
-            
-            let loggedUser = User(userId: authResult.user.uid, email: authResult.user.email ?? "")
-            let result = UserAuthenticationResult.Success(result: loggedUser)
-            completionHandler(result)
+            return Disposables.create()
         }
     }
     
-    func logOut(completionHandler: @escaping (UserAuthenticationResult<User>) -> Void) {
-        let FIRUser = Auth.auth().currentUser
-        
-        guard let FIRUser = FIRUser else {
-            let result: UserAuthenticationResult<User> = UserAuthenticationResult.Failure(error: .cannotLogOut("로그인 상태가 아닙니다"))
-            completionHandler(result)
-            return
-        }
-
-        let user = User(userId: FIRUser.uid, email: FIRUser.email ?? "")
-        do {
-            try Auth.auth().signOut()
-            let result = UserAuthenticationResult.Success(result: user)
-            completionHandler(result)
-        } catch let signOutError as NSError {
-            let result: UserAuthenticationResult<User> = UserAuthenticationResult.Failure(error: .cannotLogOut("\(signOutError)"))
-            completionHandler(result)
+    func signUp(email: String, password: String) -> Observable<User> {
+        return Observable<User>.create { observer in
+            
+            Auth.auth().createUser(withEmail: email, password: password) { authResult, error in
+                if let error = error {
+                    observer.onError(error)
+                    return
+                }
+                
+                guard let authResult = authResult else {
+                    observer.onError(UserAuthenticationError.cannotSignUp("계정을 생성할 수 없습니다"))
+                    return
+                }
+                
+                let loggedInUser = User(userId: authResult.user.uid, email: authResult.user.email ?? "")
+                observer.onNext(loggedInUser)
+                observer.onCompleted()
+            }
+            
+            return Disposables.create()
         }
     }
     
-    func signUp(email: String, password: String, completionHandler: @escaping (UserAuthenticationResult<User>) -> Void) {
-        Auth.auth().createUser(withEmail: email, password: password) { authResult, error in
-            if let error = error {
-                let result: UserAuthenticationResult<User> = UserAuthenticationResult.Failure(error: .cannotSignUp("\(error)"))
-                completionHandler(result)
+    func delete() -> Observable<User> {
+        return Observable<User>.create { observer in
+            
+            let currentUser = Auth.auth().currentUser
+            
+            if let currentUser = currentUser {
+                currentUser.delete(completion: { error in
+                    if let error = error {
+                        observer.onError(error)
+                    }
+                    
+                    let deletedUser = User(userId: currentUser.uid, email: currentUser.email ?? "")
+                    observer.onNext(deletedUser)
+                    observer.onCompleted()
+                })
+            } else {
+                observer.onError(UserAuthenticationError.cannotDelete("로그인이 되어 있지 않습니다"))
             }
             
-            guard let authResult = authResult else {
-                let result: UserAuthenticationResult<User> = UserAuthenticationResult.Failure(error: .cannotSignUp("계정을 생성할 수 없습니다"))
-                completionHandler(result)
-                return
-            }
-            
-            let loggedInUser = User(userId: authResult.user.uid, email: authResult.user.email ?? "")
-            let result = UserAuthenticationResult.Success(result: loggedInUser)
-            completionHandler(result)
+            return Disposables.create()
         }
-    }
-    
-    func delete(completionHandler: @escaping UserDeleteCompletionHandler) {
-        let currentUser = Auth.auth().currentUser
-        
-        guard let currentUser = currentUser else {
-            let result = UserAuthenticationResult<User>.Failure(error: .cannotDelete("로그인이 되어 있지 않습니다"))
-            completionHandler(result)
-            return
-        }
-        
-        currentUser.delete(completion: { error in
-            if let error = error {
-                let result = UserAuthenticationResult<User>.Failure(error: .cannotDelete("\(error)"))
-                completionHandler(result)
-            }
-            
-            let deletedUser = User(userId: currentUser.uid, email: currentUser.email ?? "")
-            let result = UserAuthenticationResult.Success(result: deletedUser)
-            completionHandler(result)
-        })
     }
     
     private func sha256(_ input: String) -> String {
@@ -218,31 +284,27 @@ class FirebaseAuthentication: NSObject, UserAuthenticationProtocol {
 extension FirebaseAuthentication: ASAuthorizationControllerDelegate {
     
     func authorizationController(controller: ASAuthorizationController, didCompleteWithAuthorization authorization: ASAuthorization) {
-        guard let appleLoginCompletionHandler = self.appleLoginCompletionHandler else {
+        guard let appleLoginObserver = self.appleLoginObserver else {
             return
         }
         
         guard let appleIDCredential = authorization.credential as? ASAuthorizationAppleIDCredential else {
-            let result = UserAuthenticationResult<User>.Failure(error: .cannotLogIn("AppleID의 credential이 존재하지 않습니다"))
-            appleLoginCompletionHandler(result)
+            appleLoginObserver.onError(UserAuthenticationError.cannotLogIn("AppleID의 credential이 존재하지 않습니다"))
             return
         }
         
         guard let nonce = currentNonce else {
-            let result = UserAuthenticationResult<User>.Failure(error: .cannotLogIn("비정상적인 로그인 응답입니다"))
-            appleLoginCompletionHandler(result)
+            appleLoginObserver.onError(UserAuthenticationError.cannotLogIn("비정상적인 로그인 응답입니다"))
             return
         }
         
         guard let appleIDToken = appleIDCredential.identityToken else {
-            let result = UserAuthenticationResult<User>.Failure(error: .cannotLogIn("토큰을 받아올 수 없습니다"))
-            appleLoginCompletionHandler(result)
+            appleLoginObserver.onError(UserAuthenticationError.cannotLogIn("토큰을 받아올 수 없습니다"))
             return
         }
         
         guard let idTokenString = String(data: appleIDToken, encoding: .utf8) else {
-            let result = UserAuthenticationResult<User>.Failure(error: .cannotLogIn("토큰을 변환할 수 없습니다"))
-            appleLoginCompletionHandler(result)
+            appleLoginObserver.onError(UserAuthenticationError.cannotLogIn("토큰을 변환할 수 없습니다"))
             return
         }
         
@@ -252,30 +314,27 @@ extension FirebaseAuthentication: ASAuthorizationControllerDelegate {
         
         Auth.auth().signIn(with: credential) { (authResult, error) in
             if let error = error {
-                let result = UserAuthenticationResult<User>.Failure(error: .cannotLogIn("\(error)"))
-                appleLoginCompletionHandler(result)
+                appleLoginObserver.onError(error)
                 return
             }
             
             guard let authResult = authResult else {
-                let result: UserAuthenticationResult<User> = UserAuthenticationResult.Failure(error: .cannotLogIn("계정을 생성할 수 없습니다"))
-                appleLoginCompletionHandler(result)
+                appleLoginObserver.onError(UserAuthenticationError.cannotLogIn("계정을 생성할 수 없습니다"))
                 return
             }
             
             let loggedInUser = User(userId: authResult.user.uid, email: authResult.user.email ?? "")
-            let result = UserAuthenticationResult.Success(result: loggedInUser)
-            appleLoginCompletionHandler(result)
+            appleLoginObserver.onNext(loggedInUser)
+            appleLoginObserver.onCompleted()
         }
     }
     
     func authorizationController(controller: ASAuthorizationController, didCompleteWithError error: Error) {
-        guard let appleLoginCompletionHandler = self.appleLoginCompletionHandler else {
+        guard let appleLoginObserver = self.appleLoginObserver else {
             return
         }
         
-        let result: UserAuthenticationResult<User> = UserAuthenticationResult.Failure(error: .cannotLogIn("\(error)"))
-        appleLoginCompletionHandler(result)
+        appleLoginObserver.onError(error)
     }
 }
 

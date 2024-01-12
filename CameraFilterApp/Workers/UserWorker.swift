@@ -6,8 +6,8 @@
 //
 
 import Foundation
-import Alamofire
 import UIKit
+import RxSwift
 
 class UserWorker {
     
@@ -20,61 +20,52 @@ class UserWorker {
     }
     
     // MARK: - Authenticate
-    func fetchCurrentlyLoggedInUser(completionHandler: @escaping LoggedInUserCompletionHandler) {
-        authenticationProvider.loggedInUser(completionHandler: completionHandler)
+    func fetchCurrentlyLoggedInUser() -> Observable<User?> {
+        return authenticationProvider.loggedInUser()
     }
     
-    func authenticateThroughApple(presentingViewController vc: UIViewController, completionHandler: @escaping UserLogInCompletionHandler) {
-        authenticationProvider.appleLogin(presentingViewController: vc, completionHandler: completionHandler)
+    func authenticateThroughApple(presentingViewController vc: UIViewController) -> Observable<User> {
+        return authenticationProvider.appleLogin(presentingViewController: vc)
     }
     
-    func authenticateThroughGoogle(presentingViewController vc: UIViewController, completionHandler: @escaping UserLogInCompletionHandler) {
-        authenticationProvider.googleLogin(presentingViewController: vc, completionHandler: completionHandler)
+    func authenticateThroughGoogle(presentingViewController vc: UIViewController) -> Observable<User> {
+        return authenticationProvider.googleLogin(presentingViewController: vc)
     }
     
-    func logIn(email: String, password: String, completionHandler: @escaping UserLogInCompletionHandler) {
-        authenticationProvider.logIn(email: email, password: password, completionHandler: completionHandler)
+    func logIn(email: String, password: String) -> Observable<User> {
+        return authenticationProvider.logIn(email: email, password: password)
     }
     
-    func logOut(completionHandler: @escaping UserLogOutCompletionHandler) {
-        authenticationProvider.logOut(completionHandler: completionHandler)
+    func logOut() -> Observable<User> {
+        return authenticationProvider.logOut()
     }
     
-    func signUp(email: String, password: String, completionHandler: @escaping UserSignUpCompletionHandler) {
-        authenticationProvider.signUp(email: email, password: password, completionHandler: completionHandler)
+    func signUp(email: String, password: String) -> Observable<User> {
+        return authenticationProvider.signUp(email: email, password: password)
     }
     
-    func removeAuthentication(completionHandler: @escaping UserDeleteCompletionHandler) {
-        authenticationProvider.delete(completionHandler: completionHandler)
+    func removeAuthentication() -> Observable<User> {
+        return authenticationProvider.delete()
     }
     
     // MARK: - DB Interaction
-    func findInDB(_ user: User, completionHandler: @escaping UserStoreFetchUserCompletionHandler) {
-        storeProvider.fetchUserInStore(userToFetch: user, completionHandler: completionHandler)
+    func findInDB(_ user: User) -> Observable<User?> {
+        return storeProvider.fetchUserInStore(userToFetch: user)
     }
     
-    func saveInDB(_ user: User, completionHandler: @escaping UserStoreCreateUserCompletionHandler) {
-        storeProvider.createUserInStore(userToCreate: user, completionHandler: completionHandler)
+    func saveInDB(_ user: User) -> Observable<User> {
+        return storeProvider.createUserInStore(userToCreate: user)
     }
     
-    func deleteFromDB(_ user: User, completionHandler: @escaping UserStoreDeleteUserCompletionHandler) {
-        storeProvider.deleteUserInStore(userToDelete: user, completionHandler: completionHandler)
+    func deleteFromDB(_ user: User) -> Observable<User> {
+        return storeProvider.deleteUserInStore(userToDelete: user)
     }
 }
 
 protocol UserStoreProtocol {
-    func fetchUserInStore(userToFetch:User, completionHandler: @escaping UserStoreFetchUserCompletionHandler)
-    func createUserInStore(userToCreate: User, completionHandler: @escaping UserStoreCreateUserCompletionHandler)
-    func deleteUserInStore(userToDelete: User, completionHandler: @escaping UserStoreDeleteUserCompletionHandler)
-}
-
-typealias UserStoreFetchUserCompletionHandler = (UserStoreResult<User?>) -> Void
-typealias UserStoreDeleteUserCompletionHandler = (UserStoreResult<User>) -> Void
-typealias UserStoreCreateUserCompletionHandler = (UserStoreResult<User>) -> Void
-
-enum UserStoreResult<U> {
-    case Success(result: U)
-    case Failure(error: UserStoreError)
+    func fetchUserInStore(userToFetch:User) -> Observable<User?>
+    func createUserInStore(userToCreate: User) -> Observable<User>
+    func deleteUserInStore(userToDelete: User) -> Observable<User>
 }
 
 enum UserStoreError: Equatable, LocalizedError {
@@ -100,24 +91,13 @@ func ==(lhs: UserStoreError, rhs: UserStoreError) -> Bool {
 }
 
 protocol UserAuthenticationProtocol {
-    func loggedInUser(completionHandler: @escaping LoggedInUserCompletionHandler)
-    func logIn(email: String, password: String, completionHandler: @escaping UserLogInCompletionHandler)
-    func appleLogin(presentingViewController: UIViewController, completionHandler: @escaping UserLogInCompletionHandler)
-    func googleLogin(presentingViewController: UIViewController, completionHandler: @escaping UserLogInCompletionHandler)
-    func logOut(completionHandler: @escaping UserLogOutCompletionHandler)
-    func signUp(email: String, password: String, completionHandler: @escaping UserSignUpCompletionHandler)
-    func delete(completionHandler: @escaping UserDeleteCompletionHandler)
-}
-
-typealias LoggedInUserCompletionHandler = (UserAuthenticationResult<User?>) -> Void
-typealias UserDeleteCompletionHandler = (UserAuthenticationResult<User>) -> Void
-typealias UserLogInCompletionHandler = (UserAuthenticationResult<User>) -> Void
-typealias UserLogOutCompletionHandler = (UserAuthenticationResult<User>) -> Void
-typealias UserSignUpCompletionHandler = (UserAuthenticationResult<User>) -> Void
-
-enum UserAuthenticationResult<U> {
-    case Success(result: U)
-    case Failure(error: UserAuthenticationError)
+    func loggedInUser() -> Observable<User?>
+    func logIn(email: String, password: String) -> Observable<User>
+    func appleLogin(presentingViewController: UIViewController) -> Observable<User>
+    func googleLogin(presentingViewController: UIViewController) -> Observable<User>
+    func logOut() -> Observable<User>
+    func signUp(email: String, password: String) -> Observable<User>
+    func delete() -> Observable<User>
 }
 
 enum UserAuthenticationError: Equatable, LocalizedError {
