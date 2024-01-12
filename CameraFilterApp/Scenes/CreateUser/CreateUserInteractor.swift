@@ -166,6 +166,8 @@ class CreateUserInteractor: CreateUserBusinessLogic, CreateUserDataStore
     private func configureInitialFilters(user: User) {
         for filter in FiltersWorker.initialFilters {
             self.filtersWorker.createFilter(user: user, filterToCreate: filter)
+                .subscribe()
+                .disposed(by: self.bag)
         }
     }
     

@@ -27,27 +27,7 @@ class ListFiltersInteractor: ListFiltersBusinessLogic, ListFiltersDataStore
     
     var selectedFilterId: UUID?
     
-    init() {
-        configureBinding()
-    }
-    
     private let bag = DisposeBag()
-    
-    private func configureBinding() {
-        self.filtersWorker.filters.map { (result) -> [CameraFilter] in
-            switch result {
-            case .Success(let operation, let filters) where operation == .fetch: return filters
-            default: return []
-            }
-        }.subscribe(
-            onNext: { [weak self] filters in
-                guard let self = self else { return }
-                
-                let response = ListFilters.FetchFilters.Response(filters: filters)
-                self.presenter?.displayFilters(response: response)
-            }
-        ).disposed(by: self.bag)
-    }
     
     // MARK: Fetch filters
     func fetchFilters(request: ListFilters.FetchFilters.Request) {
@@ -55,11 +35,24 @@ class ListFiltersInteractor: ListFiltersBusinessLogic, ListFiltersDataStore
             .subscribe(
                 onNext: { [weak self] user in
                     guard let self = self else { return }
+                    
                     self.filtersWorker.fetchFilters(user: user)
+                        .subscribe(
+                            onNext: { filters in
+                                self.presentFilters(filters: filters)
+                            },
+                            onError: { error in
+                                print(error)
+                                self.presentFilters(filters: [])
+                            }
+                        )
+                        .disposed(by: self.bag)
                 },
                 onError: { [weak self] error in
                     guard let self = self else { return }
-                    self.filtersWorker.fetchFilters(user: nil)
+                    
+                    print(error)
+                    self.presentFilters(filters: [])
                 }
             )
             .disposed(by: self.bag)
@@ -69,5 +62,11 @@ class ListFiltersInteractor: ListFiltersBusinessLogic, ListFiltersDataStore
     func selectFilter(request: ListFilters.SelectFilter.Request) {
         let selectedFilterId = request.filterId
         self.selectedFilterId = selectedFilterId
+    }
+
+    //MARK: - Private methods
+    private func presentFilters(filters: [CameraFilter]) {
+        let response = ListFilters.FetchFilters.Response(filters: filters)
+        self.presenter?.displayFilters(response: response)
     }
 }

@@ -37,46 +37,7 @@ class EditPhotoInteractor: EditPhotoBusinessLogic, EditPhotoDataStore
     
     private let bag = DisposeBag()
     
-    private lazy var fetchedFilter: Observable<FiltersWorker.OperationResult<CameraFilter>> = {
-        self.filtersWorker.filter.filter {
-            switch $0 {
-            case .Success(let operation, _) where operation == .fetch: return true
-            case .Failure(let error) where error == .cannotFetch(error.localizedDescription): return true
-            default: return false
-            }
-        }
-    }()
-    
     private func configureBinding() {
-        self.filtersWorker.filters.map { (result) -> [CameraFilter] in
-            switch result {
-            case .Success(let operation, let filters) where operation == .fetch: return filters
-            default: return []
-            }
-        }.subscribe(
-            onNext: { [weak self] filters in
-                guard let self = self else { return }
-            
-                let response = EditPhoto.FetchFilters.Response(cameraFilters: filters)
-                self.presenter?.presentFetchedFilters(response: response)
-            }
-        ).disposed(by: self.bag)
-        
-        self.fetchedFilter.map { (result) -> CameraFilter? in
-            switch result {
-            case .Success(_, let filter): return filter
-            case .Failure(_): return nil
-            }
-        }.subscribe(
-            onNext: { [weak self] filter in
-                guard let self = self,
-                    let photo = photo else { return }
-                
-                let response = EditPhoto.ApplyFilter.Response(photo: photo, cameraFilter: filter)
-                self.presenter?.presentFilterAppliedImage(response: response)
-            }
-        ).disposed(by: self.bag)
-        
         self.worker.savePhotoResult.subscribe(
             onNext: { [weak self] result in
                 guard let self = self else { return }
@@ -117,12 +78,24 @@ class EditPhotoInteractor: EditPhotoBusinessLogic, EditPhotoDataStore
             .subscribe(
                 onNext: { [weak self] user in
                     guard let self = self else { return }
+                    
                     self.filtersWorker.fetchFilters(user: user)
+                        .subscribe(
+                            onNext: { filters in
+                                self.presentFetchedFilters(filters: filters)
+                            },
+                            onError: { error in
+                                print(error)
+                                self.presentFetchedFilters(filters: [])
+                            }
+                        )
+                        .disposed(by: self.bag)
                 },
                 onError: { [weak self] error in
                     guard let self = self else { return }
+                    
                     print(error)
-                    self.filtersWorker.fetchFilters(user: nil)
+                    self.presentFetchedFilters(filters: [])
                 }
             )
             .disposed(by: self.bag)
@@ -130,16 +103,28 @@ class EditPhotoInteractor: EditPhotoBusinessLogic, EditPhotoDataStore
     
     func applyFilter(request: EditPhoto.ApplyFilter.Request) {
         let filterId = request.filterId
+        
         userWorker.fetchCurrentlyLoggedInUser()
             .subscribe(
                 onNext: { [weak self] user in
                     guard let self = self else { return }
                     self.filtersWorker.fetchFilter(user: user, filterId: filterId)
+                        .subscribe(
+                            onNext: { filter in
+                                self.presentAppliedPhoto(filter: filter)
+                            },
+                            onError: { error in
+                                print(error)
+                                self.presentAppliedPhoto(filter: nil)
+                            }
+                        )
+                        .disposed(by: self.bag)
                 },
                 onError: { [weak self] error in
                     guard let self = self else { return }
+                    
                     print(error)
-                    self.filtersWorker.fetchFilter(user: nil, filterId: filterId)
+                    self.presentAppliedPhoto(filter: nil)
                 }
             )
             .disposed(by: self.bag)
@@ -148,5 +133,18 @@ class EditPhotoInteractor: EditPhotoBusinessLogic, EditPhotoDataStore
     func savePhoto(request: EditPhoto.SavePhoto.Request) {
         let filterAppliedPhoto = request.filterAppliedPhoto
         self.worker.savePhoto(filterAppliedPhoto)
+    }
+    
+    //MARK: - Private methods
+    private func presentFetchedFilters(filters: [CameraFilter]) {
+        let response = EditPhoto.FetchFilters.Response(cameraFilters: filters)
+        self.presenter?.presentFetchedFilters(response: response)
+    }
+
+    private func presentAppliedPhoto(filter: CameraFilter?) {
+        guard let photo = photo else { return }
+        
+        let response = EditPhoto.ApplyFilter.Response(photo: photo, cameraFilter: filter)
+        self.presenter?.presentFilterAppliedImage(response: response)
     }
 }

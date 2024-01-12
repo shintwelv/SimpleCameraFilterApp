@@ -80,53 +80,9 @@ class CameraPreviewInteractor: NSObject, CameraPreviewBusinessLogic, CameraPrevi
         super.init()
         
         configureCaptureSession()
-        configureBinding()
     }
     
     private let bag = DisposeBag()
-    
-    private lazy var fetchedFilter: Observable<FiltersWorker.OperationResult<CameraFilter>> = {
-        self.filtersWorker.filter.filter {
-            switch $0 {
-            case .Success(let operation, _) where operation == .fetch: return true
-            case .Failure(let error) where error == .cannotFetch(error.localizedDescription): return true
-            default: return false
-            }
-        }
-    }()
-    
-    private func configureBinding() {
-        self.fetchedFilter.map { (result) -> CameraFilter? in
-            switch result {
-            case .Success(_, let filter): return filter
-            case .Failure(_): return nil
-            }
-        }.subscribe(
-            onNext: { [weak self] filter in
-                guard let self = self else { return }
-                
-                if let filter = filter {
-                    self.appliedFilter = filter.ciFilter
-                } else {
-                    self.appliedFilter = nil
-                }
-            }
-        ).disposed(by: self.bag)
-        
-        self.filtersWorker.filters.map { (result) -> [CameraFilter] in
-            switch result {
-            case .Success(let operation, let filters) where operation == .fetch: return filters
-            default: return []
-            }
-        }.subscribe(
-            onNext: { [weak self] filters in
-                guard let self = self else { return }
-                
-                let response = CameraPreview.FetchFilters.Response(filters: filters)
-                self.presenter?.presentAllFilters(response: response)
-            }
-        ).disposed(by: self.bag)
-    }
     
     func isSignedIn(_ request: CameraPreview.LoginStatus.Request) {
         userWorker.fetchCurrentlyLoggedInUser()
@@ -175,11 +131,22 @@ class CameraPreviewInteractor: NSObject, CameraPreviewBusinessLogic, CameraPrevi
                     guard let self = self else { return }
                     
                     self.filtersWorker.fetchFilter(user:user, filterId: filterId)
+                        .subscribe(
+                            onNext: { filter in
+                                self.appliedFilter = filter.ciFilter
+                            },
+                            onError: { error in
+                                print(error)
+                                self.appliedFilter = nil
+                            }
+                        )
+                        .disposed(by: self.bag)
                 },
                 onError: { [weak self] error in
                     guard let self = self else { return }
                     
-                    self.filtersWorker.fetchFilter(user:nil, filterId: filterId)
+                    print(error)
+                    self.appliedFilter = nil
                 }
             )
             .disposed(by: self.bag)
@@ -192,14 +159,30 @@ class CameraPreviewInteractor: NSObject, CameraPreviewBusinessLogic, CameraPrevi
                     guard let self = self else { return }
                     
                     self.filtersWorker.fetchFilters(user: user)
+                        .subscribe(
+                            onNext: { filters in
+                                self.presentAllFilters(filters)
+                            },
+                            onError: { error in
+                                print(error)
+                                self.presentAllFilters([])
+                            }
+                        )
+                        .disposed(by: self.bag)
                 },
                 onError: { [weak self] error in
                     guard let self = self else { return }
                     
-                    self.filtersWorker.fetchFilters(user: nil)
+                    print(error)
+                    self.presentAllFilters([])
                 }
             )
             .disposed(by: self.bag)
+    }
+    
+    private func presentAllFilters(_ filters: [CameraFilter]) {
+        let response = CameraPreview.FetchFilters.Response(filters: filters)
+        self.presenter?.presentAllFilters(response: response)
     }
     
     func selectPhoto(_ request: CameraPreview.SelectPhoto.Request) {
@@ -207,6 +190,7 @@ class CameraPreviewInteractor: NSObject, CameraPreviewBusinessLogic, CameraPrevi
         self.selectedPhoto = photo
     }
     
+    //MARK: - Private methods
     private func configureCaptureSession() {
         self.worker.cameraDevice.subscribe (
             onSuccess: { [weak self] cameraDevice in
