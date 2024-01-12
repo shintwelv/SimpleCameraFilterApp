@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import RxSwift
 
 public class NetworkManager {
     
@@ -53,11 +54,6 @@ public enum ParameterEncoding {
     case json
 }
 
-public enum HTTPResponse<U> {
-    case Success(data: U)
-    case Fail(error: Error)
-}
-
 public enum HTTPRequestHeaderKey: String {
     case contentType = "Content-Type"
 }
@@ -79,11 +75,9 @@ internal protocol NetworkRequestProtocol {
 }
 
 internal protocol NetworkResponseProtocol {
-    func response(_ request: URLRequest, completionHandler: NetworkResponseHandler<Data?>?)
-    func decodableResponse<T>(_ request: URLRequest, of type: T.Type, completionHandler: NetworkResponseHandler<T>?) where T: Decodable
+    func response(_ request: URLRequest) -> Observable<Data?>
+    func decodableResponse<T>(_ request: URLRequest, of type: T.Type) -> Observable<T> where T: Decodable
 }
-
-public typealias NetworkResponseHandler<T> = (HTTPResponse<T>) -> Void
 
 public struct NetworkResponse {
     private let request: URLRequest
@@ -94,11 +88,11 @@ public struct NetworkResponse {
         self.responseProvider = provider
     }
     
-    public func response(completionHandler: NetworkResponseHandler<Data?>?) {
-        responseProvider.response(self.request, completionHandler: completionHandler)
+    public func response() -> Observable<Data?> {
+        return responseProvider.response(request)
     }
     
-    public func decodableResponse<T>(of type: T.Type, completionHandler: NetworkResponseHandler<T>?) where T: Decodable {
-        responseProvider.decodableResponse(self.request, of: type, completionHandler: completionHandler)
+    public func decodableResponse<T>(of type: T.Type) -> Observable<T> where T: Decodable {
+        return responseProvider.decodableResponse(request, of: type)
     }
 }

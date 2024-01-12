@@ -7,7 +7,7 @@
 
 import Foundation
 import NetworkManager
-import Alamofire
+import RxSwift
 
 class UserFirebaseStore: UserStoreProtocol {
     
@@ -39,26 +39,28 @@ class UserFirebaseStore: UserStoreProtocol {
         case email
     }
     
+    private var disposebag = DisposeBag()
     
     typealias UserData = [String: [String : String]]
     
     func fetchUserInStore(userToFetch: User, completionHandler: @escaping UserStoreFetchUserCompletionHandler) {
         let url: String = URLManager.fetchUserURL(userId: userToFetch.userId)
         
-        NetworkManager.shared.getMethod(url)?.decodableResponse(of: UserData.self, completionHandler: { [weak self] (response: HTTPResponse<UserData>) in
-            
-            guard let self = self else { return }
-            
-            switch response {
-            case .Success(let data):
-                let user: User? = self.createUser(userId: data.keys.first, userData: data)
-                let result = UserStoreResult<User?>.Success(result: user)
-                completionHandler(result)
-            case .Fail(let error):
-                let result = UserStoreResult<User?>.Failure(error: .cannotFetch(error.localizedDescription))
-                completionHandler(result)
-            }
-        })
+        NetworkManager.shared.getMethod(url)?
+            .decodableResponse(of: UserData.self)
+            .subscribe(
+                onNext: { [weak self] data in
+                    guard let self = self else { return }
+                    
+                    let user: User? = self.createUser(userId: data.keys.first, userData: data)
+                    let result = UserStoreResult<User?>.Success(result: user)
+                    completionHandler(result)
+                },
+                onError: { error in
+                    let result = UserStoreResult<User?>.Failure(error: .cannotFetch(error.localizedDescription))
+                    completionHandler(result)
+                }
+            ).disposed(by: self.disposebag)
     }
     
     func createUserInStore(userToCreate: User, completionHandler: @escaping UserStoreCreateUserCompletionHandler) {
@@ -70,24 +72,26 @@ class UserFirebaseStore: UserStoreProtocol {
         
         let url:String = URLManager.createUserURL()
         
-        NetworkManager.shared.patchMethod(url, headers: headers, parameters: parameter, encoding: .json)?.decodableResponse(of: UserData.self, completionHandler: { [weak self] (response: HTTPResponse<UserData>) in
-            guard let self = self else { return }
-            
-            switch response {
-            case .Success(let data):
-                guard let user = self.createUser(userId: data.keys.first, userData: data) else {
-                    let result = UserStoreResult<User>.Failure(error: .cannotCreate("유저를 생성할 수 없습니다"))
+        NetworkManager.shared.patchMethod(url, headers: headers, parameters: parameter, encoding: .json)?
+            .decodableResponse(of: UserData.self)
+            .subscribe(
+                onNext: { [weak self] data in
+                    guard let self = self else { return }
+                    
+                    guard let user = self.createUser(userId: data.keys.first, userData: data) else {
+                        let result = UserStoreResult<User>.Failure(error: .cannotCreate("유저를 생성할 수 없습니다"))
+                        completionHandler(result)
+                        return
+                    }
+                    
+                    let result = UserStoreResult<User>.Success(result: user)
                     completionHandler(result)
-                    return
+                },
+                onError: { error in
+                    let result = UserStoreResult<User>.Failure(error: .cannotCreate(error.localizedDescription))
+                    completionHandler(result)
                 }
-                
-                let result = UserStoreResult<User>.Success(result: user)
-                completionHandler(result)
-            case .Fail(let error):
-                let result = UserStoreResult<User>.Failure(error: .cannotCreate(error.localizedDescription))
-                completionHandler(result)
-            }
-        })
+            ).disposed(by: self.disposebag)
     }
     
     func deleteUserInStore(userToDelete: User, completionHandler: @escaping UserStoreDeleteUserCompletionHandler) {
@@ -104,16 +108,19 @@ class UserFirebaseStore: UserStoreProtocol {
                 
                 let url: String = URLManager.deleteUserURL(userId: userToDelete.userId)
                 
-                NetworkManager.shared.deleteMethod(url)?.response(completionHandler: { (response: HTTPResponse<Data?>) in
-                    switch response {
-                    case .Success(_):
-                        let result = UserStoreResult<User>.Success(result: userToDelete)
-                        completionHandler(result)
-                    case .Fail(let error):
-                        let result = UserStoreResult<User>.Failure(error: .cannotDelete(error.localizedDescription))
-                        completionHandler(result)
-                    }
-                })
+                NetworkManager.shared.deleteMethod(url)?
+                    .response()
+                    .subscribe(
+                        onNext: { _ in
+                            let result = UserStoreResult<User>.Success(result: userToDelete)
+                            completionHandler(result)
+                        },
+                        onError: { error in
+                            let result = UserStoreResult<User>.Failure(error: .cannotDelete(error.localizedDescription))
+                            completionHandler(result)
+                        }
+                    ).disposed(by: self.disposebag)
+                
             case .Failure(let error):
                 let result = UserStoreResult<User>.Failure(error: .cannotDelete("\(error)"))
                 completionHandler(result)

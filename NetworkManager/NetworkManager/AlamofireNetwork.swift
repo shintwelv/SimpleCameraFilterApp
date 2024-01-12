@@ -7,42 +7,49 @@
 
 import Foundation
 import Alamofire
+import RxSwift
 
 internal struct AlamofireNetwork: NetworkResponseProtocol, NetworkRequestProtocol {
     
     internal static let shared = AlamofireNetwork()
     
-    func response(_ request: URLRequest, completionHandler: NetworkResponseHandler<Data?>?) {
-        AF.request(request)
-            .responseData { (response: AFDataResponse<Data>) in
-                guard let handler = completionHandler else { return }
-                
-                switch response.result {
-                case .success(let data):
-                    let httpResponse: HTTPResponse<Data?> = .Success(data: data)
-                    handler(httpResponse)
-                case .failure(let error):
-                    let httpResponse: HTTPResponse<Data?> = .Fail(error: error)
-                    handler(httpResponse)
+    func response(_ request: URLRequest) -> Observable<Data?> {
+        return Observable<Data?>.create { observer in
+            
+            AF.request(request)
+                .responseData { (response: AFDataResponse<Data>) in
+                    
+                    switch response.result {
+                    case .success(let data):
+                        observer.onNext(data)
+                        observer.onCompleted()
+                    case .failure(let error):
+                        observer.onError(error)
+                    }
                 }
-            }
+            
+            
+            return Disposables.create()
+        }
     }
     
-    func decodableResponse<T>(_ request: URLRequest, of type: T.Type, completionHandler: NetworkResponseHandler<T>?) where T : Decodable {
-        AF.request(request)
-            .responseDecodable(of: type) { (response: DataResponse<T, AFError>) in
-                guard let handler = completionHandler else { return }
-                
-                switch response.result {
-                case .success(let data):
-                    let httpResponse: HTTPResponse<T> = .Success(data: data)
-                    handler(httpResponse)
-                    break
-                case .failure(let error):
-                    let httpResponse: HTTPResponse<T> = .Fail(error: error)
-                    handler(httpResponse)
+    func decodableResponse<T>(_ request: URLRequest, of type: T.Type) -> Observable<T> where T : Decodable {
+        return Observable<T>.create { observer in
+            
+            AF.request(request)
+                .responseDecodable(of: type) { (response: DataResponse<T, AFError>) in
+                    
+                    switch response.result {
+                    case .success(let data):
+                        observer.onNext(data)
+                        observer.onCompleted()
+                    case .failure(let error):
+                        observer.onError(error)
+                    }
                 }
-            }
+            
+            return Disposables.create()
+        }
     }
     
     func createURLRequest(url: String, headers: [HTTPRequestHeaderKey : HTTPRequestHeaderValue]?, method: NetworkRequestMethod) -> URLRequest? {
