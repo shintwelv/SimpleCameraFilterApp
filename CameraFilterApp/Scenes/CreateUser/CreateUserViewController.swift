@@ -216,6 +216,15 @@ class CreateUserViewController: UIViewController, CreateUserDisplayLogic
         return button
     }()
     
+    private var indicatorView: UIActivityIndicatorView = {
+        let view = UIActivityIndicatorView()
+        view.backgroundColor = UIColor(red: 10/255, green: 10/255, blue: 10/255, alpha: 0.5)
+        view.style = .large
+        view.color = .white
+        view.isHidden = true
+        return view
+    }()
+    
     // MARK: View lifecycle
     
     override func viewDidLoad()
@@ -253,6 +262,8 @@ class CreateUserViewController: UIViewController, CreateUserDisplayLogic
             self.signUpButton,
             self.signOutButton,
             self.deleteButton,
+            
+            self.indicatorView,
         ].forEach { self.view.addSubview($0) }
         
         self.closeButton.addTarget(self, action: #selector(closeButtonTapped), for: .touchUpInside)
@@ -293,6 +304,8 @@ class CreateUserViewController: UIViewController, CreateUserDisplayLogic
             self.signUpButton,
             self.signOutButton,
             self.deleteButton,
+            
+            self.indicatorView,
         ].forEach { $0.translatesAutoresizingMaskIntoConstraints = false }
         
         NSLayoutConstraint.activate([
@@ -370,6 +383,11 @@ class CreateUserViewController: UIViewController, CreateUserDisplayLogic
             self.deleteButton.leadingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.leadingAnchor, constant: 15),
             self.deleteButton.widthAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.widthAnchor, multiplier: 0.44),
             self.deleteButton.heightAnchor.constraint(equalToConstant: 50),
+            
+            self.indicatorView.topAnchor.constraint(equalTo: self.view.topAnchor),
+            self.indicatorView.leadingAnchor.constraint(equalTo: self.view.leadingAnchor),
+            self.indicatorView.trailingAnchor.constraint(equalTo: self.view.trailingAnchor),
+            self.indicatorView.bottomAnchor.constraint(equalTo: self.view.bottomAnchor),
         ])
     }
     
@@ -407,6 +425,8 @@ class CreateUserViewController: UIViewController, CreateUserDisplayLogic
     }
     
     @objc private func signOutButtonTapped(_ button: UIButton) {
+        showIndicatorView()
+        
         let request = CreateUser.SignOut.Request()
         self.interactor?.signOut(request: request)
     }
@@ -416,6 +436,8 @@ class CreateUserViewController: UIViewController, CreateUserDisplayLogic
         
         let deleteAction = UIAlertAction(title: "삭제", style: .destructive) { [weak self] action in
             guard let self = self else { return }
+            
+            self.showIndicatorView()
             
             let request = CreateUser.Delete.Request()
             self.interactor?.deleteUser(request: request)
@@ -435,12 +457,23 @@ class CreateUserViewController: UIViewController, CreateUserDisplayLogic
         self.interactor?.isSignedIn(request: request)
     }
     
+    private func showIndicatorView() {
+        self.indicatorView.isHidden = true
+        if self.indicatorView.isAnimating == false{
+            self.indicatorView.startAnimating()
+        }
+    }
+    
     @objc private func googleLoginButtonTapped(_ button: GIDSignInButton) {
+        showIndicatorView()
+        
         let request = CreateUser.GoogleSignIn.Request(presentingViewController: self)
         self.interactor?.googleSignIn(request: request)
     }
     
     @objc private func appleLoginButtonTapped(_ button: ASAuthorizationAppleIDButton) {
+        showIndicatorView()
+        
         let request = CreateUser.AppleSignIn.Request(presentingViewController: self)
         self.interactor?.appleSignIn(request: request)
     }
@@ -449,6 +482,8 @@ class CreateUserViewController: UIViewController, CreateUserDisplayLogic
         guard let typedEmail = self.emailTextField.text,
               let typedPassword = self.passwordTextField.text else { return }
         
+        showIndicatorView()
+        
         let request = CreateUser.SignIn.Request(userEmail: typedEmail, userPassword: typedPassword)
         self.interactor?.signIn(request: request)
     }
@@ -456,6 +491,8 @@ class CreateUserViewController: UIViewController, CreateUserDisplayLogic
     @objc private func signUpButtonTapped(_ button: UIButton) {
         guard let typedEmail = self.emailTextField.text,
               let typedPassword = self.passwordTextField.text else { return }
+        
+        showIndicatorView()
         
         let request = CreateUser.SignUp.Request(newEmail: typedEmail, newPassword: typedPassword)
         self.interactor?.signUp(request: request)
@@ -468,6 +505,13 @@ class CreateUserViewController: UIViewController, CreateUserDisplayLogic
             hideSigningForm(userEmail: userEmail)
         } else {
             showSigningForm()
+        }
+    }
+    
+    private func hideIndicatorView() {
+        self.indicatorView.isHidden = false
+        if self.indicatorView.isAnimating {
+            self.indicatorView.stopAnimating()
         }
     }
     
@@ -501,6 +545,8 @@ class CreateUserViewController: UIViewController, CreateUserDisplayLogic
             let alertController = okAlertController(title: "에러", message: "로그인 할 수 없습니다")
             self.present(alertController, animated: true)
         }
+        
+        hideIndicatorView()
     }
     
     func displaySignedOutUser(viewModel: CreateUser.SignOut.ViewModel) {
@@ -514,6 +560,8 @@ class CreateUserViewController: UIViewController, CreateUserDisplayLogic
             let alertController = okAlertController(title: "에러", message: "로그아웃에 실패했습니다")
             self.present(alertController, animated: true)
         }
+        
+        hideIndicatorView()
     }
     
     func displaySignedUpUser(viewModel: CreateUser.SignUp.ViewModel) {
@@ -532,6 +580,8 @@ class CreateUserViewController: UIViewController, CreateUserDisplayLogic
             let alertController = okAlertController(title: "에러", message: "회원가입에 실패했습니다")
             self.present(alertController, animated: true)
         }
+        
+        hideIndicatorView()
     }
     
     func displayDeletedUser(viewModel: CreateUser.Delete.ViewModel) {
@@ -549,6 +599,8 @@ class CreateUserViewController: UIViewController, CreateUserDisplayLogic
             let alertController = okAlertController(title: "에러", message: "회원탈퇴에 실패했습니다. 재로그인 후 다시 시도해주세요")
             self.present(alertController, animated: true)
         }
+        
+        hideIndicatorView()
     }
     
     private func okAlertController(title: String, message: String, okButtonTappedHandler: ((UIAlertAction) -> Void)? = nil) -> UIAlertController {

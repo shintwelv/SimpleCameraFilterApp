@@ -218,6 +218,15 @@ class CreateFilterViewController: UIViewController, CreateFilterDisplayLogic
         return button
     }()
     
+    private var indicatorView: UIActivityIndicatorView = {
+        let view = UIActivityIndicatorView()
+        view.backgroundColor = UIColor(red: 10/255, green: 10/255, blue: 10/255, alpha: 0.5)
+        view.style = .large
+        view.color = .white
+        view.isHidden = true
+        return view
+    }()
+    
     // MARK: View lifecycle
     
     override func viewDidLoad()
@@ -269,6 +278,7 @@ class CreateFilterViewController: UIViewController, CreateFilterDisplayLogic
             self.propertyScrollView,
             self.propertyStackView,
             self.buttonStackView,
+            self.indicatorView,
         ].forEach { self.view.addSubview($0) }
         
         [
@@ -320,6 +330,8 @@ class CreateFilterViewController: UIViewController, CreateFilterDisplayLogic
             self.createButton,
             self.deleteButton,
             self.editButton,
+            
+            self.indicatorView,
         ].forEach { $0.translatesAutoresizingMaskIntoConstraints = false }
         
         // self.view's subviews
@@ -367,6 +379,11 @@ class CreateFilterViewController: UIViewController, CreateFilterDisplayLogic
             self.buttonStackView.leadingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.leadingAnchor, constant: 15),
             self.buttonStackView.trailingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.trailingAnchor, constant: -15),
             self.buttonStackView.heightAnchor.constraint(equalToConstant: 60),
+            
+            self.indicatorView.topAnchor.constraint(equalTo: self.view.topAnchor),
+            self.indicatorView.leadingAnchor.constraint(equalTo: self.view.leadingAnchor),
+            self.indicatorView.trailingAnchor.constraint(equalTo: self.view.trailingAnchor),
+            self.indicatorView.bottomAnchor.constraint(equalTo: self.view.bottomAnchor),
         ])
         
         // buttonStackView's subviews
@@ -405,17 +422,35 @@ class CreateFilterViewController: UIViewController, CreateFilterDisplayLogic
     }
     
     // MARK: - CreateFilterBusinessLogic
+    private func showIndicatorView() {
+        self.indicatorView.isHidden = false
+        if self.indicatorView.isAnimating == false {
+            self.indicatorView.startAnimating()
+        }
+    }
+    
     func fetchFilter() {
+        showIndicatorView()
+        
         let request = CreateFilter.FetchFilter.Request()
         interactor?.fetchFilter(request: request)
     }
     
     func fetchFilterCategories() {
+        showIndicatorView()
+        
         let request = CreateFilter.FetchFilterCategories.Request()
         interactor?.fetchFilterCategories(request: request)
     }
     
     // MARK: - CreateFilterDisplayLogic
+    private func hideIndicatorView() {
+        self.indicatorView.isHidden = true
+        if self.indicatorView.isAnimating == true {
+            self.indicatorView.stopAnimating()
+        }
+    }
+    
     func displayFetchedFilter(viewModel: CreateFilter.FetchFilter.ViewModel) {
         self.sampleImageView.image = viewModel.sampleImage
         
@@ -455,11 +490,15 @@ class CreateFilterViewController: UIViewController, CreateFilterDisplayLogic
         } else {
             self.createButton.isHidden = false
         }
+        
+        hideIndicatorView()
     }
 
     func displayFetchedCategories(viewModel: CreateFilter.FetchFilterCategories.ViewModel) {
         let categoryNames = viewModel.filterCategories
         self.categoryNames = categoryNames
+        
+        hideIndicatorView()
     }
 
     func displayFetchedProperties(viewModel: CreateFilter.FetchProperties.ViewModel) {
@@ -493,6 +532,8 @@ class CreateFilterViewController: UIViewController, CreateFilterDisplayLogic
             
             self.inputLevelsSliderView.configure(propertyName: "레벨", propertyMinValue: Float(inputLevels.min), propertyMaxValue: Float(inputLevels.max), propertyCurrentValue: Float(inputLevels.value))
         }
+        
+        hideIndicatorView()
     }
     
     func displayFilterAppliedSampleImage(viewModel: CreateFilter.ApplyFilter.ViewModel) {
@@ -513,6 +554,8 @@ class CreateFilterViewController: UIViewController, CreateFilterDisplayLogic
             
             self.present(alertController, animated: true)
         }
+        
+        hideIndicatorView()
     }
 
     func displayEditedFilter(viewModel: CreateFilter.EditFilter.ViewModel) {
@@ -527,6 +570,8 @@ class CreateFilterViewController: UIViewController, CreateFilterDisplayLogic
             
             self.present(alertController, animated: true)
         }
+        
+        hideIndicatorView()
     }
 
     func displayDeletedFilter(viewModel: CreateFilter.DeleteFilter.ViewModel) {
@@ -541,6 +586,8 @@ class CreateFilterViewController: UIViewController, CreateFilterDisplayLogic
             
             self.present(alertController, animated: true)
         }
+        
+        hideIndicatorView()
     }
     
     // MARK: - Private methods
@@ -557,6 +604,8 @@ class CreateFilterViewController: UIViewController, CreateFilterDisplayLogic
         let filterSystemName = CameraFilter.FilterName(rawValue: self.filterCategoryTextField.text ?? "") else {
             return
         }
+        
+        showIndicatorView()
         
         let request = CreateFilter.CreateFilter.Request(
             filterName: displayName,
@@ -575,6 +624,8 @@ class CreateFilterViewController: UIViewController, CreateFilterDisplayLogic
             return
         }
         
+        showIndicatorView()
+        
         let request = CreateFilter.EditFilter.Request(
             filterName: displayName,
             filterSystemName: filterSystemName,
@@ -587,6 +638,8 @@ class CreateFilterViewController: UIViewController, CreateFilterDisplayLogic
     }
     
     @objc private func deleteButtonTapped(_ button: UIButton) {
+        showIndicatorView()
+        
         let request = CreateFilter.DeleteFilter.Request()
         interactor?.deleteFilter(request: request)
     }
