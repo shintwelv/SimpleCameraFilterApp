@@ -7,31 +7,60 @@
 
 import Foundation
 import CoreImage
-import Alamofire
+import NetworkManager
 
 class FilterFirebaseStore: RemoteFiltersStoreProtocol {
-    
-    static let endPoint: String = FirebaseDB.Endpoint.url.rawValue + "/" + FirebaseDB.Name.filters.rawValue
+
+    struct URLManager {
+        private init() {}
+        
+        static let endPoint: String = FirebaseDB.Endpoint.url.rawValue + "/" + FirebaseDB.Name.filters.rawValue
+        
+        static let filtersJson: String = endPoint + FirebaseDB.FileExt.json.rawValue
+        
+        static func fetchFiltersURL(userId: String) -> String {
+            return filtersJson + "?"
+            + orderByString(orderBy: .owner, param: userId)
+        }
+        
+        static func fetchFilterURL(filterId: UUID) -> String {
+            return filtersJson + "?"
+            + orderByString(orderBy: .key, param: filterId.uuidString)
+        }
+        
+        static func createFilterURL() -> String {
+            return filtersJson
+        }
+        
+        static func updateFilterURL() -> String {
+            return filtersJson
+        }
+        
+        static func deleteFilterURL(filterId: UUID) -> String {
+            return endPoint + "/"
+            + filterId.uuidString + FirebaseDB.FileExt.json.rawValue
+        }
+
+        static private func orderByString(orderBy: FirebaseDB.OrderBy, param: String) -> String {
+            return orderBy.description + "&"
+            + FirebaseDB.Filtering.equalTo(param: param).description
+        }
+    }
     
     func fetchFilters(user: User, completionHandler: @escaping FiltersStoreFetchFiltersCompletionHandler) {
         let userId = user.userId
+        let url: String = URLManager.fetchFiltersURL(userId: userId)
         
-        AF.request("\(FilterFirebaseStore.endPoint).\(FirebaseDB.FileExt.json)?\(FirebaseDB.OrderBy.owner)&\(FirebaseDB.Filtering.equalTo(param: userId))")
-            .responseDecodable(of:FilterData.self) { [weak self] response in
-                
-                guard let self = self else { return }
-                
-                guard let responseValue = response.value else {
-                    let result = FiltersStoreResult<[CameraFilter]>.Failure(error: .cannotFetch("서버로부터 데이터를 받아올 수 없습니다"))
-                    completionHandler(result)
-                    return
-                }
-                
+        NetworkManager.shared.getMethod(url)?.decodableResponse(of: FilterData.self, completionHandler: { [weak self] (response: HTTPResponse<FilterData>) in
+            guard let self = self else { return }
+            
+            switch response {
+            case .Success(let data):
                 var cameraFilters: [CameraFilter] = []
                 
-                for filterId in responseValue.keys {
+                for filterId in data.keys {
                     do {
-                        let cameraFilter: CameraFilter = try self.createCameraFilter(filterId: filterId, filterData: responseValue)
+                        let cameraFilter: CameraFilter = try self.createCameraFilter(filterId: filterId, filterData: data)
                         cameraFilters.append(cameraFilter)
                     } catch {
                         let result = FiltersStoreResult<[CameraFilter]>.Failure(error: .cannotFetch("\(error)"))
@@ -42,88 +71,92 @@ class FilterFirebaseStore: RemoteFiltersStoreProtocol {
                 
                 let result = FiltersStoreResult<[CameraFilter]>.Success(result: cameraFilters)
                 completionHandler(result)
+            case .Fail(let error):
+                let result = FiltersStoreResult<[CameraFilter]>.Failure(error: .cannotFetch(error.localizedDescription))
+                completionHandler(result)
             }
+        })
     }
     
     func fetchFilter(user: User, filterId: UUID, completionHandler: @escaping FiltersStoreFetchFilterCompletionHandler) {
-        AF.request("\(FilterFirebaseStore.endPoint).\(FirebaseDB.FileExt.json)?\(FirebaseDB.OrderBy.key)&\(FirebaseDB.Filtering.equalTo(param: filterId.uuidString))")
-            .responseDecodable(of:FilterData.self) { [weak self] response in
-                
-                guard let self = self else { return }
-                
-                guard let responseValue = response.value else {
-                    let result = FiltersStoreResult<CameraFilter>.Failure(error: .cannotFetch("서버로부터 데이터를 받아올 수 없습니다"))
-                    completionHandler(result)
-                    return
-                }
-                
+        let url: String = URLManager.fetchFilterURL(filterId: filterId)
+        
+        NetworkManager.shared.getMethod(url)?.decodableResponse(of: FilterData.self, completionHandler: { [weak self] (response: HTTPResponse<FilterData>) in
+            guard let self = self else { return }
+            
+            switch response {
+            case .Success(let data):
                 do {
-                    let cameraFilter: CameraFilter = try self.createCameraFilter(filterId: responseValue.keys.first, filterData: responseValue)
+                    let cameraFilter: CameraFilter = try self.createCameraFilter(filterId: data.keys.first, filterData: data)
                     let result = FiltersStoreResult<CameraFilter>.Success(result: cameraFilter)
                     completionHandler(result)
                 } catch {
                     let result = FiltersStoreResult<CameraFilter>.Failure(error: .cannotCreate("\(error)"))
                     completionHandler(result)
                 }
+            case .Fail(let error):
+                let result = FiltersStoreResult<CameraFilter>.Failure(error: .cannotFetch(error.localizedDescription))
+                completionHandler(result)
             }
+        })
     }
     
     func createFilter(user: User, filterToCreate: CameraFilter, completionHandler: @escaping FiltersStoreCreateFilterCompletionHandler) {
         let parameter: FilterData = self.createParams(user: user, filter: filterToCreate)
         
-        let headers: HTTPHeaders = [
-            .contentType(FirebaseDB.ContentType.applicationJson.rawValue)
+        let headers: [HTTPRequestHeaderKey : HTTPRequestHeaderValue] = [
+            .contentType : .applicationJson
         ]
         
-        AF.request("\(FilterFirebaseStore.endPoint).\(FirebaseDB.FileExt.json)", method: .patch, parameters: parameter, encoder: JSONParameterEncoder.default, headers: headers)
-            .responseDecodable(of:FilterData.self) { [weak self] response in
-                
-                guard let self = self else { return }
-                
-                guard let responseValue = response.value else {
-                    let result = FiltersStoreResult<CameraFilter>.Failure(error: .cannotCreate("서버로부터 데이터를 받아올 수 없습니다"))
-                    completionHandler(result)
-                    return
-                }
-                
+        let url: String = URLManager.createFilterURL()
+        
+        NetworkManager.shared.patchMethod(url, headers: headers, parameters: parameter, encoding: .json)?.decodableResponse(of: FilterData.self, completionHandler: { [weak self] (response: HTTPResponse<FilterData>) in
+            guard let self = self else { return }
+            
+            switch response {
+            case .Success(let data):
                 do {
-                    let cameraFilter: CameraFilter = try self.createCameraFilter(filterId: responseValue.keys.first, filterData: responseValue)
+                    let cameraFilter: CameraFilter = try self.createCameraFilter(filterId: data.keys.first, filterData: data)
                     let result = FiltersStoreResult<CameraFilter>.Success(result: cameraFilter)
                     completionHandler(result)
                 } catch {
                     let result = FiltersStoreResult<CameraFilter>.Failure(error: .cannotCreate("\(error)"))
                     completionHandler(result)
                 }
+            case .Fail(let error):
+                let result = FiltersStoreResult<CameraFilter>.Failure(error: .cannotCreate(error.localizedDescription))
+                completionHandler(result)
             }
+        })
     }
     
     func updateFilter(user: User, filterToUpdate: CameraFilter, completionHandler: @escaping FiltersStoreUpdateFilterCompletionHandler) {
         let parameter: FilterData = self.createParams(user: user, filter: filterToUpdate)
         
-        let headers: HTTPHeaders = [
-            .contentType(FirebaseDB.ContentType.applicationJson.rawValue)
+        let headers: [HTTPRequestHeaderKey : HTTPRequestHeaderValue] = [
+            .contentType : .applicationJson
         ]
         
-        AF.request("\(FilterFirebaseStore.endPoint).\(FirebaseDB.FileExt.json)", method: .patch, parameters: parameter, encoder: JSONParameterEncoder.default, headers: headers)
-            .responseDecodable(of:FilterData.self) { [weak self] response in
-                
-                guard let self = self else { return }
-                
-                guard let responseValue = response.value else {
-                    let result = FiltersStoreResult<CameraFilter>.Failure(error: .cannotUpdate("서버로부터 데이터를 받아올 수 없습니다"))
-                    completionHandler(result)
-                    return
-                }
-                
+        let url: String = URLManager.updateFilterURL()
+        
+        NetworkManager.shared.patchMethod(url, headers: headers, parameters: parameter, encoding: .json)?.decodableResponse(of: FilterData.self, completionHandler: { [weak self] (response: HTTPResponse<FilterData>) in
+            guard let self = self else { return }
+            
+            switch response {
+            case .Success(let data):
                 do {
-                    let cameraFilter: CameraFilter = try self.createCameraFilter(filterId: responseValue.keys.first, filterData: responseValue)
+                    let cameraFilter: CameraFilter = try self.createCameraFilter(filterId: data.keys.first, filterData: data)
                     let result = FiltersStoreResult<CameraFilter>.Success(result: cameraFilter)
                     completionHandler(result)
                 } catch {
                     let result = FiltersStoreResult<CameraFilter>.Failure(error: .cannotUpdate("\(error)"))
                     completionHandler(result)
                 }
+            case .Fail(let error):
+                let result = FiltersStoreResult<CameraFilter>.Failure(error: .cannotUpdate(error.localizedDescription))
+                completionHandler(result)
             }
+        })
     }
     
     func deleteFilter(user: User, filterId: UUID, completionHandler: @escaping FiltersStoreDeleteFilterCompletionHandler) {
@@ -131,18 +164,18 @@ class FilterFirebaseStore: RemoteFiltersStoreProtocol {
         self.fetchFilter(user: user, filterId: filterId) { result in
             switch result {
             case .Success(let filterToDelete):
-                AF.request("\(FilterFirebaseStore.endPoint)/\(filterId).\(FirebaseDB.FileExt.json)", method: .delete)
-                    .responseDecodable(of:FilterData.self) { response in
-                        
-                        guard let statusCode = response.response?.statusCode, (200..<300).contains(statusCode) else {
-                            let result = FiltersStoreResult<CameraFilter>.Failure(error: .cannotDelete("서버로부터 데이터를 받아올 수 없습니다"))
-                            completionHandler(result)
-                            return
-                        }
-                        
+                let url:String = URLManager.deleteFilterURL(filterId: filterId)
+                
+                NetworkManager.shared.deleteMethod(url)?.response(completionHandler: { (response: HTTPResponse<Data?>) in
+                    switch response {
+                    case .Success(_):
                         let result = FiltersStoreResult<CameraFilter>.Success(result: filterToDelete)
                         completionHandler(result)
+                    case .Fail(let error):
+                        let result = FiltersStoreResult<CameraFilter>.Failure(error: .cannotDelete(error.localizedDescription))
+                        completionHandler(result)
                     }
+                })
             case .Failure(let error):
                 let result = FiltersStoreResult<CameraFilter>.Failure(error: .cannotDelete("\(error)"))
                 completionHandler(result)
