@@ -8,15 +8,16 @@
 import Foundation
 import CoreImage
 import NetworkManager
+import RxSwift
 
 class FilterFirebaseStore: RemoteFiltersStoreProtocol {
-
+    
     struct URLManager {
         private init() {}
         
         static let endPoint: String = FirebaseDB.Endpoint.url.rawValue + "/" + FirebaseDB.Name.filters.rawValue
         
-        static let filtersJson: String = endPoint + FirebaseDB.FileExt.json.rawValue
+        static let filtersJson: String = endPoint + "." + FirebaseDB.FileExt.json.rawValue
         
         static func fetchFiltersURL(userId: String) -> String {
             return filtersJson + "?"
@@ -40,68 +41,74 @@ class FilterFirebaseStore: RemoteFiltersStoreProtocol {
             return endPoint + "/"
             + filterId.uuidString + FirebaseDB.FileExt.json.rawValue
         }
-
+        
         static private func orderByString(orderBy: FirebaseDB.OrderBy, param: String) -> String {
             return orderBy.description + "&"
             + FirebaseDB.Filtering.equalTo(param: param).description
         }
     }
     
-    func fetchFilters(user: User, completionHandler: @escaping FiltersStoreFetchFiltersCompletionHandler) {
+    private var disposeBag = DisposeBag()
+    
+    func fetchFilters(user: User) -> Observable<[CameraFilter]> {
         let userId = user.userId
         let url: String = URLManager.fetchFiltersURL(userId: userId)
         
-        NetworkManager.shared.getMethod(url)?.decodableResponse(of: FilterData.self, completionHandler: { [weak self] (response: HTTPResponse<FilterData>) in
-            guard let self = self else { return }
-            
-            switch response {
-            case .Success(let data):
+        guard let networkResponse = NetworkManager.shared.getMethod(url) else {
+            return Observable.error(FiltersStoreError.cannotFetch("invalid request"))
+        }
+        
+        return networkResponse
+            .decodableResponse(of: FilterData.self)
+            .map { [weak self] (filterData: FilterData) -> [CameraFilter] in
+                guard let self = self else {
+                    throw FiltersStoreError.cannotFetch("self is not referenced")
+                }
+                
                 var cameraFilters: [CameraFilter] = []
                 
-                for filterId in data.keys {
+                for filterId in filterData.keys {
                     do {
-                        let cameraFilter: CameraFilter = try self.createCameraFilter(filterId: filterId, filterData: data)
+                        let cameraFilter: CameraFilter = try self.createCameraFilter(filterId: filterId, filterData: filterData)
                         cameraFilters.append(cameraFilter)
                     } catch {
-                        let result = FiltersStoreResult<[CameraFilter]>.Failure(error: .cannotFetch("\(error)"))
-                        completionHandler(result)
-                        return
+                        throw error
                     }
                 }
                 
-                let result = FiltersStoreResult<[CameraFilter]>.Success(result: cameraFilters)
-                completionHandler(result)
-            case .Fail(let error):
-                let result = FiltersStoreResult<[CameraFilter]>.Failure(error: .cannotFetch(error.localizedDescription))
-                completionHandler(result)
+                return cameraFilters
+            }.catch { error in
+                return Observable.error(error)
             }
-        })
     }
     
-    func fetchFilter(user: User, filterId: UUID, completionHandler: @escaping FiltersStoreFetchFilterCompletionHandler) {
+    func fetchFilter(user: User, filterId: UUID) -> Observable<CameraFilter> {
         let url: String = URLManager.fetchFilterURL(filterId: filterId)
         
-        NetworkManager.shared.getMethod(url)?.decodableResponse(of: FilterData.self, completionHandler: { [weak self] (response: HTTPResponse<FilterData>) in
-            guard let self = self else { return }
-            
-            switch response {
-            case .Success(let data):
-                do {
-                    let cameraFilter: CameraFilter = try self.createCameraFilter(filterId: data.keys.first, filterData: data)
-                    let result = FiltersStoreResult<CameraFilter>.Success(result: cameraFilter)
-                    completionHandler(result)
-                } catch {
-                    let result = FiltersStoreResult<CameraFilter>.Failure(error: .cannotCreate("\(error)"))
-                    completionHandler(result)
+        guard let networkResponse = NetworkManager.shared.getMethod(url) else {
+            return Observable.error(FiltersStoreError.cannotFetch("invalid request"))
+        }
+        
+        return networkResponse
+            .decodableResponse(of: FilterData.self)
+            .map { [weak self] (filterData: FilterData) -> CameraFilter in
+                guard let self = self else {
+                    throw FiltersStoreError.cannotFetch("self is not referred")
                 }
-            case .Fail(let error):
-                let result = FiltersStoreResult<CameraFilter>.Failure(error: .cannotFetch(error.localizedDescription))
-                completionHandler(result)
+                
+                do {
+                    return try self.createCameraFilter(filterId: filterData.keys.first, filterData: filterData)
+                } catch {
+                    throw error
+                }
+                
+                
+            }.catch { error in
+                return Observable.error(error)
             }
-        })
     }
     
-    func createFilter(user: User, filterToCreate: CameraFilter, completionHandler: @escaping FiltersStoreCreateFilterCompletionHandler) {
+    func createFilter(user: User, filterToCreate: CameraFilter) -> Observable<CameraFilter> {
         let parameter: FilterData = self.createParams(user: user, filter: filterToCreate)
         
         let headers: [HTTPRequestHeaderKey : HTTPRequestHeaderValue] = [
@@ -110,27 +117,29 @@ class FilterFirebaseStore: RemoteFiltersStoreProtocol {
         
         let url: String = URLManager.createFilterURL()
         
-        NetworkManager.shared.patchMethod(url, headers: headers, parameters: parameter, encoding: .json)?.decodableResponse(of: FilterData.self, completionHandler: { [weak self] (response: HTTPResponse<FilterData>) in
-            guard let self = self else { return }
-            
-            switch response {
-            case .Success(let data):
-                do {
-                    let cameraFilter: CameraFilter = try self.createCameraFilter(filterId: data.keys.first, filterData: data)
-                    let result = FiltersStoreResult<CameraFilter>.Success(result: cameraFilter)
-                    completionHandler(result)
-                } catch {
-                    let result = FiltersStoreResult<CameraFilter>.Failure(error: .cannotCreate("\(error)"))
-                    completionHandler(result)
+        guard let networkResponse = NetworkManager.shared.patchMethod(url, headers: headers, parameters: parameter, encoding: .json) else {
+            return Observable.error(FiltersStoreError.cannotCreate("invalid request"))
+        }
+        
+        return networkResponse
+            .decodableResponse(of: FilterData.self)
+            .map { [weak self] (filterData: FilterData) -> CameraFilter in
+                guard let self = self else {
+                    throw FiltersStoreError.cannotCreate("self is not referred")
                 }
-            case .Fail(let error):
-                let result = FiltersStoreResult<CameraFilter>.Failure(error: .cannotCreate(error.localizedDescription))
-                completionHandler(result)
+                
+                do {
+                    return try self.createCameraFilter(filterId: filterData.keys.first, filterData: filterData)
+                } catch {
+                    throw error
+                }
+                
+            }.catch { error in
+                return Observable.error(error)
             }
-        })
     }
     
-    func updateFilter(user: User, filterToUpdate: CameraFilter, completionHandler: @escaping FiltersStoreUpdateFilterCompletionHandler) {
+    func updateFilter(user: User, filterToUpdate: CameraFilter) -> Observable<CameraFilter> {
         let parameter: FilterData = self.createParams(user: user, filter: filterToUpdate)
         
         let headers: [HTTPRequestHeaderKey : HTTPRequestHeaderValue] = [
@@ -139,49 +148,45 @@ class FilterFirebaseStore: RemoteFiltersStoreProtocol {
         
         let url: String = URLManager.updateFilterURL()
         
-        NetworkManager.shared.patchMethod(url, headers: headers, parameters: parameter, encoding: .json)?.decodableResponse(of: FilterData.self, completionHandler: { [weak self] (response: HTTPResponse<FilterData>) in
-            guard let self = self else { return }
-            
-            switch response {
-            case .Success(let data):
-                do {
-                    let cameraFilter: CameraFilter = try self.createCameraFilter(filterId: data.keys.first, filterData: data)
-                    let result = FiltersStoreResult<CameraFilter>.Success(result: cameraFilter)
-                    completionHandler(result)
-                } catch {
-                    let result = FiltersStoreResult<CameraFilter>.Failure(error: .cannotUpdate("\(error)"))
-                    completionHandler(result)
-                }
-            case .Fail(let error):
-                let result = FiltersStoreResult<CameraFilter>.Failure(error: .cannotUpdate(error.localizedDescription))
-                completionHandler(result)
-            }
-        })
-    }
-    
-    func deleteFilter(user: User, filterId: UUID, completionHandler: @escaping FiltersStoreDeleteFilterCompletionHandler) {
-        
-        self.fetchFilter(user: user, filterId: filterId) { result in
-            switch result {
-            case .Success(let filterToDelete):
-                let url:String = URLManager.deleteFilterURL(filterId: filterId)
-                
-                NetworkManager.shared.deleteMethod(url)?.response(completionHandler: { (response: HTTPResponse<Data?>) in
-                    switch response {
-                    case .Success(_):
-                        let result = FiltersStoreResult<CameraFilter>.Success(result: filterToDelete)
-                        completionHandler(result)
-                    case .Fail(let error):
-                        let result = FiltersStoreResult<CameraFilter>.Failure(error: .cannotDelete(error.localizedDescription))
-                        completionHandler(result)
-                    }
-                })
-            case .Failure(let error):
-                let result = FiltersStoreResult<CameraFilter>.Failure(error: .cannotDelete("\(error)"))
-                completionHandler(result)
-            }
+        guard let networkResponse = NetworkManager.shared.patchMethod(url, headers: headers, parameters: parameter, encoding: .json) else {
+            return Observable.error(FiltersStoreError.cannotUpdate("invalid request"))
         }
         
+        return networkResponse
+            .decodableResponse(of: FilterData.self)
+            .map { [weak self] (filterData: FilterData) -> CameraFilter in
+                guard let self = self else {
+                    throw FiltersStoreError.cannotUpdate("self is not referenced")
+                }
+                
+                do {
+                    return try self.createCameraFilter(filterId: filterData.keys.first, filterData: filterData)
+                } catch {
+                    throw error
+                }
+            }.catch { error in
+                return Observable.error(error)
+            }
+    }
+    
+    func deleteFilter(user: User, filterId: UUID) -> Observable<CameraFilter> {
+        return self.fetchFilter(user: user, filterId: filterId)
+            .flatMap { filterToDelete in
+                let url:String = URLManager.deleteFilterURL(filterId: filterId)
+                
+                guard let networkResponse = NetworkManager.shared.deleteMethod(url) else {
+                    throw FiltersStoreError.cannotDelete("invalid request")
+                }
+                
+                return networkResponse
+                    .response()
+                    .map { _ in
+                        return filterToDelete
+                    }
+            }
+            .catch { error in
+                return Observable.error(error)
+            }
     }
     
     typealias FilterData = [String: [String : String]]

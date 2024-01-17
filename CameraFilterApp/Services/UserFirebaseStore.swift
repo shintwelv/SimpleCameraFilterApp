@@ -7,7 +7,7 @@
 
 import Foundation
 import NetworkManager
-import Alamofire
+import RxSwift
 
 class UserFirebaseStore: UserStoreProtocol {
     
@@ -39,29 +39,29 @@ class UserFirebaseStore: UserStoreProtocol {
         case email
     }
     
-    
     typealias UserData = [String: [String : String]]
     
-    func fetchUserInStore(userToFetch: User, completionHandler: @escaping UserStoreFetchUserCompletionHandler) {
+    func fetchUserInStore(userToFetch: User) -> Observable<User?> {
         let url: String = URLManager.fetchUserURL(userId: userToFetch.userId)
         
-        NetworkManager.shared.getMethod(url)?.decodableResponse(of: UserData.self, completionHandler: { [weak self] (response: HTTPResponse<UserData>) in
-            
-            guard let self = self else { return }
-            
-            switch response {
-            case .Success(let data):
-                let user: User? = self.createUser(userId: data.keys.first, userData: data)
-                let result = UserStoreResult<User?>.Success(result: user)
-                completionHandler(result)
-            case .Fail(let error):
-                let result = UserStoreResult<User?>.Failure(error: .cannotFetch(error.localizedDescription))
-                completionHandler(result)
+        guard let networkResponse = NetworkManager.shared.getMethod(url) else {
+            return Observable.error(UserStoreError.cannotFetch("invalid url"))
+        }
+        
+        return networkResponse.decodableResponse(of: UserData.self)
+            .map { [weak self] (userData: UserData) -> User? in
+                guard let self = self else {
+                    throw UserStoreError.cannotFetch("self is not referred")
+                }
+
+                return self.createUser(userId: userData.keys.first, userData: userData)
             }
-        })
+            .catch { error in
+                return Observable<User?>.error(error)
+            }
     }
     
-    func createUserInStore(userToCreate: User, completionHandler: @escaping UserStoreCreateUserCompletionHandler) {
+    func createUserInStore(userToCreate: User) -> Observable<User> {
         let parameter: UserData = self.createParams(user: userToCreate)
         
         let headers: [HTTPRequestHeaderKey : HTTPRequestHeaderValue] = [
@@ -70,55 +70,45 @@ class UserFirebaseStore: UserStoreProtocol {
         
         let url:String = URLManager.createUserURL()
         
-        NetworkManager.shared.patchMethod(url, headers: headers, parameters: parameter, encoding: .json)?.decodableResponse(of: UserData.self, completionHandler: { [weak self] (response: HTTPResponse<UserData>) in
-            guard let self = self else { return }
-            
-            switch response {
-            case .Success(let data):
-                guard let user = self.createUser(userId: data.keys.first, userData: data) else {
-                    let result = UserStoreResult<User>.Failure(error: .cannotCreate("유저를 생성할 수 없습니다"))
-                    completionHandler(result)
-                    return
+        guard let networkResponse = NetworkManager.shared.patchMethod(url, headers: headers, parameters: parameter, encoding: .json) else {
+            return Observable.error(UserStoreError.cannotCreate("invalid request"))
+        }
+        
+        return networkResponse.decodableResponse(of: UserData.self)
+            .map { [weak self] (userData: UserData) -> User in
+                guard let self = self else {
+                    throw UserStoreError.cannotCreate("self is not referred")
                 }
                 
-                let result = UserStoreResult<User>.Success(result: user)
-                completionHandler(result)
-            case .Fail(let error):
-                let result = UserStoreResult<User>.Failure(error: .cannotCreate(error.localizedDescription))
-                completionHandler(result)
+                guard let user: User = self.createUser(userId: userData.keys.first, userData: userData) else {
+                    throw UserStoreError.cannotCreate("유저를 생성할 수 없습니다")
+                }
+                return user
             }
-        })
+            .catch { error in
+                return Observable<User>.error(error)
+            }
     }
     
-    func deleteUserInStore(userToDelete: User, completionHandler: @escaping UserStoreDeleteUserCompletionHandler) {
+    func deleteUserInStore(userToDelete: User) -> Observable<User> {
         
-        self.fetchUserInStore(userToFetch: userToDelete) { result in
-            switch result {
-            case .Success(let userToDelete):
-                
-                guard let userToDelete = userToDelete else {
-                    let result = UserStoreResult<User>.Failure(error: .cannotDelete("유저가 존재하지 않습니다"))
-                    completionHandler(result)
-                    return
+        let url: String = URLManager.deleteUserURL(userId: userToDelete.userId)
+        
+        guard let networkResponse = NetworkManager.shared.deleteMethod(url) else {
+            return Observable.error(UserStoreError.cannotDelete("invalid request"))
+        }
+        
+        return networkResponse.response()
+            .map { [weak self] _ in
+                guard let self = self else {
+                    throw UserStoreError.cannotDelete("self is not referred")
                 }
                 
-                let url: String = URLManager.deleteUserURL(userId: userToDelete.userId)
-                
-                NetworkManager.shared.deleteMethod(url)?.response(completionHandler: { (response: HTTPResponse<Data?>) in
-                    switch response {
-                    case .Success(_):
-                        let result = UserStoreResult<User>.Success(result: userToDelete)
-                        completionHandler(result)
-                    case .Fail(let error):
-                        let result = UserStoreResult<User>.Failure(error: .cannotDelete(error.localizedDescription))
-                        completionHandler(result)
-                    }
-                })
-            case .Failure(let error):
-                let result = UserStoreResult<User>.Failure(error: .cannotDelete("\(error)"))
-                completionHandler(result)
+                return userToDelete
             }
-        }
+            .catch { error in
+                return Observable<User>.error(error)
+            }
     }
     
     private func createParams(user: User) -> UserData {

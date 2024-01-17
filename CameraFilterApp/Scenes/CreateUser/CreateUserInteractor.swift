@@ -6,6 +6,7 @@
 //  Copyright (c) 2023 ___ORGANIZATIONNAME___. All rights reserved.
 
 import UIKit
+import RxSwift
 
 protocol CreateUserBusinessLogic
 {
@@ -29,109 +30,121 @@ class CreateUserInteractor: CreateUserBusinessLogic, CreateUserDataStore
     var userWorker = UserWorker(store: UserFirebaseStore(), authentication: FirebaseAuthentication())
     var filtersWorker = FiltersWorker(remoteStore: FilterFirebaseStore(), localStore: FilterMemStore())
     
+    private var bag = DisposeBag()
+
     // MARK: CreateUserBusinessLogic
     func isSignedIn(request: CreateUser.LoginStatus.Request) {
-        
-        userWorker.fetchCurrentlyLoggedInUser { [weak self] authResult in
-            guard let self = self else { return }
-            
-            switch authResult {
-            case .Success(let user):
-                let userResult = CreateUser.UserResult.Success(result: user)
-                let response = CreateUser.LoginStatus.Response(signedInUser: userResult)
-                self.presenter?.presentLoginStatus(response: response)
-            case .Failure(let error):
-                let userResult = CreateUser.UserResult<User?>.Failure(error: .cannotCheckLogin("\(error)"))
-                let response = CreateUser.LoginStatus.Response(signedInUser: userResult)
-                self.presenter?.presentLoginStatus(response: response)
-            }
-        }
+        userWorker.fetchCurrentlyLoggedInUser()
+            .subscribe(
+                onNext: { [weak self] user in
+                    guard let self = self else { return }
+                    
+                    let userResult = CreateUser.UserResult.Success(result: user)
+                    let response = CreateUser.LoginStatus.Response(signedInUser: userResult)
+                    self.presenter?.presentLoginStatus(response: response)
+                },
+                onError: { [weak self] error in
+                    guard let self = self else { return }
+                    
+                    let userResult = CreateUser.UserResult<User?>.Failure(error: .cannotCheckLogin("\(error)"))
+                    let response = CreateUser.LoginStatus.Response(signedInUser: userResult)
+                    self.presenter?.presentLoginStatus(response: response)
+                }
+            ).disposed(by: self.bag)
     }
     
     func appleSignIn(request: CreateUser.AppleSignIn.Request) {
         guard let presentingViewController = request.presentingViewController else { return }
         
-        userWorker.authenticateThroughApple(presentingViewController: presentingViewController) { [weak self] authResult in
-            guard let self = self else { return }
-            self.signUpProcess(authType: .apple, authResult: authResult)
-        }
+        let observable = userWorker.authenticateThroughApple(presentingViewController: presentingViewController)
+        signUpProcess(authType: .apple, observable: observable)
     }
     
     func googleSignIn(request: CreateUser.GoogleSignIn.Request) {
         guard let presentingViewController = request.presentingViewController else { return }
         
-        userWorker.authenticateThroughGoogle(presentingViewController: presentingViewController) { [weak self] authResult in
-            guard let self = self else { return }
-            self.signUpProcess(authType: .google, authResult: authResult)
-        }
+        let observable = userWorker.authenticateThroughGoogle(presentingViewController: presentingViewController)
+        signUpProcess(authType: .google, observable: observable)
     }
     
     func signIn(request: CreateUser.SignIn.Request) {
         let userEmail = request.userEmail
         let userPassword = request.userPassword
         
-        userWorker.logIn(email: userEmail, password: userPassword) { [weak self] authResult in
-            guard let self = self else { return }
-            
-            switch authResult {
-            case .Success(let user):
-                let userResult = CreateUser.UserResult<User>.Success(result: user)
-                let response = CreateUser.SignIn.Response(signedInUser: userResult)
-                self.presenter?.presentSignedInUser(response: response)
-            case .Failure(let error):
-                let userResult = CreateUser.UserResult<User>.Failure(error:.cannotSignIn("\(error)"))
-                let response = CreateUser.SignIn.Response(signedInUser: userResult)
-                self.presenter?.presentSignedInUser(response: response)
-            }
-        }
+        userWorker.logIn(email: userEmail, password: userPassword)
+            .subscribe(
+                onNext: { [weak self] user in
+                    guard let self = self else { return }
+                    
+                    let userResult = CreateUser.UserResult<User>.Success(result: user)
+                    let response = CreateUser.SignIn.Response(signedInUser: userResult)
+                    self.presenter?.presentSignedInUser(response: response)
+                },
+                onError: { [weak self] error in
+                    guard let self = self else { return }
+                    
+                    let userResult = CreateUser.UserResult<User>.Failure(error:.cannotSignIn("\(error)"))
+                    let response = CreateUser.SignIn.Response(signedInUser: userResult)
+                    self.presenter?.presentSignedInUser(response: response)
+                }
+            )
+            .disposed(by: self.bag)
     }
     
     func signOut(request: CreateUser.SignOut.Request) {
         
-        userWorker.logOut { [weak self] authResult in
-            guard let self = self else { return }
-            
-            switch authResult {
-            case .Success(let user):
-                let userResult = CreateUser.UserResult<User>.Success(result: user)
-                let response = CreateUser.SignOut.Response(signedOutUser: userResult)
-                self.presenter?.presentSignedOutUser(response: response)
-            case .Failure(let error):
-                let userResult = CreateUser.UserResult<User>.Failure(error: .cannotSignOut("\(error)"))
-                let response = CreateUser.SignOut.Response(signedOutUser: userResult)
-                self.presenter?.presentSignedOutUser(response: response)
-            }
-        }
+        userWorker.logOut()
+            .subscribe(
+                onNext: { [weak self] user in
+                    guard let self = self else { return }
+                    
+                    let userResult = CreateUser.UserResult<User>.Success(result: user)
+                    let response = CreateUser.SignOut.Response(signedOutUser: userResult)
+                    self.presenter?.presentSignedOutUser(response: response)
+                },
+                onError: { [weak self] error in
+                    guard let self = self else { return }
+                    
+                    let userResult = CreateUser.UserResult<User>.Failure(error: .cannotSignOut("\(error)"))
+                    let response = CreateUser.SignOut.Response(signedOutUser: userResult)
+                    self.presenter?.presentSignedOutUser(response: response)
+                }
+            )
+            .disposed(by: self.bag)
     }
     
     func signUp(request: CreateUser.SignUp.Request) {
         let newEmail = request.newEmail
         let newPassword = request.newPassword
         
-        userWorker.signUp(email: newEmail, password: newPassword) { [weak self] authResult in
-            guard let self = self else { return }
-            self.signUpProcess(authType: .email, authResult: authResult)
-        }
+        let observable = userWorker.signUp(email: newEmail, password: newPassword)
+        signUpProcess(authType: .email, observable: observable)
     }
     
     func deleteUser(request: CreateUser.Delete.Request) {
-        userWorker.removeAuthentication { [weak self] authResult in
-            guard let self = self else { return }
-            
-            switch authResult {
-            case .Success(let deletedUser):
-                self.userWorker.deleteFromDB(deletedUser) { deleteResult in
-                    switch deleteResult {
-                    case .Success(let deletedUser):
-                        self.deleteUserSucceeded(deletedUser: deletedUser)
-                    case .Failure(let error):
-                        self.deleteUserFailed(error: error)
-                    }
+        userWorker.removeAuthentication()
+            .subscribe(
+                onNext: { [weak self] user in
+                    guard let self = self else { return }
+                    
+                    self.userWorker.deleteFromDB(user)
+                        .subscribe(
+                            onNext: { deletedUser in
+                                self.deleteUserSucceeded(deletedUser: deletedUser)
+                            },
+                            onError: { error in
+                                self.deleteUserFailed(error: error)
+                            }
+                        )
+                        .disposed(by: self.bag)
+                },
+                onError: { [weak self] error in
+                    guard let self = self else { return }
+                    
+                    self.deleteUserFailed(error: error)
                 }
-            case.Failure(let error):
-                self.deleteUserFailed(error: error)
-            }
-        }
+            )
+            .disposed(by: self.bag)
     }
     
     // MARK: - Private methods
@@ -153,6 +166,8 @@ class CreateUserInteractor: CreateUserBusinessLogic, CreateUserDataStore
     private func configureInitialFilters(user: User) {
         for filter in FiltersWorker.initialFilters {
             self.filtersWorker.createFilter(user: user, filterToCreate: filter)
+                .subscribe()
+                .disposed(by: self.bag)
         }
     }
     
@@ -162,39 +177,64 @@ class CreateUserInteractor: CreateUserBusinessLogic, CreateUserDataStore
         case apple
     }
     
-    private func signUpProcess(authType: AuthType, authResult: UserAuthenticationResult<User>) {
-        switch authResult {
-        case .Success(let user):
-            self.userWorker.findInDB(user) { [weak self] fetchResult in
+    private func signUpProcess(authType: AuthType, observable: Observable<User>) {
+        observable.subscribe(
+            onNext: { [weak self] user in
                 guard let self = self else { return }
                 
-                switch fetchResult {
-                case .Success(let fetchedUser):
-                    if let fetchedUser = fetchedUser {
-                        self.signUpSucceeded(authType: authType, user: fetchedUser)
-                    } else {
-                        self.userWorker.saveInDB(user) { saveResult in
-                            switch saveResult {
-                            case .Success(let savedUser):
-                                self.configureInitialFilters(user: savedUser)
-                                
-                                self.signUpSucceeded(authType: authType, user: savedUser)
-                            case .Failure(let error):
-                                self.userWorker.logOut { _ in
-                                    self.signUpFailed(authType: authType, error: error)
-                                }
+                self.userWorker.findInDB(user)
+                    .subscribe(
+                        onNext: { fetchedUser in
+                            if let fetchedUser = fetchedUser {
+                                self.signUpSucceeded(authType: authType, user: fetchedUser)
+                            } else {
+                                self.saveUser(authType: authType, user: user)
                             }
+                        },
+                        onError: { error in
+                            self.cancelLogin(authType: authType, error: error)
                         }
-                    }
-                case .Failure(let error):
-                    self.userWorker.logOut { _ in
-                        self.signUpFailed(authType: authType, error: error)
-                    }
-                }
+                    )
+                    .disposed(by: self.bag)
+            },
+            onError: { [weak self] error in
+                guard let self = self else { return }
+                
+                self.signUpFailed(authType: authType, error: error)
             }
-        case .Failure(let error):
-            self.signUpFailed(authType: authType, error: error)
-        }
+        )
+        .disposed(by: self.bag)
+    }
+    
+    private func cancelLogin(authType: AuthType, error: Error) {
+        self.userWorker.logOut()
+            .subscribe(
+                onNext: { _ in
+                    self.signUpFailed(authType: authType, error: error)
+                },
+                onError: { _ in
+                    self.signUpFailed(authType: authType, error: error)
+                }
+            )
+            .disposed(by: self.bag)
+    }
+    
+    private func saveUser(authType: AuthType, user: User) {
+        self.userWorker.saveInDB(user)
+            .subscribe(
+                onNext: { [weak self] savedUser in
+                    guard let self = self else { return }
+                    
+                    self.configureInitialFilters(user: savedUser)
+                    self.signUpSucceeded(authType: authType, user: savedUser)
+                },
+                onError: { [weak self] error in
+                    guard let self = self else { return }
+                    
+                    self.cancelLogin(authType: authType, error: error)
+                }
+            )
+            .disposed(by: self.bag)
     }
     
     private func signUpFailed(authType: AuthType, error: Error) {
