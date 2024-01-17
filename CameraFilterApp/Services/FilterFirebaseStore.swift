@@ -51,186 +51,142 @@ class FilterFirebaseStore: RemoteFiltersStoreProtocol {
     private var disposeBag = DisposeBag()
     
     func fetchFilters(user: User) -> Observable<[CameraFilter]> {
-        return Observable<[CameraFilter]>.create { observer in
-            let userId = user.userId
-            let url: String = URLManager.fetchFiltersURL(userId: userId)
-            
-            let subscription = NetworkManager.shared.getMethod(url)?
-                .decodableResponse(of: FilterData.self)
-                .subscribe(
-                    onNext: { [weak self] data in
-                        guard let self = self else {
-                            observer.onError(FiltersStoreError.cannotFetch("self is not referenced"))
-                            return
-                        }
-                        
-                        var cameraFilters: [CameraFilter] = []
-                        
-                        for filterId in data.keys {
-                            do {
-                                let cameraFilter: CameraFilter = try self.createCameraFilter(filterId: filterId, filterData: data)
-                                cameraFilters.append(cameraFilter)
-                            } catch {
-                                observer.onError(error)
-                                return
-                            }
-                        }
-                        
-                        observer.onNext(cameraFilters)
-                        observer.onCompleted()
-                    },
-                    onError: { error in
-                        observer.onError(error)
-                    }
-                )
-            
-            return Disposables.create {
-                subscription?.dispose()
-            }
+        let userId = user.userId
+        let url: String = URLManager.fetchFiltersURL(userId: userId)
+        
+        guard let networkResponse = NetworkManager.shared.getMethod(url) else {
+            return Observable.error(FiltersStoreError.cannotFetch("invalid request"))
         }
         
+        return networkResponse
+            .decodableResponse(of: FilterData.self)
+            .map { [weak self] (filterData: FilterData) -> [CameraFilter] in
+                guard let self = self else {
+                    throw FiltersStoreError.cannotFetch("self is not referenced")
+                }
+                
+                var cameraFilters: [CameraFilter] = []
+                
+                for filterId in filterData.keys {
+                    do {
+                        let cameraFilter: CameraFilter = try self.createCameraFilter(filterId: filterId, filterData: filterData)
+                        cameraFilters.append(cameraFilter)
+                    } catch {
+                        throw error
+                    }
+                }
+                
+                return cameraFilters
+            }.catch { error in
+                return Observable.error(error)
+            }
     }
     
     func fetchFilter(user: User, filterId: UUID) -> Observable<CameraFilter> {
-        return Observable<CameraFilter>.create { observer in
-            let url: String = URLManager.fetchFilterURL(filterId: filterId)
-            
-            let subscription = NetworkManager.shared.getMethod(url)?
-                .decodableResponse(of: FilterData.self)
-                .subscribe(
-                    onNext: { [weak self] data in
-                        guard let self = self else {
-                            observer.onError(FiltersStoreError.cannotFetch("self is not referenced"))
-                            return
-                        }
-                        
-                        do {
-                            let cameraFilter: CameraFilter = try self.createCameraFilter(filterId: data.keys.first, filterData: data)
-                            observer.onNext(cameraFilter)
-                            observer.onCompleted()
-                        } catch {
-                            observer.onError(error)
-                        }
-                    },
-                    onError: { error in
-                        observer.onError(error)
-                    }
-                )
-            
-            return Disposables.create {
-                subscription?.dispose()
-            }
+        let url: String = URLManager.fetchFilterURL(filterId: filterId)
+        
+        guard let networkResponse = NetworkManager.shared.getMethod(url) else {
+            return Observable.error(FiltersStoreError.cannotFetch("invalid request"))
         }
+        
+        return networkResponse
+            .decodableResponse(of: FilterData.self)
+            .map { [weak self] (filterData: FilterData) -> CameraFilter in
+                guard let self = self else {
+                    throw FiltersStoreError.cannotFetch("self is not referred")
+                }
+                
+                do {
+                    return try self.createCameraFilter(filterId: filterData.keys.first, filterData: filterData)
+                } catch {
+                    throw error
+                }
+                
+                
+            }.catch { error in
+                return Observable.error(error)
+            }
     }
     
     func createFilter(user: User, filterToCreate: CameraFilter) -> Observable<CameraFilter> {
-        return Observable.create { [weak self] observer in
-            guard let self = self else {
-                observer.onError(FiltersStoreError.cannotCreate("self is not referenced"))
-                return Disposables.create()
-            }
-            
-            let parameter: FilterData = self.createParams(user: user, filter: filterToCreate)
-            
-            let headers: [HTTPRequestHeaderKey : HTTPRequestHeaderValue] = [
-                .contentType : .applicationJson
-            ]
-            
-            let url: String = URLManager.createFilterURL()
-            
-            let subscription = NetworkManager.shared.patchMethod(url, headers: headers, parameters: parameter, encoding: .json)?
-                .decodableResponse(of: FilterData.self)
-                .subscribe(
-                    onNext: { data in
-                        do {
-                            let cameraFilter: CameraFilter = try self.createCameraFilter(filterId: data.keys.first, filterData: data)
-                            observer.onNext(cameraFilter)
-                            observer.onCompleted()
-                        } catch {
-                            observer.onError(error)
-                        }
-                    },
-                    onError: { error in
-                        observer.onError(error)
-                    }
-                )
-            
-            return Disposables.create {
-                subscription?.dispose()
-            }
+        let parameter: FilterData = self.createParams(user: user, filter: filterToCreate)
+        
+        let headers: [HTTPRequestHeaderKey : HTTPRequestHeaderValue] = [
+            .contentType : .applicationJson
+        ]
+        
+        let url: String = URLManager.createFilterURL()
+        
+        guard let networkResponse = NetworkManager.shared.patchMethod(url, headers: headers, parameters: parameter, encoding: .json) else {
+            return Observable.error(FiltersStoreError.cannotCreate("invalid request"))
         }
+        
+        return networkResponse
+            .decodableResponse(of: FilterData.self)
+            .map { [weak self] (filterData: FilterData) -> CameraFilter in
+                guard let self = self else {
+                    throw FiltersStoreError.cannotCreate("self is not referred")
+                }
+                
+                do {
+                    return try self.createCameraFilter(filterId: filterData.keys.first, filterData: filterData)
+                } catch {
+                    throw error
+                }
+                
+            }.catch { error in
+                return Observable.error(error)
+            }
     }
     
     func updateFilter(user: User, filterToUpdate: CameraFilter) -> Observable<CameraFilter> {
-        return Observable.create { [weak self] observer in
-            guard let self = self else {
-                observer.onError(FiltersStoreError.cannotUpdate("self is not referenced"))
-                return Disposables.create()
-            }
-            
-            let parameter: FilterData = self.createParams(user: user, filter: filterToUpdate)
-            
-            let headers: [HTTPRequestHeaderKey : HTTPRequestHeaderValue] = [
-                .contentType : .applicationJson
-            ]
-            
-            let url: String = URLManager.updateFilterURL()
-            
-            let subscription = NetworkManager.shared.patchMethod(url, headers: headers, parameters: parameter, encoding: .json)?
-                .decodableResponse(of: FilterData.self)
-                .subscribe(
-                    onNext: { data in
-                        do {
-                            let cameraFilter: CameraFilter = try self.createCameraFilter(filterId: data.keys.first, filterData: data)
-                            observer.onNext(cameraFilter)
-                            observer.onCompleted()
-                        } catch {
-                            observer.onError(error)
-                        }
-                    },
-                    onError: { error in
-                        observer.onError(error)
-                    }
-                )
-            
-            return Disposables.create {
-                subscription?.dispose()
-            }
+        let parameter: FilterData = self.createParams(user: user, filter: filterToUpdate)
+        
+        let headers: [HTTPRequestHeaderKey : HTTPRequestHeaderValue] = [
+            .contentType : .applicationJson
+        ]
+        
+        let url: String = URLManager.updateFilterURL()
+        
+        guard let networkResponse = NetworkManager.shared.patchMethod(url, headers: headers, parameters: parameter, encoding: .json) else {
+            return Observable.error(FiltersStoreError.cannotUpdate("invalid request"))
         }
+        
+        return networkResponse
+            .decodableResponse(of: FilterData.self)
+            .map { [weak self] (filterData: FilterData) -> CameraFilter in
+                guard let self = self else {
+                    throw FiltersStoreError.cannotUpdate("self is not referenced")
+                }
+                
+                do {
+                    return try self.createCameraFilter(filterId: filterData.keys.first, filterData: filterData)
+                } catch {
+                    throw error
+                }
+            }.catch { error in
+                return Observable.error(error)
+            }
     }
     
     func deleteFilter(user: User, filterId: UUID) -> Observable<CameraFilter> {
-        return Observable.create { [weak self] observer in
-            guard let self = self else {
-                observer.onError(FiltersStoreError.cannotDelete("self is not referenced"))
-                return Disposables.create()
-            }
-            
-            let subscription = self.fetchFilter(user: user, filterId: filterId)
-                .subscribe(
-                    onNext: { filterToDelete in
-                        let url:String = URLManager.deleteFilterURL(filterId: filterId)
-                        
-                        NetworkManager.shared.deleteMethod(url)?
-                            .response()
-                            .subscribe(
-                                onNext: { _ in
-                                    observer.onNext(filterToDelete)
-                                },
-                                onError: { error in
-                                    observer.onError(error)
-                                }
-                            ).disposed(by: self.disposeBag)
-                    },
-                    onError: { error in
-                        observer.onError(error)
-                    }
-                )
+        return self.fetchFilter(user: user, filterId: filterId)
+            .flatMap { filterToDelete in
+                let url:String = URLManager.deleteFilterURL(filterId: filterId)
                 
-            return Disposables.create {
-                subscription.dispose()
+                guard let networkResponse = NetworkManager.shared.deleteMethod(url) else {
+                    throw FiltersStoreError.cannotDelete("invalid request")
+                }
+                
+                return networkResponse
+                    .response()
+                    .map { _ in
+                        return filterToDelete
+                    }
             }
-        }
+            .catch { error in
+                return Observable.error(error)
+            }
     }
     
     typealias FilterData = [String: [String : String]]

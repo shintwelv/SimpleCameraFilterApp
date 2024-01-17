@@ -42,98 +42,73 @@ class UserFirebaseStore: UserStoreProtocol {
     typealias UserData = [String: [String : String]]
     
     func fetchUserInStore(userToFetch: User) -> Observable<User?> {
-        return Observable<User?>.create { observer in
-            
-            let url: String = URLManager.fetchUserURL(userId: userToFetch.userId)
-            
-            let subscription = NetworkManager.shared.getMethod(url)?
-                .decodableResponse(of: UserData.self)
-                .subscribe(
-                    onNext: { [weak self] data in
-                        guard let self = self else {
-                            observer.onError(UserStoreError.cannotFetch("self is not referred"))
-                            return
-                        }
-                        
-                        let user: User? = self.createUser(userId: data.keys.first, userData: data)
-                        observer.onNext(user)
-                        observer.onCompleted()
-                    },
-                    onError: { error in
-                        observer.onError(error)
-                    }
-                )
-            
-            return Disposables.create {
-                guard let subscription = subscription else { return }
-                subscription.dispose()
-            }
+        let url: String = URLManager.fetchUserURL(userId: userToFetch.userId)
+        
+        guard let networkResponse = NetworkManager.shared.getMethod(url) else {
+            return Observable.error(UserStoreError.cannotFetch("invalid url"))
         }
+        
+        return networkResponse.decodableResponse(of: UserData.self)
+            .map { [weak self] (userData: UserData) -> User? in
+                guard let self = self else {
+                    throw UserStoreError.cannotFetch("self is not referred")
+                }
+
+                return self.createUser(userId: userData.keys.first, userData: userData)
+            }
+            .catch { error in
+                return Observable<User?>.error(error)
+            }
     }
     
     func createUserInStore(userToCreate: User) -> Observable<User> {
-        return Observable<User>.create { [weak self] observer in
-            guard let self = self else {
-                observer.onError(UserStoreError.cannotCreate("self is not referred"))
-                return Disposables.create()
-            }
-            
-            let parameter: UserData = self.createParams(user: userToCreate)
-            
-            let headers: [HTTPRequestHeaderKey : HTTPRequestHeaderValue] = [
-                .contentType : .applicationJson
-            ]
-            
-            let url:String = URLManager.createUserURL()
-            
-            let subscription = NetworkManager.shared.patchMethod(url, headers: headers, parameters: parameter, encoding: .json)?
-                .decodableResponse(of: UserData.self)
-                .subscribe(
-                    onNext: { data in
-                        
-                        guard let user = self.createUser(userId: data.keys.first, userData: data) else {
-                            observer.onError(UserStoreError.cannotCreate("유저를 생성할 수 없습니다"))
-                            return
-                        }
-                        
-                        observer.onNext(user)
-                        observer.onCompleted()
-                    },
-                    onError: { error in
-                        observer.onError(error)
-                    }
-                )
-            
-            return Disposables.create {
-                guard let subscription = subscription else { return }
-                subscription.dispose()
-            }
+        let parameter: UserData = self.createParams(user: userToCreate)
+        
+        let headers: [HTTPRequestHeaderKey : HTTPRequestHeaderValue] = [
+            .contentType : .applicationJson
+        ]
+        
+        let url:String = URLManager.createUserURL()
+        
+        guard let networkResponse = NetworkManager.shared.patchMethod(url, headers: headers, parameters: parameter, encoding: .json) else {
+            return Observable.error(UserStoreError.cannotCreate("invalid request"))
         }
+        
+        return networkResponse.decodableResponse(of: UserData.self)
+            .map { [weak self] (userData: UserData) -> User in
+                guard let self = self else {
+                    throw UserStoreError.cannotCreate("self is not referred")
+                }
+                
+                guard let user: User = self.createUser(userId: userData.keys.first, userData: userData) else {
+                    throw UserStoreError.cannotCreate("유저를 생성할 수 없습니다")
+                }
+                return user
+            }
+            .catch { error in
+                return Observable<User>.error(error)
+            }
     }
     
     func deleteUserInStore(userToDelete: User) -> Observable<User> {
         
-        return Observable<User>.create { observer in
-            
-            let url: String = URLManager.deleteUserURL(userId: userToDelete.userId)
-            
-            let subscription = NetworkManager.shared.deleteMethod(url)?
-                .response()
-                .subscribe(
-                    onNext: { _ in
-                        observer.onNext(userToDelete)
-                        observer.onCompleted()
-                    },
-                    onError: { error in
-                        observer.onError(error)
-                    }
-                )
-            
-            return Disposables.create {
-                guard let subscription = subscription else { return }
-                subscription.dispose()
-            }
+        let url: String = URLManager.deleteUserURL(userId: userToDelete.userId)
+        
+        guard let networkResponse = NetworkManager.shared.deleteMethod(url) else {
+            return Observable.error(UserStoreError.cannotDelete("invalid request"))
         }
+        
+        return networkResponse.response()
+            .map { [weak self] _ in
+                guard let self = self else {
+                    throw UserStoreError.cannotDelete("self is not referred")
+                }
+                
+                return userToDelete
+            }
+            .catch { error in
+                return Observable<User>.error(error)
+            }
     }
     
     private func createParams(user: User) -> UserData {
