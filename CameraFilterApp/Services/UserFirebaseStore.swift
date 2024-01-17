@@ -6,94 +6,109 @@
 //
 
 import Foundation
-import Alamofire
+import NetworkManager
+import RxSwift
 
 class UserFirebaseStore: UserStoreProtocol {
+    
+    struct URLManager {
+        private init() {}
+        
+        static let endPoint: String = FirebaseDB.Endpoint.url.rawValue + "/" + FirebaseDB.Name.users.rawValue
+        
+        static let usersJson: String = endPoint + "." + FirebaseDB.FileExt.json.rawValue
+        
+        static func fetchUserURL(userId: String) -> String {
+            return usersJson + "?"
+            + FirebaseDB.OrderBy.key.description + "&"
+            + FirebaseDB.Filtering.equalTo(param: userId).description
+        }
+        
+        static func createUserURL() -> String {
+            return usersJson
+        }
+        
+        static func deleteUserURL(userId: String) -> String {
+            return endPoint + "/"
+            + userId + "."
+            + FirebaseDB.FileExt.json.rawValue
+        }
+    }
     
     enum ParamKey:String {
         case email
     }
     
-    static let endPoint: String = FirebaseDB.Endpoint.url.rawValue + "/" + FirebaseDB.Name.users.rawValue
-    
     typealias UserData = [String: [String : String]]
     
-    func fetchUserInStore(userToFetch: User, completionHandler: @escaping UserStoreFetchUserCompletionHandler) {
-        AF.request("\(UserFirebaseStore.endPoint).\(FirebaseDB.FileExt.json)?\(FirebaseDB.OrderBy.key)&\(FirebaseDB.Filtering.equalTo(param: userToFetch.userId))")
-            .responseDecodable(of:UserData.self) { [weak self] response in
-                
-                guard let self = self else { return }
-                
-                guard let responseValue = response.value else {
-                    let result = UserStoreResult<User?>.Failure(error: .cannotFetch("서버로부터 데이터를 받아올 수 없습니다"))
-                    completionHandler(result)
-                    return
+    func fetchUserInStore(userToFetch: User) -> Observable<User?> {
+        let url: String = URLManager.fetchUserURL(userId: userToFetch.userId)
+        
+        guard let networkResponse = NetworkManager.shared.getMethod(url) else {
+            return Observable.error(UserStoreError.cannotFetch("invalid url"))
+        }
+        
+        return networkResponse.decodableResponse(of: UserData.self)
+            .map { [weak self] (userData: UserData) -> User? in
+                guard let self = self else {
+                    throw UserStoreError.cannotFetch("self is not referred")
                 }
-                
-                let user: User? = self.createUser(userId: responseValue.keys.first, userData: responseValue)
-                let result = UserStoreResult<User?>.Success(result: user)
-                completionHandler(result)
+
+                return self.createUser(userId: userData.keys.first, userData: userData)
+            }
+            .catch { error in
+                return Observable<User?>.error(error)
             }
     }
     
-    func createUserInStore(userToCreate: User, completionHandler: @escaping UserStoreCreateUserCompletionHandler) {
+    func createUserInStore(userToCreate: User) -> Observable<User> {
         let parameter: UserData = self.createParams(user: userToCreate)
         
-        let headers: HTTPHeaders = [
-            .contentType(FirebaseDB.ContentType.applicationJson.rawValue)
+        let headers: [HTTPRequestHeaderKey : HTTPRequestHeaderValue] = [
+            .contentType : .applicationJson
         ]
         
-        AF.request("\(UserFirebaseStore.endPoint).\(FirebaseDB.FileExt.json)", method: .patch, parameters: parameter, encoder: JSONParameterEncoder.default, headers: headers)
-            .responseDecodable(of:UserData.self) { [weak self] response in
-                
-                guard let self = self else { return }
-                
-                guard let responseValue = response.value else {
-                    let result = UserStoreResult<User>.Failure(error: .cannotCreate("서버로부터 데이터를 받아올 수 없습니다"))
-                    completionHandler(result)
-                    return
+        let url:String = URLManager.createUserURL()
+        
+        guard let networkResponse = NetworkManager.shared.patchMethod(url, headers: headers, parameters: parameter, encoding: .json) else {
+            return Observable.error(UserStoreError.cannotCreate("invalid request"))
+        }
+        
+        return networkResponse.decodableResponse(of: UserData.self)
+            .map { [weak self] (userData: UserData) -> User in
+                guard let self = self else {
+                    throw UserStoreError.cannotCreate("self is not referred")
                 }
                 
-                guard let user = self.createUser(userId: responseValue.keys.first, userData: responseValue) else {
-                    let result = UserStoreResult<User>.Failure(error: .cannotCreate("유저를 생성할 수 없습니다"))
-                    completionHandler(result)
-                    return
+                guard let user: User = self.createUser(userId: userData.keys.first, userData: userData) else {
+                    throw UserStoreError.cannotCreate("유저를 생성할 수 없습니다")
                 }
-                
-                let result = UserStoreResult<User>.Success(result: user)
-                completionHandler(result)
+                return user
+            }
+            .catch { error in
+                return Observable<User>.error(error)
             }
     }
     
-    func deleteUserInStore(userToDelete: User, completionHandler: @escaping UserStoreDeleteUserCompletionHandler) {
+    func deleteUserInStore(userToDelete: User) -> Observable<User> {
         
-        self.fetchUserInStore(userToFetch: userToDelete) { result in
-            switch result {
-            case .Success(let userToDelete):
-                
-                guard let userToDelete = userToDelete else {
-                    let result = UserStoreResult<User>.Failure(error: .cannotDelete("유저가 존재하지 않습니다"))
-                    completionHandler(result)
-                    return
+        let url: String = URLManager.deleteUserURL(userId: userToDelete.userId)
+        
+        guard let networkResponse = NetworkManager.shared.deleteMethod(url) else {
+            return Observable.error(UserStoreError.cannotDelete("invalid request"))
+        }
+        
+        return networkResponse.response()
+            .map { [weak self] _ in
+                guard let self = self else {
+                    throw UserStoreError.cannotDelete("self is not referred")
                 }
                 
-                AF.request("\(UserFirebaseStore.endPoint)/\(userToDelete.userId).\(FirebaseDB.FileExt.json)", method: .delete)
-                    .responseDecodable(of:UserData.self) { response in
-                        
-                        guard let statusCode = response.response?.statusCode, (200..<300).contains(statusCode) else {
-                            let result = UserStoreResult<User>.Failure(error: .cannotDelete("서버로부터 데이터를 받아올 수 없습니다"))
-                            completionHandler(result)
-                            return
-                        }
-                        
-                        let result = UserStoreResult<User>.Success(result: userToDelete)
-                        completionHandler(result)
-                    }
-            case .Failure(let error):
-                let result = UserStoreResult<User>.Failure(error: .cannotDelete("\(error)"))
-                completionHandler(result)
+                return userToDelete
             }
-        }
+            .catch { error in
+                return Observable<User>.error(error)
+            }
     }
     
     private func createParams(user: User) -> UserData {

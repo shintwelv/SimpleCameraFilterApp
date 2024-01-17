@@ -32,128 +32,37 @@ class CreateFilterInteractor: CreateFilterBusinessLogic, CreateFilterDataStore
     
     var filterId: UUID?
     
-    init() {
-        configureBinding()
-    }
-    
     private let bag = DisposeBag()
     
-    private lazy var fetchedFilter: Observable<FiltersWorker.OperationResult<CameraFilter>> = {
-        self.filtersWorker.filter.filter {
-            switch $0 {
-            case .Success(let operation, _) where operation == .fetch: return true
-            case .Failure(let error) where error == .cannotFetch(error.localizedDescription): return true
-            default: return false
-            }
-        }
-    }()
-    
-    private lazy var createdFilter: Observable<FiltersWorker.OperationResult<CameraFilter>> = {
-        self.filtersWorker.filter.filter {
-            switch $0 {
-            case .Success(let operation, _) where operation == .create: return true
-            case .Failure(let error) where error == .cannotCreate(error.localizedDescription): return true
-            default: return false
-            }
-        }
-    }()
-    
-    private lazy var editedFilter: Observable<FiltersWorker.OperationResult<CameraFilter>> = {
-        self.filtersWorker.filter.filter {
-            switch $0 {
-            case .Success(let operation, _) where operation == .update: return true
-            case .Failure(let error) where error == .cannotUpdate(error.localizedDescription): return true
-            default: return false
-            }
-        }
-    }()
-    
-    private lazy var deletedFilter: Observable<FiltersWorker.OperationResult<CameraFilter>> = {
-        self.filtersWorker.filter.filter {
-            switch $0 {
-            case .Success(let operation, _) where operation == .delete: return true
-            case .Failure(let error) where error == .cannotDelete(error.localizedDescription): return true
-            default: return false
-            }
-        }
-    }()
-    
-    private func configureBinding() {
-        self.fetchedFilter.map { (result) -> CameraFilter? in
-            switch result {
-            case .Success(_, let filter): return filter
-            case .Failure(_): return nil
-            }
-        }.subscribe(
-            onNext: { [weak self] filter in
-                guard let self = self else { return }
-                
-                let response = CreateFilter.FetchFilter.Response(filter: filter)
-                self.presenter?.presentFetchedFilter(response: response)
-            }
-        ).disposed(by: self.bag)
-        
-        self.createdFilter.map { (result) -> CameraFilter? in
-            switch result {
-            case .Success(_, let filter): return filter
-            case .Failure(_): return nil
-            }
-        }.subscribe(
-            onNext: { [weak self] filter in
-                guard let self = self else { return }
-                
-                let response = CreateFilter.CreateFilter.Response(filter: filter)
-                self.presenter?.presentCreatedFilter(response: response)
-            }
-        ).disposed(by: self.bag)
-        
-        self.editedFilter.map { (result) -> CameraFilter? in
-            switch result {
-            case .Success(_, let filter): return filter
-            case .Failure(_): return nil
-            }
-        }.subscribe(
-            onNext: { [weak self] filter in
-                guard let self = self else { return }
-                
-                let response = CreateFilter.EditFilter.Response(filter: filter)
-                self.presenter?.presentEditedFilter(response: response)
-            }
-        ).disposed(by: self.bag)
-        
-        self.deletedFilter.map { (result) -> CameraFilter? in
-            switch result {
-            case .Success(_, let filter): return filter
-            case .Failure(_): return nil
-            }
-        }.subscribe(
-            onNext: { [weak self] filter in
-                guard let self = self else { return }
-                
-                let response = CreateFilter.DeleteFilter.Response(filter: filter)
-                self.presenter?.presentDeletedFilter(response: response)
-            }
-        ).disposed(by: self.bag)
-    }
     
     // MARK: CRUD operations
     func fetchFilter(request: CreateFilter.FetchFilter.Request) {
         if let filterId = self.filterId {
-            userWorker.fetchCurrentlyLoggedInUser { [weak self] result in
-                guard let self = self else { return }
-                
-                switch result {
-                case .Success(let user):
-                    self.filtersWorker.fetchFilter(user:user, filterId: filterId)
-                case .Failure(let error):
-                    print(error)
-                    let response = CreateFilter.FetchFilter.Response(filter: nil)
-                    self.presenter?.presentFetchedFilter(response: response)
-                }
-            }
+            userWorker.fetchCurrentlyLoggedInUser()
+                .subscribe(
+                    onNext: { [weak self] user in
+                        guard let self = self else { return }
+                        
+                        self.filtersWorker.fetchFilter(user:user, filterId: filterId)
+                            .subscribe(
+                                onNext: { filter in
+                                    self.presentFetchedFilter(filter)
+                                },
+                                onError: { error in
+                                    print(error)
+                                    self.presentFetchedFilter(nil)
+                                }
+                            )
+                            .disposed(by: self.bag)
+                    },
+                    onError: { error in
+                        print(error)
+                        self.presentFetchedFilter(nil)
+                    }
+                )
+                .disposed(by: self.bag)
         } else {
-            let response = CreateFilter.FetchFilter.Response(filter: nil)
-            self.presenter?.presentFetchedFilter(response: response)
+            self.presentFetchedFilter(nil)
         }
     }
     
@@ -225,26 +134,38 @@ class CreateFilterInteractor: CreateFilterBusinessLogic, CreateFilterDataStore
                                                  displayName: filterName,
                                                  systemName: filterSystemName,
                                                  inputColor: inputColor,
-                                                 inputIntensity: inputIntensity, 
+                                                 inputIntensity: inputIntensity,
                                                  inputRadius: inputRadius,
                                                  inputLevels: inputLevels)
         
         if let filterToCreate = filterToCreate {
-            userWorker.fetchCurrentlyLoggedInUser { [weak self] result in
-                guard let self = self else { return }
-                
-                switch result {
-                case .Success(let user):
-                    self.filtersWorker.createFilter(user:user, filterToCreate: filterToCreate)
-                case .Failure(let error):
-                    print(error)
-                    let response = CreateFilter.EditFilter.Response(filter: nil)
-                    self.presenter?.presentEditedFilter(response: response)
-                }
-            }
+            userWorker.fetchCurrentlyLoggedInUser()
+                .subscribe(
+                    onNext: { [weak self] user in
+                        guard let self = self else { return }
+                        
+                        self.filtersWorker.createFilter(user:user, filterToCreate: filterToCreate)
+                            .subscribe(
+                                onNext: { createdFilter in
+                                    self.presentCreatedFilter(createdFilter)
+                                },
+                                onError: { error in
+                                    print(error)
+                                    self.presentCreatedFilter(nil)
+                                }
+                            )
+                            .disposed(by: self.bag)
+                    },
+                    onError: { [weak self] error in
+                        guard let self = self else { return }
+                        
+                        print(error)
+                        self.presentCreatedFilter(nil)
+                    }
+                )
+                .disposed(by: self.bag)
         } else {
-            let response = CreateFilter.EditFilter.Response(filter: nil)
-            self.presenter?.presentEditedFilter(response: response)
+            presentCreatedFilter(nil)
         }
     }
     
@@ -267,45 +188,89 @@ class CreateFilterInteractor: CreateFilterBusinessLogic, CreateFilterDataStore
                                           inputLevels: inputLevels)
         
         if let filterToUpdate = filterToUpdate {
-            userWorker.fetchCurrentlyLoggedInUser { [weak self] result in
-                guard let self = self else { return }
-                
-                switch result {
-                case .Success(let user):
-                    self.filtersWorker.updateFilter(user:user, filterToUpdate: filterToUpdate)
-                case .Failure(let error):
-                    print(error)
-                    let response = CreateFilter.EditFilter.Response(filter: nil)
-                    self.presenter?.presentEditedFilter(response: response)
-                }
-            }
+            userWorker.fetchCurrentlyLoggedInUser()
+                .subscribe(
+                    onNext: { [weak self] user in
+                        guard let self = self else { return }
+                        
+                        self.filtersWorker.updateFilter(user:user, filterToUpdate: filterToUpdate)
+                            .subscribe(
+                                onNext: { updatedFilter in
+                                    self.presentEditedFilter(updatedFilter)
+                                },
+                                onError: { error in
+                                    print(error)
+                                    self.presentEditedFilter(nil)
+                                }
+                            )
+                            .disposed(by: self.bag)
+                    },
+                    onError: { [weak self] error in
+                        guard let self = self else { return }
+                        
+                        print(error)
+                        self.presentEditedFilter(nil)
+                    }
+                )
+                .disposed(by: self.bag)
         } else {
-            let response = CreateFilter.EditFilter.Response(filter: nil)
-            self.presenter?.presentEditedFilter(response: response)
+            presentEditedFilter(nil)
         }
     }
     
     func deleteFilter(request: CreateFilter.DeleteFilter.Request) {
         if let filterId = self.filterId {
-            userWorker.fetchCurrentlyLoggedInUser { [weak self] result in
-                guard let self = self else { return }
-                
-                switch result {
-                case .Success(let user):
-                    self.filtersWorker.deleteFilter(user:user, filterId: filterId)
-                case .Failure(let error):
-                    print(error)
-                    let response = CreateFilter.DeleteFilter.Response(filter: nil)
-                    self.presenter?.presentDeletedFilter(response: response)
-                }
-            }
+            userWorker.fetchCurrentlyLoggedInUser()
+                .subscribe(
+                    onNext: { [weak self] user in
+                        guard let self = self else { return }
+                        
+                        self.filtersWorker.deleteFilter(user:user, filterId: filterId)
+                            .subscribe(
+                                onNext: { deletedFilter in
+                                    self.presentDeletedFilter(deletedFilter)
+                                },
+                                onError: { error in
+                                    print(error)
+                                    self.presentDeletedFilter(nil)
+                                }
+                            )
+                            .disposed(by: self.bag)
+                    },
+                    onError: { [weak self] error in
+                        guard let self = self else { return }
+                        
+                        print(error)
+                        self.presentDeletedFilter(nil)
+                    }
+                )
+                .disposed(by: self.bag)
         } else {
-            let response = CreateFilter.DeleteFilter.Response(filter: nil)
-            self.presenter?.presentDeletedFilter(response: response)
+            presentDeletedFilter(nil)
         }
     }
     
     //MARK: - private methods
+    private func presentFetchedFilter(_ filter: CameraFilter?) {
+        let response = CreateFilter.FetchFilter.Response(filter: filter)
+        self.presenter?.presentFetchedFilter(response: response)
+    }
+    
+    private func presentCreatedFilter(_ filter: CameraFilter?) {
+        let response = CreateFilter.CreateFilter.Response(filter: filter)
+        self.presenter?.presentCreatedFilter(response: response)
+    }
+    
+    private func presentEditedFilter(_ filter: CameraFilter?) {
+        let response = CreateFilter.EditFilter.Response(filter: filter)
+        self.presenter?.presentEditedFilter(response: response)
+    }
+    
+    private func presentDeletedFilter(_ filter: CameraFilter?) {
+        let response = CreateFilter.DeleteFilter.Response(filter: filter)
+        self.presenter?.presentDeletedFilter(response: response)
+    }
+
     private func createFilter(filterId: UUID,
                               displayName: String,
                               systemName: CameraFilter.FilterName,

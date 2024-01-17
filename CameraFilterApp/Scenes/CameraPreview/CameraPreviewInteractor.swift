@@ -80,116 +80,109 @@ class CameraPreviewInteractor: NSObject, CameraPreviewBusinessLogic, CameraPrevi
         super.init()
         
         configureCaptureSession()
-        configureBinding()
     }
     
     private let bag = DisposeBag()
     
-    private lazy var fetchedFilter: Observable<FiltersWorker.OperationResult<CameraFilter>> = {
-        self.filtersWorker.filter.filter {
-            switch $0 {
-            case .Success(let operation, _) where operation == .fetch: return true
-            case .Failure(let error) where error == .cannotFetch(error.localizedDescription): return true
-            default: return false
-            }
-        }
-    }()
-    
-    private func configureBinding() {
-        self.fetchedFilter.map { (result) -> CameraFilter? in
-            switch result {
-            case .Success(_, let filter): return filter
-            case .Failure(_): return nil
-            }
-        }.subscribe(
-            onNext: { [weak self] filter in
-                guard let self = self else { return }
-                
-                if let filter = filter {
-                    self.appliedFilter = filter.ciFilter
-                } else {
-                    self.appliedFilter = nil
-                }
-            }
-        ).disposed(by: self.bag)
-        
-        self.filtersWorker.filters.map { (result) -> [CameraFilter] in
-            switch result {
-            case .Success(let operation, let filters) where operation == .fetch: return filters
-            default: return []
-            }
-        }.subscribe(
-            onNext: { [weak self] filters in
-                guard let self = self else { return }
-                
-                let response = CameraPreview.FetchFilters.Response(filters: filters)
-                self.presenter?.presentAllFilters(response: response)
-            }
-        ).disposed(by: self.bag)
-    }
-    
     func isSignedIn(_ request: CameraPreview.LoginStatus.Request) {
-        userWorker.fetchCurrentlyLoggedInUser { [weak self] authResult in
-            guard let self = self else { return }
-            
-            switch authResult {
-            case .Success(let user):
-                let userResult = CameraPreview.UserResult.Success(result: user)
-                let response = CameraPreview.LoginStatus.Response(signedInUser: userResult)
-                self.presenter?.presentLoginStatus(response: response)
-            case .Failure(let error):
-                let userResult = CameraPreview.UserResult<User?>.Failure(error: .cannotCheckLogin("\(error)"))
-                let response = CameraPreview.LoginStatus.Response(signedInUser: userResult)
-                self.presenter?.presentLoginStatus(response: response)
-            }
-        }
+        userWorker.fetchCurrentlyLoggedInUser()
+            .subscribe(
+                onNext: { [weak self] user in
+                    guard let self = self else { return }
+                    
+                    let userResult = CameraPreview.UserResult.Success(result: user)
+                    let response = CameraPreview.LoginStatus.Response(signedInUser: userResult)
+                    self.presenter?.presentLoginStatus(response: response)
+                },
+                onError: { [weak self] error in
+                    guard let self = self else { return }
+                    
+                    let userResult = CameraPreview.UserResult<User?>.Failure(error: .cannotCheckLogin("\(error)"))
+                    let response = CameraPreview.LoginStatus.Response(signedInUser: userResult)
+                    self.presenter?.presentLoginStatus(response: response)
+                }
+            )
+            .disposed(by: self.bag)
     }
     
     func signOut(_ request: CameraPreview.SignOut.Request) {
-        userWorker.logOut { [weak self] authResult in
-            guard let self = self else { return }
-            
-            switch authResult {
-            case .Success(let user):
-                let userResult = CameraPreview.UserResult<User>.Success(result: user)
-                let response = CameraPreview.SignOut.Response(signedOutUser: userResult)
-                self.presenter?.presentSignedOutUser(response: response)
-            case .Failure(let error):
-                let userResult = CameraPreview.UserResult<User>.Failure(error: .cannotSignOut("\(error)"))
-                let response = CameraPreview.SignOut.Response(signedOutUser: userResult)
-                self.presenter?.presentSignedOutUser(response: response)
-            }
-        }
+        userWorker.logOut()
+            .subscribe(
+                onNext: { user in
+                    let userResult = CameraPreview.UserResult<User>.Success(result: user)
+                    let response = CameraPreview.SignOut.Response(signedOutUser: userResult)
+                    self.presenter?.presentSignedOutUser(response: response)
+                },
+                onError: { error in
+                    let userResult = CameraPreview.UserResult<User>.Failure(error: .cannotSignOut("\(error)"))
+                    let response = CameraPreview.SignOut.Response(signedOutUser: userResult)
+                    self.presenter?.presentSignedOutUser(response: response)
+                }
+            )
+            .disposed(by: self.bag)
     }
     
     func applyFilter(_ request: CameraPreview.ApplyFilter.Request) {
         let filterId = request.filterId
         
-        userWorker.fetchCurrentlyLoggedInUser { [weak self] result in
-            guard let self = self else { return }
-            
-            switch result {
-            case .Success(let user):
-                self.filtersWorker.fetchFilter(user:user, filterId: filterId)
-            case .Failure(let error):
-                print(error)
-                self.filtersWorker.fetchFilter(user:nil, filterId: filterId)
-            }
-        }
+        userWorker.fetchCurrentlyLoggedInUser()
+            .subscribe(
+                onNext: { [weak self] user in
+                    guard let self = self else { return }
+                    
+                    self.filtersWorker.fetchFilter(user:user, filterId: filterId)
+                        .subscribe(
+                            onNext: { filter in
+                                self.appliedFilter = filter.ciFilter
+                            },
+                            onError: { error in
+                                print(error)
+                                self.appliedFilter = nil
+                            }
+                        )
+                        .disposed(by: self.bag)
+                },
+                onError: { [weak self] error in
+                    guard let self = self else { return }
+                    
+                    print(error)
+                    self.appliedFilter = nil
+                }
+            )
+            .disposed(by: self.bag)
     }
     
     func fetchFilters(_ request: CameraPreview.FetchFilters.Request) {
-        userWorker.fetchCurrentlyLoggedInUser { [weak self] result in
-            guard let self = self else { return }
-            
-            switch result {
-            case .Success(let user):
-                self.filtersWorker.fetchFilters(user: user)
-            case .Failure(let error):
-                print(error)
-                self.filtersWorker.fetchFilters(user: nil)
-            }
-        }
+        userWorker.fetchCurrentlyLoggedInUser()
+            .subscribe(
+                onNext: { [weak self] user in
+                    guard let self = self else { return }
+                    
+                    self.filtersWorker.fetchFilters(user: user)
+                        .subscribe(
+                            onNext: { filters in
+                                self.presentAllFilters(filters)
+                            },
+                            onError: { error in
+                                print(error)
+                                self.presentAllFilters([])
+                            }
+                        )
+                        .disposed(by: self.bag)
+                },
+                onError: { [weak self] error in
+                    guard let self = self else { return }
+                    
+                    print(error)
+                    self.presentAllFilters([])
+                }
+            )
+            .disposed(by: self.bag)
+    }
+    
+    private func presentAllFilters(_ filters: [CameraFilter]) {
+        let response = CameraPreview.FetchFilters.Response(filters: filters)
+        self.presenter?.presentAllFilters(response: response)
     }
     
     func selectPhoto(_ request: CameraPreview.SelectPhoto.Request) {
@@ -197,6 +190,7 @@ class CameraPreviewInteractor: NSObject, CameraPreviewBusinessLogic, CameraPrevi
         self.selectedPhoto = photo
     }
     
+    //MARK: - Private methods
     private func configureCaptureSession() {
         self.worker.cameraDevice.subscribe (
             onSuccess: { [weak self] cameraDevice in

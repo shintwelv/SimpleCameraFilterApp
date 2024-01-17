@@ -7,6 +7,7 @@
 
 import Foundation
 import CoreImage
+import RxSwift
 
 class FilterMemStore: LocalFiltersStoreProtocol {
     
@@ -24,41 +25,93 @@ class FilterMemStore: LocalFiltersStoreProtocol {
         return filters.compactMap {$0}
     }()
     
-    func fetchFilters(completionHandler: @escaping FiltersStoreFetchFiltersCompletionHandler) {
-        completionHandler(FiltersStoreResult.Success(result: type(of: self).filters))
-    }
-    
-    func fetchFilter(filterId: UUID, completionHandler: @escaping FiltersStoreFetchFilterCompletionHandler) {
-        if let index = indexOfFilterWithID(id: filterId) {
-            let filter = type(of: self).filters[index]
-            completionHandler(FiltersStoreResult.Success(result: filter))
-        } else {
-            completionHandler(FiltersStoreResult.Failure(error: FiltersStoreError.cannotFetch("해당 필터를 가져올 수 없습니다 id = \(filterId.uuidString)")))
+    func fetchFilters() -> Observable<[CameraFilter]> {
+        return Observable.create { [weak self] observer in
+            guard let self = self else {
+                observer.onError(FiltersStoreError.cannotFetch("self is not referenced"))
+                return Disposables.create()
+            }
+            
+            observer.onNext(type(of: self).filters)
+            observer.onCompleted()
+            
+            return Disposables.create()
         }
     }
     
-    func createFilter(filterToCreate: CameraFilter, completionHandler: @escaping FiltersStoreCreateFilterCompletionHandler) {
-        let filter = filterToCreate
-        type(of: self).filters.append(filter)
-        completionHandler(FiltersStoreResult.Success(result: filter))
-    }
-    
-    func updateFilter(filterToUpdate: CameraFilter, completionHandler: @escaping FiltersStoreUpdateFilterCompletionHandler) {
-        if let index = indexOfFilterWithID(id: filterToUpdate.filterId) {
-            type(of: self).filters[index] = filterToUpdate
-            let filter = type(of: self).filters[index]
-            completionHandler(FiltersStoreResult.Success(result: filter))
-        } else {
-            completionHandler(FiltersStoreResult.Failure(error: FiltersStoreError.cannotUpdate("해당 필터를 수정할 수 없습니다 id = \(filterToUpdate.filterId.uuidString)")))
+    func fetchFilter(filterId: UUID) -> Observable<CameraFilter> {
+        return Observable.create { [weak self] observer in
+            guard let self = self else {
+                observer.onError(FiltersStoreError.cannotFetch("self is not referenced"))
+                return Disposables.create()
+            }
+            
+            if let index = indexOfFilterWithID(id: filterId) {
+                let filter = type(of: self).filters[index]
+                observer.onNext(filter)
+                observer.onCompleted()
+            } else {
+                observer.onError(FiltersStoreError.cannotFetch("해당 필터를 가져올 수 없습니다 id = \(filterId.uuidString)"))
+            }
+            
+            return Disposables.create()
         }
     }
     
-    func deleteFilter(filterId: UUID, completionHandler: @escaping FiltersStoreDeleteFilterCompletionHandler) {
-        if let index = indexOfFilterWithID(id: filterId) {
-            let filter = type(of: self).filters.remove(at: index)
-            completionHandler(FiltersStoreResult.Success(result: filter))
-        } else {
-            completionHandler(FiltersStoreResult.Failure(error: FiltersStoreError.cannotDelete("해당 필터를 삭제할 수 없습니다 id = \(filterId.uuidString)")))
+    func createFilter(filterToCreate: CameraFilter) -> Observable<CameraFilter> {
+        return Observable.create { [weak self] observer in
+            guard let self = self else {
+                observer.onError(FiltersStoreError.cannotCreate("self is not referenced"))
+                return Disposables.create()
+            }
+            
+            type(of: self).filters.append(filterToCreate)
+            
+            observer.onNext(filterToCreate)
+            observer.onCompleted()
+            
+            return Disposables.create()
+        }
+    }
+    
+    func updateFilter(filterToUpdate: CameraFilter) -> Observable<CameraFilter> {
+        return Observable.create { [weak self] observer in
+            guard let self = self else {
+                observer.onError(FiltersStoreError.cannotUpdate("self is not referenced"))
+                return Disposables.create()
+            }
+            
+            if let index = indexOfFilterWithID(id: filterToUpdate.filterId) {
+                type(of: self).filters[index] = filterToUpdate
+                let filter = type(of: self).filters[index]
+                
+                observer.onNext(filter)
+                observer.onCompleted()
+            } else {
+                observer.onError(FiltersStoreError.cannotUpdate("해당 필터를 수정할 수 없습니다 id = \(filterToUpdate.filterId.uuidString)"))
+            }
+            
+            return Disposables.create()
+        }
+    }
+    
+    func deleteFilter(filterId: UUID) -> Observable<CameraFilter> {
+        return Observable.create { [weak self] observer in
+            guard let self = self else {
+                observer.onError(FiltersStoreError.cannotDelete("self is not referenced"))
+                return Disposables.create()
+            }
+            
+            if let index = indexOfFilterWithID(id: filterId) {
+                let filter = type(of: self).filters.remove(at: index)
+                
+                observer.onNext(filter)
+                observer.onCompleted()
+            } else {
+                observer.onError(FiltersStoreError.cannotDelete("해당 필터를 삭제할 수 없습니다 id = \(filterId.uuidString)"))
+            }
+            
+            return Disposables.create()
         }
     }
     

@@ -24,6 +24,7 @@
 		ED012EBE2B44E814002E0405 /* UserFirebaseStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED012EBD2B44E814002E0405 /* UserFirebaseStore.swift */; };
 		ED12A33B2B3A9337003C1012 /* FirebaseDatabase in Frameworks */ = {isa = PBXBuildFile; productRef = ED12A33A2B3A9337003C1012 /* FirebaseDatabase */; };
 		ED12A33D2B3A9473003C1012 /* FilterFirebaseStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED12A33C2B3A9473003C1012 /* FilterFirebaseStore.swift */; };
+		ED2638C32B462E6200C102C0 /* libNetworkManager.a in Frameworks */ = {isa = PBXBuildFile; fileRef = ED2638C22B462E6200C102C0 /* libNetworkManager.a */; };
 		ED442E6A2B195B5700A030C6 /* FiltersWorker.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED442E692B195B5700A030C6 /* FiltersWorker.swift */; };
 		ED442E6C2B19628900A030C6 /* FilterMemStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED442E6B2B19628900A030C6 /* FilterMemStore.swift */; };
 		ED7064FD2B3CEC7B00E725A7 /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = ED7064FC2B3CEC7B00E725A7 /* Alamofire */; };
@@ -98,6 +99,7 @@
 		ED012EBB2B44CF88002E0405 /* UserWorker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserWorker.swift; sourceTree = "<group>"; };
 		ED012EBD2B44E814002E0405 /* UserFirebaseStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserFirebaseStore.swift; sourceTree = "<group>"; };
 		ED12A33C2B3A9473003C1012 /* FilterFirebaseStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterFirebaseStore.swift; sourceTree = "<group>"; };
+		ED2638C22B462E6200C102C0 /* libNetworkManager.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libNetworkManager.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		ED442E692B195B5700A030C6 /* FiltersWorker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FiltersWorker.swift; sourceTree = "<group>"; };
 		ED442E6B2B19628900A030C6 /* FilterMemStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterMemStore.swift; sourceTree = "<group>"; };
 		ED6A15AA2B33BB1700C4A42D /* CameraFilterApp.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = CameraFilterApp.entitlements; sourceTree = "<group>"; };
@@ -146,6 +148,7 @@
 				EDB191212B2971E400DD1BA9 /* RxSwift in Frameworks */,
 				ED7064FD2B3CEC7B00E725A7 /* Alamofire in Frameworks */,
 				EDBE1C732B300CD000C41B37 /* FirebaseAnalyticsSwift in Frameworks */,
+				ED2638C32B462E6200C102C0 /* libNetworkManager.a in Frameworks */,
 				EDBE1C6F2B300CD000C41B37 /* FirebaseAnalytics in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -220,6 +223,7 @@
 		ED97385B2B29593F007030CC /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				ED2638C22B462E6200C102C0 /* libNetworkManager.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
